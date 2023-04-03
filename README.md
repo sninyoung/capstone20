@@ -18,7 +18,17 @@
 
 
 ## 2. 개발환경
-플러터-다트 / node.js / 인텔리제이 / AWS / oracle cloud /express
+프론트 엔드:
+  플러터-다트 
+백엔드:
+  Node.js / Express  
+서버:
+  AWS(API서버) / oracle cloud(데이터베이스)
+개발툴:
+  인텔리제이 / VSCode / FileZilla / DataGrip / Postman
+협업툴:
+  슬랙 / 메터모스트 / Git / 
+
 
 
 ## 3. 메인 화면 및 컨셉
