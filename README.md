@@ -19,15 +19,15 @@
 
 ## 2. 개발환경
 프론트 엔드:
-  플러터-다트 
+  플러터-다트<br>
 백엔드:
-  Node.js / Express    
+  Node.js / Express<br>
 서버:
-  AWS(API서버) / oracle cloud(데이터베이스). 
+  AWS(API서버) / oracle cloud(데이터베이스)<br>
 개발툴:
-  인텔리제이 / VSCode / FileZilla / DataGrip / Postman  
+  인텔리제이 / VSCode / FileZilla / DataGrip / Postman<br> 
 협업툴:
-  슬랙 / 메터모스트 / Git /   
+  슬랙 / 메터모스트 / Git<br>  
 
 
 
