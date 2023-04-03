@@ -18,7 +18,7 @@
 
 
 ## 2. 개발환경
-플러터-다트 / JAVA / 인텔리제이 / AWS / oracle cloud /express
+플러터-다트 / node.js / 인텔리제이 / AWS / oracle cloud /express
 
 
 ## 3. 메인 화면 및 컨셉
