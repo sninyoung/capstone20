@@ -34,3 +34,9 @@
 ## 3. 메인 화면 및 컨셉
 
 ![image](https://user-images.githubusercontent.com/97935451/229548580-ec5e7ab2-46a9-4735-90f2-7ac0def66c1a.png)
+
+
+
+## 4. 인텔리제이-깃허브 연결 방법
+![image](https://user-images.githubusercontent.com/97935451/229551574-2f67f0df-c68d-4e7a-b7e1-90923813ac54.png)
+File - New - Project From Version Control... 클릭 후 깃허브 주소 입력.
