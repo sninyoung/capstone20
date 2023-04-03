@@ -1,12 +1,12 @@
 # 목차
 
-[0. 개요 및 목적](https://github.com/malgumi/Capstone/blob/main/README.md#0-%EA%B0%9C%EC%9A%94-%EB%B0%8F-%EB%AA%A9%EC%A0%81)
+[0. 개요 및 목적](https://github.com/malgumi/capstone_all#0-%EA%B0%9C%EC%9A%94-%EB%B0%8F-%EB%AA%A9%EC%A0%81)
 
-[1. 개발환경 설치 가이드라인](https://github.com/malgumi/Capstone/blob/main/README.md#1-%EB%A7%A1%EC%9D%80-%EA%B8%B0%EB%8A%A5)
+[1. 개발환경 설치 가이드라인](https://github.com/malgumi/capstone_all#1-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%B9%98-%EA%B0%80%EC%9D%B4%EB%93%9C%EB%9D%BC%EC%9D%B8)
 
-[2. 개발환경](https://github.com/malgumi/Capstone/blob/main/README.md#2-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD)
+[2. 개발환경](https://github.com/malgumi/capstone_all#2-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD)
 
-[3. 메인 화면 및 컨셉](https://github.com/malgumi/Capstone/blob/main/README.md#3-%ED%99%94%EB%A9%B4-%EC%B4%88%EA%B8%B0-%EA%B5%AC%EC%83%81)
+[3. 메인 화면 및 컨셉](https://github.com/malgumi/capstone_all#3-%EB%A9%94%EC%9D%B8-%ED%99%94%EB%A9%B4-%EB%B0%8F-%EC%BB%A8%EC%85%89)
 
 
 ## 0. 개요 및 목적
