@@ -291,12 +291,10 @@ class _PostScreenState extends State<PostScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      overflow: TextOverflow.ellipsis, // 댓글 내용이 길어질 때 ...로 표시
-                                      maxLines: 3, // 최대 3줄까지 출력
-                                      snapshot.data![index]['comment_content'].toString(),
-                                      style: TextStyle(
-                                        fontSize: 14.0,
+                                    Expanded(
+                                      child: Text(
+                                        snapshot.data![index]['comment_content'].toString(),
+                                        textAlign: TextAlign.left,
                                       ),
                                     ),
                                     IconButton(
