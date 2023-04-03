@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // JSON Encode, Decode를 위한 패키지
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // flutter_secure_storage 패키지
-import 'package:capstone/screens/login_form.dart';
+import 'package:capstone/screens/login/login_form.dart';
 
 /// 회원가입 화면
 class SignUpPage extends StatefulWidget {

@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:capstone/screens/EditPostScreen.dart';
+import 'package:capstone/screens/post/EditPostScreen.dart';
 
 class PostScreen extends StatefulWidget {
   final dynamic post;

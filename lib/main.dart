@@ -1,12 +1,10 @@
-import 'package:capstone/screens/notice.dart';
+import 'package:capstone/screens/post/notice.dart';
 import 'package:flutter/material.dart';
-import 'package:capstone/screens/party_board.dart';
-import 'package:capstone/screens/free_board.dart';
-import 'package:capstone/screens/login_form.dart';
-import 'package:http/http.dart' as http;
+import 'package:capstone/screens/post/party_board.dart';
+import 'package:capstone/screens/post/free_board.dart';
+import 'package:capstone/screens/login/login_form.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert';
-import 'package:capstone/screens/profile.dart';
+import 'package:capstone/screens/login/profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,9 +29,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _errorMessage = '';
-  bool _isLoading = false;
 
   void logout() async {
     final storage = new FlutterSecureStorage();
