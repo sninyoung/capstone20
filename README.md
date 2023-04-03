@@ -8,6 +8,8 @@
 
 [3. 메인 화면 및 컨셉](https://github.com/malgumi/capstone_all#3-%EB%A9%94%EC%9D%B8-%ED%99%94%EB%A9%B4-%EB%B0%8F-%EC%BB%A8%EC%85%89)
 
+[4. 인텔리제이-깃허브 연결 방법](https://github.com/malgumi/capstone_all/blob/master/README.md#4-%EC%9D%B8%ED%85%94%EB%A6%AC%EC%A0%9C%EC%9D%B4-%EA%B9%83%ED%97%88%EB%B8%8C-%EC%97%B0%EA%B2%B0-%EB%B0%A9%EB%B2%95)
+
 
 ## 0. 개요 및 목적
 2023년도 캡스톤 디자인 과목 수강
