@@ -79,7 +79,7 @@ class _PostScreenState extends State<PostScreen> {
 
   //댓글 삭제
   Future<void> _deleteComment(int commentId) async {
-    final url = Uri.parse('http://3.39.88.187:3000/post/deletecomment?comment_id=$commentId');
+    final url = Uri.parse('http://3.39.88.187:3000/post/deletecomment/$commentId');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     print(token);
@@ -90,7 +90,7 @@ class _PostScreenState extends State<PostScreen> {
       });
       return;
     }
-    final response = await http.delete(
+    final response = await http.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
