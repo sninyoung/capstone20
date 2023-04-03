@@ -11,18 +11,18 @@
 migrate_working_dir/
 
 #여기부터
-.metadata
-analysis_options.yaml
+#.metadata
+#analysis_options.yaml
 #pubspec.yaml
-pubspec.lock
-android/
-assets/
-ios/
-linux/
-macos/
-test/
-windows/
-web/
+#pubspec.lock
+#android/
+#assets/
+#ios/
+#linux/
+#macos/
+#test/
+#windows/
+#web/
 #여기까지
 
 # IntelliJ related
