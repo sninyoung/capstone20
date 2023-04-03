@@ -21,13 +21,13 @@
 프론트 엔드:
   플러터-다트 
 백엔드:
-  Node.js / Express  
+  Node.js / Express    
 서버:
-  AWS(API서버) / oracle cloud(데이터베이스)
+  AWS(API서버) / oracle cloud(데이터베이스). 
 개발툴:
-  인텔리제이 / VSCode / FileZilla / DataGrip / Postman
+  인텔리제이 / VSCode / FileZilla / DataGrip / Postman  
 협업툴:
-  슬랙 / 메터모스트 / Git / 
+  슬랙 / 메터모스트 / Git /   
 
 
 
