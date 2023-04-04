@@ -41,4 +41,12 @@
 
 ## 4. 인텔리제이-깃허브 연결 방법
 ![image](https://user-images.githubusercontent.com/97935451/229551574-2f67f0df-c68d-4e7a-b7e1-90923813ac54.png)
-File - New - Project From Version Control... 클릭 후 깃허브 주소 입력.
+File - New - Project From Version Control... 클릭 후 깃허브 주소 입력.<br>
+이후 새로 생긴 프로젝트 폴더에 깃허브에 올라와 있는 파일들이 다운될 것. 그러면 깃 자동 연결 완료<br>
+
+![image](https://user-images.githubusercontent.com/97935451/229814023-6d1e3c23-6dfa-474a-b151-8bd64697e653.png)
+
+<b>!! 깃허브에 push 하기 전에 꼭 pull받아야 충돌 안 남!!</b><br>
+![image](https://user-images.githubusercontent.com/97935451/229815040-24a89a34-f083-445e-9601-ca5ccfb2e8d7.png)
+
+<br>pull 받은 후 최신 버전이라면 commit 눌러서 변경 내용 확인 후 커밋 메시지 작성 후 push
