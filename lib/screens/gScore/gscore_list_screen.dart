@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:capstone/screens/gScore/gscore_apcCt.dart';
-import 'package:capstone/screens/gScore/gscore_Application.dart';
+import 'package:capstone/screens/gScore/gscore_modify_screen.dart';
+import 'package:capstone/screens/gScore/gscore_regist_screen.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 //신청글 목록 창
@@ -111,7 +110,7 @@ class _GScoreForm extends State<GScoreForm> {
           ),
         );
         setState(() {
-          final _posts = _fetchPosts();
+          //final _posts = _fetchPosts();
         });
       },
       child: Padding(

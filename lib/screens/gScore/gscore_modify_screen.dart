@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
-import 'package:capstone/screens/gScore/gscore_form.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -21,7 +20,6 @@ class GScoreApcCt extends StatefulWidget {
 
 class _GScoreApcCtState extends State<GScoreApcCt> {
   String? _selectedActivityType;
-  dynamic _post;
 
   int _permissionValue = 0;
   @override
