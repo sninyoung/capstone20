@@ -5,6 +5,8 @@ import 'package:capstone/screens/post/free_board.dart';
 import 'package:capstone/screens/login/login_form.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/login/profile.dart';
+import 'package:capstone/screens/gScore/gscore_form.dart';
+import 'package:capstone/screens/gScore/self_calc_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => MyHomePage()),
-      (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
     );
   }
 
@@ -111,6 +113,40 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 '자유게시판',
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                backgroundColor: Color(0xffC1D3FF),
+              ),
+            ),
+            SizedBox(height: 20.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GScoreForm()),
+                );
+              },
+              child: Text(
+                '졸업점수 신청및 내역',
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                backgroundColor: Color(0xffC1D3FF),
+              ),
+            ),
+            SizedBox(height: 20.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SelfCalcScreen()),
+                );
+              },
+              child: Text(
+                '졸업점수 셀프 계산기',
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
