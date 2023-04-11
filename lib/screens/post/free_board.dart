@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:capstone/screens/post/PostScreen.dart';
 import 'package:capstone/screens/post/WritePostScreen.dart';
 import 'package:intl/intl.dart';
-
+import 'package:capstone/screens/post/party_board.dart';
+import 'package:capstone/main.dart';
+import 'package:capstone/drawer.dart';
 void main() {
   runApp(MaterialApp(
     title: '자유게시판 앱',
@@ -36,6 +38,21 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
     }
   }
 
+  //댓글 갯수 표시 기능 구현중
+  Future _fetchCommentsCount() async {
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/post/commentsAll'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load comments count');
+    }
+  }
+
+
+
+
   Widget _buildPostItem(BuildContext context, dynamic post) {
     return GestureDetector(
       onTap: () async {
@@ -56,14 +73,6 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.0),
             color: Colors.white,
-            /*boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],*/
             border: Border.all(
               width: 2,
               color: Colors.grey.withOpacity(0.5),
@@ -107,6 +116,37 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
                       color: Colors.grey,
                     ),
                   ),
+                  //댓글 갯수 표시 기능 구현중
+                  // StreamBuilder(
+                  //   stream: _fetchCommentsCount().asStream(),
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.hasData) {
+                  //       final comments = snapshot.data;
+                  //       int commentCount = 0;
+                  //       if (comments is List) {
+                  //         final matchingComments = comments?.where((comment) => comment['post_id'] == post['post_id']);
+                  //         if (matchingComments != null && matchingComments.isNotEmpty) {
+                  //           commentCount = matchingComments.first['comment_count'];
+                  //         }
+                  //       }
+                  //       return Text(
+                  //         '댓글 $commentCount',
+                  //         style: TextStyle(
+                  //           fontSize: 14.0,
+                  //           color: Colors.grey,
+                  //         ),
+                  //       );
+                  //     } else {
+                  //       return Text(
+                  //         '로딩 중...',
+                  //         style: TextStyle(
+                  //           fontSize: 14.0,
+                  //           color: Colors.grey,
+                  //         ),
+                  //       );
+                  //     }
+                  //   },
+                  // ),
                 ],
               ),
             ],
@@ -115,6 +155,10 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
       ),
     );
   }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +176,7 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
         centerTitle: true,
         elevation: 0.0,
       ),
+      drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<List<dynamic>>(

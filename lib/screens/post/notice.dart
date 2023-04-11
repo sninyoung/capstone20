@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import 'package:capstone/drawer.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -22,6 +23,7 @@ class Notice extends StatelessWidget {
           centerTitle: true,
           backgroundColor: Color(0xffC1D3FF),
         ),
+        drawer: MyDrawer(),
         backgroundColor: Colors.white,
 
         body: Column(
