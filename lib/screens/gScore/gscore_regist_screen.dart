@@ -37,11 +37,6 @@ class _GScoreApcState extends State<GScoreApc> {
         if (!activityTypes.contains(gsinfoType)) {
           activityTypes.add(gsinfoType);
           activityNames[gsinfoType] = {};
-
-          setState(() {
-            activityTypes = activityTypes;
-            activityNames = activityNames;
-          });
         }
 
         String gsinfoName = item['gsinfo_name'];
@@ -51,6 +46,11 @@ class _GScoreApcState extends State<GScoreApc> {
           activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
       }
+      setState(() {
+        activityTypes;
+        activityNames;
+      });
+
     } else {
       throw Exception('Failed to load posts');
     }
@@ -99,11 +99,14 @@ class _GScoreApcState extends State<GScoreApc> {
       'gspost_content': _content,
       'gspost_pass': _applicationStatus,
       'gspost_reason': _rejectionReason,
-      'gspost_start_date': _startDate,
-      'gspost_end_date': _endDate,
+      'gspost_start_date': _startDate?.toIso8601String(),
+      'gspost_end_date': _endDate?.toIso8601String(),
 
       'gspost_file': null, //
+
     };
+
+
     final response = await http.post(
       Uri.parse('http://3.39.88.187:3000/gScore/write'),
       headers: <String, String>{
@@ -118,18 +121,11 @@ class _GScoreApcState extends State<GScoreApc> {
     if (response.statusCode == 201) {
       // Success
       Navigator.pop(context);
-    } else {
-      // Failure
-      final responseData = jsonDecode(response.body);
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
   bool isEditable = false;
   bool _isLoading = false;
-
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
 
@@ -153,7 +149,7 @@ class _GScoreApcState extends State<GScoreApc> {
   int? _TopcitScore;
 
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
-  String _applicationStatus = '승인 대기';
+  String _applicationStatus = '대기';
 
   //비고란
   String? _content;
@@ -197,30 +193,7 @@ class _GScoreApcState extends State<GScoreApc> {
     });
   }
 
-  void _calculateResult() {
-    if (_startDate != null && _endDate != null) {
-      final duration = _endDate!.difference(_startDate!).inDays + 1;
-      _period = duration * 2;
-      if(_activityType == '인턴쉽'){
-        if ((_period ?? 0) > 300){
-          _period = 300;
-        }
-        if ((_period ?? 0) < 100){
-          _period = 0;
-        }
-      }
-      if(_activityType == '해외 연수'){
-        if ((_period ?? 0) > 200){
-          _period = 200;
-        }
-        if ((_period ?? 0) < 100){
-          _period = 0;
-        }
-      }
-    } else {
-      _period = null;
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +280,6 @@ class _GScoreApcState extends State<GScoreApc> {
                             );
                             setState(() {
                               _startDate = selectedDate;
-                              _calculateResult();
                             });
                           },
                           controller: TextEditingController(
@@ -338,7 +310,6 @@ class _GScoreApcState extends State<GScoreApc> {
                             );
                             setState(() {
                               _endDate = selectedDate;
-                              _calculateResult();
                             });
                           },
                           controller: TextEditingController(
@@ -424,8 +395,8 @@ class _GScoreApcState extends State<GScoreApc> {
                     ),
                     value: _applicationStatus,
                     items: const [
-                      DropdownMenuItem(value: '승인 대기', child: Text('승인 대기')),
-                      DropdownMenuItem(value: '승인 완료', child: Text('승인 완료')),
+                      DropdownMenuItem(value: '대기', child: Text('대기')),
+                      DropdownMenuItem(value: '승인', child: Text('승인')),
                       DropdownMenuItem(value: '반려', child: Text('반려')),
                     ],
                     onChanged: isEditable

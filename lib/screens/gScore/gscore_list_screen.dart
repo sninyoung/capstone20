@@ -24,14 +24,14 @@ class GScoreForm extends StatefulWidget {
 }
 
 class _GScoreForm extends State<GScoreForm> {
-  //late Future<List<dynamic>> _posts;
-  late Future<dynamic> _posts;
+
+  late Future<dynamic> _posts =  Future(() => null);
+
   @override
   void initState() {
     super.initState();
     checkUserLoginStatus();
-    _posts = _fetchPosts();
-
+    _fetchMyPosts();
   }
 
 
@@ -58,39 +58,13 @@ class _GScoreForm extends State<GScoreForm> {
           );
         },
       );
-
     }
-
   }
 
-
-  /* //권한따라 다른 게시글 불러오기
+  
+/*
+  //전체 게시글 로드
   Future<List<dynamic>> _fetchAllPosts() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    print(token);
-    if (token != null) {
-      final response = await http.get(
-        Uri.parse('http://3.39.88.187:3000/gScore/testapi'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token', //
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to load posts');
-      }
-    } else {
-      throw Exception('Token is null');
-    }
-  }
-  */
-
-  //일단은 전체게시글
-  Future<List<dynamic>> _fetchPosts() async {
     final response = await http
         .get(Uri.parse('http://3.39.88.187:3000/gScore/'));
     if (response.statusCode == 200) {
@@ -99,6 +73,39 @@ class _GScoreForm extends State<GScoreForm> {
       throw Exception('Failed to load posts');
     }
   }
+*/
+  
+
+  Future<void> _fetchMyPosts() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if(token == null){
+      return ;
+    }
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/posts'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      _posts = Future.value(data);
+      setState(() {
+        _posts;
+      });
+    } else if(response.statusCode == 401){
+      throw Exception('로그인 정보 만료됨');
+    }
+    else if(response.statusCode == 500){
+      throw Exception('서버 에러');
+    }
+  }
+
+
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
     return GestureDetector(
@@ -110,7 +117,7 @@ class _GScoreForm extends State<GScoreForm> {
           ),
         );
         setState(() {
-          //final _posts = _fetchPosts();
+          //final _posts = _fetchAllPosts();
         });
       },
       child: Padding(
