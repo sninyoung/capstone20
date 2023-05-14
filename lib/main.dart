@@ -4,7 +4,9 @@ import 'package:capstone/screens/login/login_form.dart';
 import 'package:capstone/screens/login/profile.dart';
 import 'package:capstone/drawer.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -96,4 +98,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-

@@ -129,9 +129,9 @@ class _WritePostScreenState extends State<WritePostScreen> {
                   onPressed: _isLoading ? null : _submitForm,
                   child: _isLoading
                       ? CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
+                    valueColor:
+                    AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
                       : Text('작성', style: TextStyle(fontSize: 18.0)),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 12.0),

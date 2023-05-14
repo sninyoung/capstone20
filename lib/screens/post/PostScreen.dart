@@ -111,6 +111,96 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  //댓글 수정
+  Future<void> _editComment(int commentId, String content) async {
+    final url = Uri.parse('http://3.39.88.187:3000/post/updatecomment/$commentId');
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        _errorMessage = '토큰이 없습니다.';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 수정에 실패했습니다.(로그인 만료)')));
+      });
+      return;
+    }
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+      body: jsonEncode( {
+        'comment_content': content,
+      }),
+    );
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 수정되었습니다.')));
+      setState(() {
+        comments = fetchComments();
+      });
+    }
+    else if (response.statusCode == 300){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 권한이 없습니다.')));
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 수정에 실패했습니다.')));
+    }
+  }
+
+
+//댓글 수정 폼
+  void _showEditCommentForm(int commentId, String originalContent) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final _formKey = GlobalKey<FormState>();
+        final _contentController = TextEditingController(text: originalContent);
+        return AlertDialog(
+          title: Text('댓글 수정'),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _contentController,
+                  decoration: InputDecoration(
+                    labelText: '댓글 내용',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '내용을 입력해주세요.';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  final content = _contentController.text;
+                  _editComment(commentId, content);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('저장'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   void _navigateToEditPostScreen() async{
     setState(() => _isLoading = true);
@@ -298,6 +388,12 @@ class _PostScreenState extends State<PostScreen> {
                                       ),
                                     ),
                                     IconButton(
+                                      icon: Icon(Icons.edit_outlined),
+                                      iconSize: 18,
+                                      color: Colors.grey,
+                                      onPressed: () => _showEditCommentForm(snapshot.data![index]['comment_id'], snapshot.data![index]['comment_content']),
+                                    ),
+                                    IconButton(
                                       icon: Icon(Icons.cancel_outlined),
                                       iconSize: 18,
                                       color: Colors.grey,
@@ -320,6 +416,7 @@ class _PostScreenState extends State<PostScreen> {
                           );
                         },
                       ),
+
                     );
                   }
                 } else if (snapshot.hasError) {

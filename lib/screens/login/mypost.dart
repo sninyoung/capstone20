@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/post/PostScreen.dart';
-import 'package:capstone/screens/post/WritePostScreen.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone/drawer.dart';
 void main() {
   runApp(MaterialApp(
-    title: '자유게시판 앱',
-    home: FreeBoardScreen(),
+    title: '내가 쓴 글',
+    home: MyPost(),
   ));
 }
 
-class FreeBoardScreen extends StatefulWidget {
+class MyPost extends StatefulWidget {
   @override
-  _FreeBoardScreenState createState() => _FreeBoardScreenState();
+  _MyPostState createState() => _MyPostState();
 }
 
-class _FreeBoardScreenState extends State<FreeBoardScreen> {
+class _MyPostState extends State<MyPost> {
   late Future<List<dynamic>> _posts;
 
   @override
@@ -25,13 +25,32 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
     super.initState();
     _posts = _fetchPosts();
   }
+  String _errorMessage = '';
+  bool _isLoading = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<List<dynamic>> _fetchPosts() async {
-    final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/post/posts?board_id=1'));
-    if (response.statusCode == 200) {
+    setState(() => _isLoading = true);
+
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      // 예외 처리
+      throw Exception('Failed to load token');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/post/mypost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
+
       throw Exception('Failed to load posts');
     }
   }
@@ -80,6 +99,19 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
+                post['board_id'] == 1
+                    ? '자유게시판'
+                    : post['board_id'] == 2
+                    ? '구인구직게시판'
+                    : post['board_id'] == 4
+                    ? 'QNA'
+                    : '', // 99인 경우 아무것도 출력하지 않음
+                style: TextStyle(
+                  fontSize: 10.0,
+
+                ),
+              ),
+              Text(
                 post['post_title'],
                 style: TextStyle(
                   fontSize: 18.0,
@@ -114,37 +146,6 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
                       color: Colors.grey,
                     ),
                   ),
-                  //댓글 갯수 표시 기능 구현중
-                  // StreamBuilder(
-                  //   stream: _fetchCommentsCount().asStream(),
-                  //   builder: (context, snapshot) {
-                  //     if (snapshot.hasData) {
-                  //       final comments = snapshot.data;
-                  //       int commentCount = 0;
-                  //       if (comments is List) {
-                  //         final matchingComments = comments?.where((comment) => comment['post_id'] == post['post_id']);
-                  //         if (matchingComments != null && matchingComments.isNotEmpty) {
-                  //           commentCount = matchingComments.first['comment_count'];
-                  //         }
-                  //       }
-                  //       return Text(
-                  //         '댓글 $commentCount',
-                  //         style: TextStyle(
-                  //           fontSize: 14.0,
-                  //           color: Colors.grey,
-                  //         ),
-                  //       );
-                  //     } else {
-                  //       return Text(
-                  //         '로딩 중...',
-                  //         style: TextStyle(
-                  //           fontSize: 14.0,
-                  //           color: Colors.grey,
-                  //         ),
-                  //       );
-                  //     }
-                  //   },
-                  // ),
                 ],
               ),
             ],
@@ -163,7 +164,7 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '자유게시판',
+          '내가 쓴 글',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -198,24 +199,6 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
             );
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WritePostScreen(boardId: 1),
-            ),
-          ).then((value) {
-            if (value == true) {
-              setState(() {
-                _posts = _fetchPosts();
-              });
-            }
-          });
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Color(0xffC1D3FF),
       ),
     );
   }

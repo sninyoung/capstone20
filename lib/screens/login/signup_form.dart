@@ -15,6 +15,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController student_id = TextEditingController();
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
+  TextEditingController verificationCode = TextEditingController(); // 이메일 인증번호 입력 필드 추가
   TextEditingController password= TextEditingController();
   TextEditingController password2 = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -29,6 +30,7 @@ class _SignUpPageState extends State<SignUpPage> {
     student_id = TextEditingController(text: "");
     name = TextEditingController(text: "");
     email = TextEditingController(text: "");
+    verificationCode = TextEditingController(text: "");
     password = TextEditingController(text: "");
     password2 = TextEditingController(text: "");
   }
@@ -38,24 +40,21 @@ class _SignUpPageState extends State<SignUpPage> {
     student_id.dispose();
     name.dispose();
     email.dispose();
+    verificationCode.dispose();
     password.dispose();
     password2.dispose();
     super.dispose();
   }
 
-  Future<void> signup(String student_id, String email, String name, String password, int grade) async {
-    final String apiUrl='http://3.39.88.187:3000/user/signup';
-    final String studentId = student_id.trim();
-    final String nameValue = name.trim();
-    final String emailValue = email.trim();
-    final String passwordValue = password.trim();
-    final String password2Value = password.trim();
-    final int gradeValue = grade;
+  Future<void> sendVerificationEmail(String email) async { //인증메일 발송 함수
+    final String apiUrl = 'http://3.39.88.187:3000/user/sendverificationemail';
 
-    if (passwordValue != password2Value) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("비밀번호가 다릅니다."),
-      ));
+    if (!email.endsWith("@gm.hannam.ac.kr")) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("이메일 형식이 올바르지 않습니다."),
+        ),
+      );
       return;
     }
 
@@ -66,11 +65,75 @@ class _SignUpPageState extends State<SignUpPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
+          'email': email,
+        }),
+      );
+
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("인증 이메일이 발송되었습니다."),
+          ),
+        );
+
+        final jsonResponse = jsonDecode(response.body);
+        final storage = FlutterSecureStorage();
+        await storage.write(key: 'verificationCode', value: jsonResponse['verificationCode']);
+        return null;
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("인증 이메일 발송에 실패했습니다."),
+          ),
+        );
+      }
+    } catch (error) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("오류났습니다."),
+        ),
+      );
+    }
+  }
+
+  Future<void> signup(String student_id, String email, String verificationCode, String name, String password, int grade) async {
+    final String apiUrl='http://3.39.88.187:3000/user/signup';
+    final String studentId = student_id.trim();
+    final String nameValue = name.trim();
+    final String emailValue = email.trim();
+    final String passwordValue = password.trim();
+    final String password2Value = password.trim();
+    final int gradeValue = grade;
+    final String _verificationCode = verificationCode.trim();
+    print("실행됨");
+
+    if (passwordValue != password2Value) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("비밀번호가 다릅니다."),
+      ));
+      return;
+    }
+
+    try {
+      final storage = FlutterSecureStorage();
+      final verificationCode = await storage.read(key: 'verificationCode');
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
           'student_id': studentId,
           'name': nameValue,
           'email': emailValue,
+          'verificationCode': verificationCode,
           'password': passwordValue,
           'grade': gradeValue,
+          '_verificationCode' : _verificationCode,
         }),
       );
 
@@ -88,7 +151,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("회원 가입에 성공?했습니다"),
+          content: Text("회원 가입에 실패?했습니다"),
         ));
       }
     } catch (error) {
@@ -189,13 +252,62 @@ class _SignUpPageState extends State<SignUpPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: email,
-                  validator: (value) =>
-                  (value!.isEmpty) ? "이메일을 입력 해 주세요" : null,
+                  validator: (value) {
+                    if (value!.isEmpty) { return "이메일을 입력 해 주세요"; }
+                    else if (!value.endsWith("@gm.hannam.ac.kr")) {
+                      return "이메일 형식이 올바르지 않습니다";
+                    }
+                    return null;
+                  },
+
                   style: style,
                   decoration: InputDecoration(
                       labelText: "이메일", border: OutlineInputBorder()),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Material(
+                  elevation: 5.0,
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: const Color(0xffC1D3FF),
+                  child: MaterialButton(
+                    onPressed: () async {
+                      try {
+                        // 이메일 인증번호 확인
+                        await sendVerificationEmail(email.text);
+                        // 회원가입 요청을 서버로 전송
+                      } catch (error) {
+                        print(error);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("인증메일 발송에 실패했습니다."),
+                        ));
+                      }
+                    },
+                    child: Text(
+                      "인증하기",
+                      style: style.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              // 이메일 인증번호 입력 필드
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextFormField(
+                  controller: verificationCode,
+                  validator: (value) =>
+                  (value!.isEmpty) ? "인증번호를 입력 해 주세요" : null,
+                  style: style,
+                  decoration: InputDecoration(
+                    labelText: "인증번호",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+
+
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
@@ -252,6 +364,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         _showGradeSelectionDialog();
                       },
                       child: Text('선택'),
+
                     ),
 
                   ],
@@ -268,7 +381,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         try {
-                          await signup(student_id.text, email.text, name.text, password.text, gradeValue);
+                          await signup(student_id.text, email.text, verificationCode.text, name.text, password.text, gradeValue);
+                          // 회원가입 성공 시 로그인 화면으로 이동
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => LoginPage()),
