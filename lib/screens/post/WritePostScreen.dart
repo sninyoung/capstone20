@@ -77,7 +77,7 @@ class _WritePostScreenState extends State<WritePostScreen> {
       appBar: AppBar(
         title: Text('글쓰기',
             style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.indigo,
+        backgroundColor: Color(0xffC1D3FF),
         centerTitle: true,
       ),
       body: Container(
@@ -95,7 +95,7 @@ class _WritePostScreenState extends State<WritePostScreen> {
                     hintText: '제목 ',
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.indigo)),
+                        borderSide: BorderSide(color: Color(0xffC1D3FF))),
                   ),
                   style: TextStyle(fontSize: 18.0),
                   validator: (value) {
@@ -112,7 +112,7 @@ class _WritePostScreenState extends State<WritePostScreen> {
                     hintText: '내용',
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.indigo)),
+                        borderSide: BorderSide(color: Color(0xffC1D3FF))),
                   ),
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
@@ -137,7 +137,7 @@ class _WritePostScreenState extends State<WritePostScreen> {
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
-                    primary: Colors.indigo,
+                    primary: Color(0xffC1D3FF),
                     textStyle: TextStyle(fontSize: 18.0),
                   ),
                 ),
