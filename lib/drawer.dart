@@ -1,3 +1,5 @@
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
+import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/login/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone/main.dart';
@@ -172,6 +174,28 @@ class _MyDrawerState extends State<MyDrawer> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => QnABoardScreen()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.subdirectory_arrow_left, color: Colors.grey[800]),
+                  title: Text('졸업점수 신청 및 내역'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GScoreForm()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.calculate, color: Colors.grey[800]),
+                  title: Text('졸업 점수 셀프 계산기'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SelfCalcScreen()),
                     );
                   },
                 ),
