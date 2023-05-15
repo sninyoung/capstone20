@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -24,9 +26,22 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   }
   String? _activityType;
 
+  String? _selectType;
+
   String? _activityName;
 
+  int? _score;
+
   final List<Map<String, dynamic>> _save = [];
+
+  Map<String, dynamic> MaxScore = {"S/W공모전":600,"상담실적":150, "외국어능력":500, "인턴십":300, "자격증":600,
+    "졸업작품입상":100, "총점":1000, "취업훈련":150, "취업/대학원진학":850, "캡스톤디자인":0,"학과행사":150,"해외연수":200};
+
+  Map<String?,int> eachMaxTotal = {"S/W공모전":0,"상담실적":0, "외국어능력":0, "인턴쉽":0, "자격증":0,
+    "졸업작품입상":0, "총점":0, "취업훈련":0, "취업/대학원진학":0, "캡스톤디자인":0,"학과행사":0,"해외연수":0};
+
+  Map<String?,int> eachTotal = {"S/W공모전":0,"상담실적":0, "외국어능력":0, "인턴쉽":0, "자격증":0,
+    "졸업작품입상":0, "총점":0, "취업훈련":0, "취업/대학원진학":0, "캡스톤디자인":0,"학과행사":0,"해외연수":0};
 
   int _total = 0;
 
@@ -35,26 +50,10 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   List<String> activityTypes = [];
 
   Map<String, Map<String,int>> activityNames = {
-    '상담 실적': {'1':10,'2':20,'3':30,'4':40,'5':50,'6':60,'7':70,'8':80,'9':90,'10':100,'11':110,'12':120,'13':130,'14':140,'15':150},
-    '해외 연수': {'30~39일':50, '40~49일':80, '50일':100,'51일':102, '52일':104,'53일':106,'54일':108,'55일':110,'56일':112,'57일':124,'58일':126,
-      '59일':128,'60일':120,'61일':122,'62일':124,'63일':126,'64일':128,'65일':130,'66일':132,'67일':134,'68일':136,'69일':138, '70일':140,'71일':142,
-      '72일':144,'73일':146,'74일':148,'75일':150,'76일':152,'77일':154,'78일':156,'79일':158,'80일':160,'81일':162,'82일':164,'83일':166,'84일':168,
-      '85일':170,'86일':172, '87일':174,'88일':176,'89일':178,'90일':180,'91일':182,'92일':184,'93일':186,'94일':188,'95일':190,'96일':192,'97일':194,
-      '98일':196,'99일':198,'100일 이상':200
-    },
-    '인턴쉽': {'30~39일':50, '40~49일':80, '50일':100,'51일':102, '52일':104,'53일':106,'54일':108,'55일':110,'56일':112,'57일':124,'58일':126,
-      '59일':128,'60일':120,'61일':122,'62일':124,'63일':126,'64일':128,'65일':130,'66일':132,'67일':134,'68일':136,'69일':138, '70일':140,'71일':142,
-      '72일':144,'73일':146,'74일':148,'75일':150,'76일':152,'77일':154,'78일':156,'79일':158,'80일':160,'81일':162,'82일':164,'83일':166,'84일':168,
-      '85일':170,'86일':172, '87일':174,'88일':176,'89일':178,'90일':180,'91일':182,'92일':184,'93일':186,'94일':188,'95일':190,'96일':192,'97일':194,
-      '98일':196,'99일':198,'100일':200,'101일':202,'102일':204, '103일':206,'104일':208,'105일':210,'106일':212,'107일':214,'108일':216,'109일':218,
-      '110일':220,'111일':222,'112일':224,'113일':226, '114일':228,'115일':230,'116일':232,'117일':234,'118일':236,'119일':238,'120일':240,'121일':242,
-      '122일':244,'123일':246,'124일':248,'125일':250,'126일':252,'127일':254,'128일':256,'129일':258,'130일':260,'131일':262,'132일':264,'133일':266,
-      '134일':268,'135일':270,'136일':272,'137일':274,'138일':276,'139일':278, '140일':280,'141일':282,'142일':284,'143일':286,'144일':288,'145일':290,
-      '146일':292,'147일':294,'148일':296,'149일':298,'150일 이상':300
-    },
+    '상담실적': {'1':10,'2':20,'3':30,'4':40,'5':50,'6':60,'7':70,'8':80,'9':90,'10':100,'11':110,'12':120,'13':130,'14':140,'15':150},
+    '해외연수': {'참여 일수':0},
+    '인턴십': {'참여 일수':0},
   };
-
-
 
   Future<void> _fetchPosts() async {
     final response = await http
@@ -66,7 +65,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
         String gsinfoType = item['gsinfo_type'];
         if (!activityTypes.contains(gsinfoType)) {
           activityTypes.add(gsinfoType);
-          if(!['상담 실적', '해외 연수', '인턴쉽'].contains(gsinfoType)){
+          if(!['상담실적', '해외연수', '인턴십'].contains(gsinfoType)){
             activityNames[gsinfoType] = {};
           }
 
@@ -79,7 +78,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
         String gsinfoName = item['gsinfo_name'];
         int gsinfoScore = item['gsinfo_score'];
 
-        if (!['상담 실적', '해외 연수', '인턴쉽'].contains(gsinfoType) &&activityNames.containsKey(gsinfoType)) {
+        if (!['상담실적', '해외연수', '인턴십'].contains(gsinfoType) &&activityNames.containsKey(gsinfoType)) {
           activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
         }
 
@@ -91,9 +90,78 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
 
 
+  void setMaxscore() async{
+    int sum = 0;
+    _total = 0;
+    for(final item in _save){
+      if(item['Type'] == _selectType){
+        sum += int.parse(item['score'].toString());
+      }
+    }
+    eachTotal[_selectType] = sum;
+    if(MaxScore[_selectType] != null && sum >= MaxScore[_selectType]!){
+      sum = MaxScore[_selectType];
+    }
+    eachMaxTotal[_selectType] = sum;
+    eachMaxTotal.forEach((key, value) {
+      _total += value;
+    });
+  }
+
+  void _addScore(){
+    if (_activityName == '참여 일수' || _activityName == 'TOPCIT' && _activityType != null) {
+      setState(() {
+        _save.add({
+          'Type': _activityType!,
+          'Name': _activityName!,
+          'score': _score
+        });
+        setMaxscore();
+        if (_remainingScore > 0) {
+          _remainingScore = 800 - _total;
+          if (_remainingScore < 0) {
+            _remainingScore = 0;
+          }
+        }
+        _activityType = null;
+        _activityName = null;
+
+      });
+    }
+    else if (_activityName != null && _activityType != null) {
+      setState(() {
+        _save.add({
+          'Type': _activityType!,
+          'Name': _activityName!,
+          'score': activityNames[_activityType]?[_activityName]
+        });
+        setMaxscore();
+
+        if (_remainingScore > 0) {
+          _remainingScore = 800 - _total;
+          if (_remainingScore < 0) {
+            _remainingScore = 0;
+          }
+        }
+        _activityType = null;
+        _activityName = null;
+
+      });
+    }
+  }
+
+  void printApp(){
+    print(_save);
+    print(eachTotal);
+    print(eachMaxTotal);
+  }
+
+
+
   void _onActivityTypeChanged(String? newValue) {
     setState(() {
       _activityType = newValue;
+      _selectType = _activityType;
       _activityName = null;
     });
   }
@@ -136,9 +204,9 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
               items: activityTypes
                   .map<DropdownMenuItem<String>>(
                       (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ))
+                    value: value,
+                    child: Text(value),
+                  ))
                   .toList(),
             ),
             const SizedBox(height: 16),
@@ -151,29 +219,50 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
               value: _activityName,
               onChanged: _onActivityNameChanged,
               items: activityNames[_activityType]
-                      ?.entries
-                      .map<DropdownMenuItem<String>>(
-                          (MapEntry<String, int> entry) =>
-                              DropdownMenuItem<String>(
-                                value: entry.key,
-                                child: Text(entry.key),
-                              ))
-                      .toList() ??
+                  ?.entries
+                  .map<DropdownMenuItem<String>>(
+                      (MapEntry<String, int> entry) =>
+                      DropdownMenuItem<String>(
+                        value: entry.key,
+                        child: Text(entry.key),
+                      ))
+                  .toList() ??
                   [],
             ),
             const SizedBox(height: 16),
 
-              TextFormField(
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: '점수',
-                  border: OutlineInputBorder(),
-                ),
-                controller: TextEditingController(
-                    text:
-              activityNames[_activityType]?[_activityName]?.toString() ?? ''
+            TextFormField(
+              readOnly: _activityName == 'TOPCIT' ||
+                  _activityName == '참여 일수'
+                  ? false : true,
+              decoration: const InputDecoration(
+                labelText: '점수',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                _score= 0;
+                if (value.isNotEmpty && int.parse(value)>0) {
+                  int tempScore = int.parse(value);
 
-    ),
+                  if(_activityType == '인턴십' || _activityType == '해외연수'){
+                    if(tempScore<30){ tempScore = 0;}
+                    else if(tempScore>=30 && tempScore<40){ tempScore = 25;}
+                    else if(tempScore>=40 && tempScore<50){ tempScore = 40;}
+                  }
+                  if(_activityName == 'TOPCIT' && tempScore>1000){ tempScore = 1000;}
+                  if(_activityType == '인턴십' && tempScore>150){ tempScore = 150;}
+                  if(_activityType == '해외연수' && tempScore>100){ tempScore = 100;}
+
+                  _score = tempScore * 2;
+                }
+                else{
+                  _score = 0;
+                }
+
+              },
+              controller: TextEditingController(
+                  text: activityNames[_activityType]?[_activityName]?.toString() ?? ''
+              ),
             ),
             SizedBox(height: 16.0),
 
@@ -198,7 +287,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                       border: OutlineInputBorder(),
                     ),
                     controller:
-                        TextEditingController(text: _remainingScore.toString()),
+                    TextEditingController(text: _remainingScore.toString()),
                   ),
                 ),
               ],
@@ -212,26 +301,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                 color: const Color(0xffC1D3FF),
                 child: MaterialButton(
                   onPressed: () {
-                    if (_activityName != null && _activityType != null) {
-                      setState(() {
-                        _save.add({
-                          'Type': _activityType!,
-                          'Name': _activityName!,
-                          'score': activityNames[_activityType]?[_activityName]
-                        });
-                        _total +=
-                            activityNames[_activityType]?[_activityName] ?? 0;
-                        if (_remainingScore > 0) {
-                          _remainingScore = 800 - _total;
-                          if (_remainingScore < 0) {
-                            _remainingScore = 0;
-                          }
-                        }
-                        _activityType = null;
-                        _activityName = null;
-                        print(_save);
-                      });
-                    }
+                    _addScore();
+                    printApp();
                   },
                   child: const Text(
                     "추가하기",
@@ -263,7 +334,17 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                       onDismissed: (direction) {
                         setState(() {
                           _save.removeAt(index);
-                          _total -= activity['score'] as int;
+                          print(activity['Type']);
+                          if (activity['score'] != null && eachTotal[activity['Type']] != null) {
+                            eachTotal[activity['Type']] = (eachTotal[activity['Type']] ?? 0) - activity['score'] as int;
+                          }
+                          if (eachTotal[activity['Type']] != null && eachMaxTotal[activity['Type']] != null && eachTotal[activity['Type']]! < eachMaxTotal[activity['Type']]!) {
+                            eachMaxTotal[activity['Type']] = eachTotal[activity['Type']]!;
+                          }
+                          _total = 0;
+                          eachMaxTotal.forEach((key, value) {
+                            _total += value;
+                          });
                           if (_remainingScore >= 0) {
                             _remainingScore = 800 - _total;
                             if (_remainingScore <= 0) {
@@ -275,7 +356,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                       background: Container(color: Colors.red),
                       child: ListTile(
                         title:
-                            Text('${activity['Type']} - ${activity['Name']}'),
+                        Text('${activity['Type']} - ${activity['Name']}'),
                         trailing: Text('${activity['score']}점'),
                       ),
                     );

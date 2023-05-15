@@ -3,6 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+//import 'package:capstone/screens/gScore/gscore_list_screen.dart';
+
+import 'dart:io';
+//import 'package:http_parser/http_parser.dart';
+//import 'package:path_provider/path_provider.dart';
+//import 'package:open_file/open_file.dart';
 
 //신청창
 void main() {
@@ -50,13 +56,24 @@ class _GScoreApcState extends State<GScoreApc> {
         activityTypes;
         activityNames;
       });
-
     } else {
       throw Exception('Failed to load posts');
     }
   }
 
-  void _writePost() async {
+
+  void _selectFile() async {
+    final FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        selectedFile = result.files.first;
+        fileCheck = 1;
+
+      });
+    }
+  }
+
+  void _writePostAndFile() async {
     if (_activityType == null || _activityName == null) {
       showDialog(
         context: context,
@@ -79,13 +96,13 @@ class _GScoreApcState extends State<GScoreApc> {
       return; // 함수 종료
     }
 
-    setState(() => _isLoading = true);
+
 
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
       setState(() {
-        _isLoading = false;
+
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
       });
@@ -102,7 +119,7 @@ class _GScoreApcState extends State<GScoreApc> {
       'gspost_start_date': _startDate?.toIso8601String(),
       'gspost_end_date': _endDate?.toIso8601String(),
 
-      'gspost_file': null, //
+      'gspost_file': fileCheck,
 
     };
 
@@ -119,13 +136,60 @@ class _GScoreApcState extends State<GScoreApc> {
     print(response.statusCode);
 
     if (response.statusCode == 201) {
-      // Success
-      Navigator.pop(context);
+      if(fileCheck==1) {
+        var jsonResponse = jsonDecode(response.body);
+        final post_id = jsonResponse['postId'];
+        uploadFile(post_id);
+      }
+      else{
+        Navigator.pop(context);
+      }
+    }else{
+      print(response.statusCode);
+      print('에러');
+    }
+  }
+
+  void uploadFile(dynamic postId) async{
+    print(postId.toString());
+
+    if(selectedFile == null){Navigator.pop(context);}
+
+    else if(selectedFile!=null){
+      final String fileName = selectedFile!.name;
+      final bytes = File(selectedFile!.path!).readAsBytesSync();
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://3.39.88.187:3000/gScore/upload'),
+      );
+
+
+      request.files.add(
+        http.MultipartFile.fromBytes('file', bytes, filename: fileName),
+      );
+
+      request.fields['gspostid'] = postId.toString();
+
+
+      final response = await request.send();
+
+
+      if (response.statusCode == 201) {
+        print("파일 등록 성공");
+        Navigator.pop(context);
+
+      } else {
+        print(response.statusCode);
+        print("파일 등록 실패");
+      }
+
     }
   }
 
   bool isEditable = false;
-  bool _isLoading = false;
+
+
   // 활동 종류에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _activityType;
 
@@ -141,12 +205,8 @@ class _GScoreApcState extends State<GScoreApc> {
   // 종료 날짜 선택박스에서 선택된 값
   DateTime? _endDate;
 
-  // 활동 기간 저장 값
-  int? _period;
-
   // 점수를 입력할 수 있는 박스에서 입력된 값
-  int? _score;
-  int? _TopcitScore;
+  int? _subscore;
 
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String _applicationStatus = '대기';
@@ -158,10 +218,9 @@ class _GScoreApcState extends State<GScoreApc> {
   String? _rejectionReason;
 
   //파일이 저장값
-  List<PlatformFile?> _attachmentFile = [];
+  PlatformFile? selectedFile;
 
-  //파일명
-  final Map<String?, String?> _Filenames = {};
+  int fileCheck = 0;
 
   //활동종류 리스트
   List<String> activityTypes = [];
@@ -188,12 +247,35 @@ class _GScoreApcState extends State<GScoreApc> {
       _activityName = newValue;
       _scoreController.text =
           activityNames[_activityType]?[_activityName]?.toString() ?? '';
-      _activityScore =
-          activityNames[_activityType]?[_activityName]?.toString() ?? '';
+      if(_activityName != '50일 이상' || _activityName !='TOPCIT') {
+        _activityScore =
+            activityNames[_activityType]?[_activityName]?.toString() ?? '';
+      }
+      else{
+        _activityScore = _subscore.toString();
+      }
     });
   }
-
-
+  void _subscore_function(String value){
+    if (value.isNotEmpty &&
+        _activityName == 'TOPCIT' ||
+        _activityName == '50일 이상') {
+      _subscore = int.parse(value) * 2;
+      if (_activityName == 'TOPCIT' &&
+          (_subscore ?? 0) > 1000) {
+        _subscore = 1000;
+      }
+      else if (_activityType == '인턴쉽' &&
+          (_subscore ?? 0) > 300) {
+        _subscore = 300;
+      }
+      else if (_activityType == '해외 연수' &&
+          (_subscore ?? 0) > 200) {
+        _subscore = 200;
+      }
+      _activityScore = _subscore.toString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -329,16 +411,18 @@ class _GScoreApcState extends State<GScoreApc> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: true,
+                          readOnly: _activityName == 'TOPCIT' ||
+                              _activityName == '50일 이상'
+                              ? false
+                              : true,
                           decoration: const InputDecoration(
                             labelText: '점수',
                             border: OutlineInputBorder(),
                           ),
+                          onChanged: _subscore_function,
                           controller: TextEditingController(
-                              text: _activityName == 'TOPCIT'
-                                  ? _TopcitScore.toString()
-                                  : _activityName == '50일 이상' && _startDate != null &&_endDate != null
-                                  ? _period.toString()
+                              text: _activityName == 'TOPCIT' && _subscore != null ? _subscore.toString()
+                                  : _activityName == '50일 이상' && _subscore != null ? _subscore.toString()
                                   : activityNames[_activityType]?[_activityName]?.toString() ?? ''
                           ),
                         ),
@@ -348,18 +432,14 @@ class _GScoreApcState extends State<GScoreApc> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          readOnly: true,
                           decoration: const InputDecoration(
-                            labelText: '점수 입력',
+                            labelText: '승인 점수',
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              _score = int.tryParse(value);
-                              _TopcitScore = (_score ?? 0) * 2;
-                              if((_TopcitScore ?? 0) > 1000){
-                                _TopcitScore = 1000;
-                              }
                             });
                           },
                         ),
@@ -435,15 +515,8 @@ class _GScoreApcState extends State<GScoreApc> {
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
                     color: const Color(0xffC1D3FF),
                     child: MaterialButton(
-                      onPressed: () async {
-                        final result = await FilePicker.platform.pickFiles();
-                        if (result != null) {
-                          setState(() {
-                            _attachmentFile.add(result.files.single);
-                            _Filenames.addAll(
-                                {'파일명': result.files.single.name});
-                          });
-                        }
+                      onPressed: () {
+                        _selectFile(); // 파일 선택 수행
                       },
                       child: const Text(
                         "첨부파일 업로드",
@@ -459,44 +532,44 @@ class _GScoreApcState extends State<GScoreApc> {
 
                 const SizedBox(height: 16),
 
-                // 활동 종류에 대한 드롭다운형식의 콤보박스
+
+
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          width: 2.0,
-                          color: Colors.grey.withOpacity(0.5),
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
                         ),
-                        borderRadius:
-                        const BorderRadius.all(Radius.circular(4.0)),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _attachmentFile.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Dismissible(
-                            key: UniqueKey(),
-                            onDismissed: (direction) {
-                              setState(() {
-                                _attachmentFile.removeAt(index);
-                                _Filenames.removeWhere((key, value) => false);
-                              });
-                            },
-                            background: Container(color: Colors.red),
-                            child: ListTile(
-                              title: Text('$_Filenames'),
-                            ),
-                          );
+                      labelText: '첨부 파일',
+                      labelStyle: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                      suffix: selectedFile != null
+                          ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedFile = null;
+                            fileCheck = 0;
+                          });
+                          // 버튼이 눌렸을 때 수행할 동작
                         },
-                      ),
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.grey,
+                        ),
+                      )
+                          : null,
                     ),
+                    readOnly: true,
+                    controller: TextEditingController(text: '${selectedFile?.name ?? ''}',),
                   ),
                 ),
-
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // 저장 버튼
                 Padding(
@@ -507,7 +580,7 @@ class _GScoreApcState extends State<GScoreApc> {
                     borderRadius: BorderRadius.circular(30.0), //둥근효과
                     color: const Color(0xffC1D3FF),
                     child: MaterialButton(
-                      onPressed: _writePost,
+                      onPressed: _writePostAndFile,
                       child: const Text(
                         "신청하기",
                         style: TextStyle(

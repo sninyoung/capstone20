@@ -10,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 final client = HttpClient();
 
 
+
 void main() {
   runApp(MaterialApp(
     title: '졸업점수 신청 목록',
@@ -25,13 +26,25 @@ class GScoreForm extends StatefulWidget {
 
 class _GScoreForm extends State<GScoreForm> {
 
+  String postFilter = '전체';
+  String searchText = '';
+  int userId = 0;
+  int userPermission = 0;
+
   late Future<dynamic> _posts =  Future(() => null);
+
+  List<dynamic> allPosts = [];
+  List<dynamic> filteredPosts = [];
+
+
 
   @override
   void initState() {
     super.initState();
     checkUserLoginStatus();
     _fetchMyPosts();
+    _getUserInfo();
+
   }
 
 
@@ -61,20 +74,8 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 
-  
-/*
-  //전체 게시글 로드
-  Future<List<dynamic>> _fetchAllPosts() async {
-    final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/gScore/'));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load posts');
-    }
-  }
-*/
-  
+
+
 
   Future<void> _fetchMyPosts() async {
     final storage = FlutterSecureStorage();
@@ -94,8 +95,13 @@ class _GScoreForm extends State<GScoreForm> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       _posts = Future.value(data);
+      allPosts = await _posts;
+      filteredPosts = allPosts;
+
       setState(() {
         _posts;
+        allPosts;
+        filteredPosts;
       });
     } else if(response.statusCode == 401){
       throw Exception('로그인 정보 만료됨');
@@ -105,6 +111,68 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 
+
+  void _filterStatus(String value){
+    if(value == '전체'){
+      filteredPosts = allPosts;
+    }else if(value == '승인') {
+      filteredPosts =
+          allPosts.where((post) => post['gspost_pass'] == '승인').toList();
+    }else if (value == '미승인') {
+
+      List<dynamic> waitingPosts = allPosts.where((post) => post['gspost_pass'] == '대기').toList();
+      List<dynamic> rejectedPosts = allPosts.where((post) => post['gspost_pass'] == '반려').toList();
+      filteredPosts = [...waitingPosts, ...rejectedPosts];
+
+    }
+    setState(() {
+      filteredPosts;
+    });
+  }
+
+  void _filterWriter(String value) async {
+    allPosts = await _posts;
+    filteredPosts = allPosts
+        .where((post) => post['gsuser_id'].toString().contains(value))
+        .toList();
+    postFilter = '전체';
+
+
+    setState(() {
+      filteredPosts;
+      postFilter;
+    });
+  }
+
+
+  Future<void> _getUserInfo() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      return;
+    }
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      userId = user['student_id'];
+      userPermission = user['permission'];
+
+      setState(() {
+        userId;
+        userPermission;
+      });
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
 
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
@@ -121,11 +189,11 @@ class _GScoreForm extends State<GScoreForm> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Container(
           width: 200.0,
-          height: 100.0,
-          padding: EdgeInsets.all(16.0),
+          height: 70.0,
+          padding: EdgeInsets.all(13.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.0),
             color: Colors.white,
@@ -203,20 +271,19 @@ class _GScoreForm extends State<GScoreForm> {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Container(
-            color: Color(0xffC1D3FF),
-            child: Text(
-              '  졸업인증점수 신청/관리  ',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
+          title: Text(
+            '  졸업인증점수 신청/관리  ',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          backgroundColor: Color(0xffC1D3FF),
           centerTitle: true,
+          elevation: 0.0,
         ),
-        body:Column(children: [
+        body:ListView(children: [
           Container(height: MediaQuery.of(context).size.height * 0.01),
           Container(
               padding: EdgeInsets.all(16.0), // 상하좌우 16.0씩 padding 적용
@@ -252,8 +319,89 @@ class _GScoreForm extends State<GScoreForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              Container(width: 10,),
               Container(
-                width: MediaQuery.of(context).size.width * 0.60,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10.0, 6.0, 4.0, 6.0),
+                  child: Row(children: [
+                    DropdownButton<String>(
+                      value: postFilter,
+                      onChanged: (String? newValue) {
+                        _filterStatus(newValue ?? '');
+                        setState(() {
+                          postFilter = newValue ?? '' ;
+
+                        });
+                      },
+                      items: <String>['전체', '승인', '미승인']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.black,
+                      ),
+                      underline: Container(), // 드롭다운 버튼 하단의 선 제거
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => GScoreForm()),
+                          );
+                        },
+                        icon: Icon(Icons.refresh),
+                        color: Colors.grey,
+                        iconSize: 22.0,
+                      ),
+                    ),
+                  ],)
+              ),
+              SizedBox(width: 12,),
+              Expanded(
+                flex: 7,
+                child: Visibility(
+                  visible: userPermission == 2, // permission 값이 2인 경우에만 보이도록 설정
+                  child: Container(
+                    margin: EdgeInsets.only(right: 8.0),
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          searchText = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: '학번 검색',
+                        hintText: '검색',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            // 검색 버튼 동작
+                            _filterWriter(searchText);
+                          },
+                          icon: Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -271,9 +419,7 @@ class _GScoreForm extends State<GScoreForm> {
                   fixedSize: Size(width * 0.08, height * 0.055),
                 ),
               ),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.05
-              )
+              Container(width: 10,),
             ],
           ),
           Container(
@@ -358,9 +504,9 @@ class _GScoreForm extends State<GScoreForm> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(10.0), // 상하좌우 10.0씩 padding 적용
+                    padding: EdgeInsets.all(10.0),
                     child: FutureBuilder<dynamic>(
-                      future: _posts,
+                      future: Future.value(filteredPosts),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           final posts = snapshot.data!;

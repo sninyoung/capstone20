@@ -1,5 +1,6 @@
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
+import 'package:capstone/screens/gScore/gscore_myscore.dart';
 import 'package:capstone/screens/login/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone/main.dart';
@@ -198,6 +199,16 @@ class _MyDrawerState extends State<MyDrawer> {
                           builder: (context) => SelfCalcScreen()),
                     );
                   },
+                ),
+                ListTile(
+                    leading: Icon(Icons.person, color: Colors.grey[800]),
+                    title: Text('나의 졸업인증 점수'),
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyScorePage()),
+                      );
+                    }
                 ),
                 ListTile(
                     leading: Icon(Icons.person, color: Colors.grey[800]),
