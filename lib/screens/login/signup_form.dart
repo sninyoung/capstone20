@@ -4,7 +4,8 @@ import 'dart:convert'; // JSON Encode, Decode를 위한 패키지
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // flutter_secure_storage 패키지
 import 'package:capstone/screens/login/login_form.dart';
 
-/// 회원가입 화면
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 class SignUpPage extends StatefulWidget {
   @override
   _SignUpPageState createState() => _SignUpPageState();
@@ -12,32 +13,39 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-  TextEditingController student_id = TextEditingController();
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
-  TextEditingController verificationCode = TextEditingController(); // 이메일 인증번호 입력 필드 추가
-  TextEditingController password= TextEditingController();
+  TextEditingController verificationCode = TextEditingController();
+  TextEditingController password = TextEditingController();
   TextEditingController password2 = TextEditingController();
+  String _selectedItem = '';
   final _formKey = GlobalKey<FormState>();
   final _key = GlobalKey<ScaffoldState>();
   final storage = FlutterSecureStorage();
-  String _selectedGrade = "1학년"; //초기값은 1학년으로 설정
-  int gradeValue =1;
+  String _selectedGrade = "1학년";
+  int gradeValue = 1;
+  String fcmToken = '';
+
+  final List<String> _grades = [
+    '1학년',
+    '2학년',
+    '3학년',
+    '4학년',
+  ];
 
   @override
   void initState() {
     super.initState();
-    student_id = TextEditingController(text: "");
     name = TextEditingController(text: "");
     email = TextEditingController(text: "");
     verificationCode = TextEditingController(text: "");
     password = TextEditingController(text: "");
     password2 = TextEditingController(text: "");
+    _getFCMToken();
   }
 
   @override
   void dispose() {
-    student_id.dispose();
     name.dispose();
     email.dispose();
     verificationCode.dispose();
@@ -46,7 +54,14 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  Future<void> sendVerificationEmail(String email) async { //인증메일 발송 함수
+  Future<void> _getFCMToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    setState(() {
+      fcmToken = token ?? '';
+    });
+  }
+
+  Future<void> sendVerificationEmail(String email) async {
     final String apiUrl = 'http://3.39.88.187:3000/user/sendverificationemail';
 
     if (!email.endsWith("@gm.hannam.ac.kr")) {
@@ -68,7 +83,6 @@ class _SignUpPageState extends State<SignUpPage> {
           'email': email,
         }),
       );
-
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,15 +113,16 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  Future<void> signup(String student_id, String email, String verificationCode, String name, String password, int grade) async {
-    final String apiUrl='http://3.39.88.187:3000/user/signup';
-    final String studentId = student_id.trim();
+  Future<void> signup(String email, String verificationCode, String name, String password, int grade) async {
+    final String apiUrl = 'http://3.39.88.187:3000/user/signup';
+    final String studentId = email.split('@')[0];
     final String nameValue = name.trim();
     final String emailValue = email.trim();
     final String passwordValue = password.trim();
     final String password2Value = password.trim();
     final int gradeValue = grade;
     final String _verificationCode = verificationCode.trim();
+    final String fcm_token = fcmToken.trim();
     print("실행됨");
 
     if (passwordValue != password2Value) {
@@ -119,7 +134,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
     try {
       final storage = FlutterSecureStorage();
-      final verificationCode = await storage.read(key: 'verificationCode');
+      final savedVerificationCode = await storage.read(key: 'verificationCode');
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -130,10 +145,11 @@ class _SignUpPageState extends State<SignUpPage> {
           'student_id': studentId,
           'name': nameValue,
           'email': emailValue,
-          'verificationCode': verificationCode,
+          'verificationCode': savedVerificationCode,
           'password': passwordValue,
           'grade': gradeValue,
-          '_verificationCode' : _verificationCode,
+          '_verificationCode': _verificationCode,
+          'fcm_token': fcm_token,
         }),
       );
 
@@ -151,7 +167,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("회원 가입에 실패?했습니다"),
+          content: Text("회원 가입에 실패했습니다."),
         ));
       }
     } catch (error) {
@@ -162,7 +178,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  @override
   void _showGradeSelectionDialog() {
     showDialog(
       context: context,
@@ -170,52 +185,18 @@ class _SignUpPageState extends State<SignUpPage> {
         return AlertDialog(
           content: SingleChildScrollView(
             child: ListBody(
-              children: <Widget>[
-                GestureDetector(
-                  child: Text('1학년'),
+              children: _grades.map((grade) {
+                return GestureDetector(
+                  child: Text(grade),
                   onTap: () {
                     setState(() {
-                      _selectedGrade = '1학년';
-                      gradeValue = 1;
+                      _selectedGrade = grade;
+                      gradeValue = _grades.indexOf(grade) + 1;
                     });
                     Navigator.of(context).pop();
-
                   },
-                ),
-                GestureDetector(
-                  child: Text('2학년'),
-                  onTap: () {
-                    setState(() {
-                      _selectedGrade = '2학년';
-                      gradeValue = 2;
-                    });
-                    Navigator.of(context).pop();
-
-                  },
-                ),
-                GestureDetector(
-                  child: Text('3학년'),
-                  onTap: () {
-                    setState(() {
-                      _selectedGrade = '3학년';
-                      gradeValue = 3;
-                    });
-                    Navigator.of(context).pop();
-
-                  },
-                ),
-                GestureDetector(
-                  child: Text('4학년'),
-                  onTap: () {
-                    setState(() {
-                      _selectedGrade = '4학년';
-                      gradeValue = 4;
-                    });
-                    Navigator.of(context).pop();
-
-                  },
-                ),
-              ],
+                );
+              }).toList(),
             ),
           ),
         );
@@ -240,26 +221,15 @@ class _SignUpPageState extends State<SignUpPage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
-                  controller: student_id,
-                  validator: (value) =>
-                  (value!.isEmpty) ? "학번을 입력 해 주세요" : null,
-                  style: style,
-                  decoration: InputDecoration(
-                      labelText: "학번", border: OutlineInputBorder()),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextFormField(
                   controller: email,
                   validator: (value) {
-                    if (value!.isEmpty) { return "이메일을 입력 해 주세요"; }
-                    else if (!value.endsWith("@gm.hannam.ac.kr")) {
+                    if (value!.isEmpty) {
+                      return "이메일을 입력 해 주세요";
+                    } else if (!value.endsWith("@gm.hannam.ac.kr")) {
                       return "이메일 형식이 올바르지 않습니다";
                     }
                     return null;
                   },
-
                   style: style,
                   decoration: InputDecoration(
                       labelText: "이메일", border: OutlineInputBorder()),
@@ -274,9 +244,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: MaterialButton(
                     onPressed: () async {
                       try {
-                        // 이메일 인증번호 확인
                         await sendVerificationEmail(email.text);
-                        // 회원가입 요청을 서버로 전송
                       } catch (error) {
                         print(error);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -292,7 +260,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-              // 이메일 인증번호 입력 필드
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
@@ -306,8 +273,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-
-
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
@@ -324,8 +289,19 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: TextFormField(
                   obscureText: true,
                   controller: password,
-                  validator: (value) =>
-                  (value!.isEmpty) ? "비밀번호를 입력 해 주세요" : null,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "비밀번호를 입력 해 주세요";
+                    } else if (value.length < 8) {
+                      return "비밀번호는 8자 이상이어야 합니다";
+                    } else if (!RegExp(
+                        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
+                        .hasMatch(value) || value.contains('?')) {
+                      return "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함하며 '?' 문자를 사용할 수 없습니다";
+                    }
+
+                    return null;
+                  },
                   style: style,
                   decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock),
@@ -348,27 +324,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      '학년',
-                    ),
-                    Text(
-                      _selectedGrade,
-                      style: TextStyle(fontSize: 30),
-                    ),
-                    SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: () {
-                        _showGradeSelectionDialog();
-                      },
-                      child: Text('선택'),
-
-                    ),
-
-                  ],
-
+                padding: const EdgeInsets.all(16.0),
+                child: TextFormField(
+                  readOnly: true,
+                  onTap: _showGradeSelectionDialog,
+                  controller: TextEditingController(text: _selectedGrade),
+                  style: style,
+                  decoration: InputDecoration(
+                      labelText: "학년", border: OutlineInputBorder()),
                 ),
               ),
               Padding(
@@ -381,11 +344,16 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         try {
-                          await signup(student_id.text, email.text, verificationCode.text, name.text, password.text, gradeValue);
-                          // 회원가입 성공 시 로그인 화면으로 이동
+                          await signup(
+                              email.text,
+                              verificationCode.text,
+                              name.text,
+                              password.text,
+                              gradeValue);
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
                           );
                         } catch (error) {
                           print(error);

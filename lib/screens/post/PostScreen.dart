@@ -25,7 +25,44 @@ class _PostScreenState extends State<PostScreen> {
   void initState() {
     super.initState();
     comments = fetchComments();
+    _fetchboard();
+    _fetchintroduction();
   }
+
+  String? _boardName;
+  void _fetchboard() async {
+    int board_id = widget.post['board_id'];
+    final response = await http
+        .get(Uri.parse('http://3.39.88.187:3000/post/board?board_id=$board_id'));
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+
+      setState(() {
+        _boardName = responseData['rows'][0]['board_name'];
+
+      });
+    } else {
+      throw Exception('Failed to load board');
+    }
+  }
+  String? _accountIntroduction;
+  void _fetchintroduction() async {
+    int student_id = widget.post['student_id'];
+    final response = await http
+        .get(Uri.parse('http://3.39.88.187:3000/user/info?student_id=$student_id'));
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+
+      setState(() {
+        _accountIntroduction = responseData[0]['introduction'];
+
+      });
+    } else {
+      throw Exception('Failed to load board');
+    }
+  }
+
+
 
   //댓글 가져오기
   Future<List<dynamic>> fetchComments() async {
@@ -82,7 +119,7 @@ class _PostScreenState extends State<PostScreen> {
     final url = Uri.parse('http://3.39.88.187:3000/post/deletecomment/$commentId');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-    print(token);
+
     if (token == null) {
       setState(() {
         _errorMessage = '토큰이 없습니다.';
@@ -234,7 +271,7 @@ class _PostScreenState extends State<PostScreen> {
     setState(() => _isLoading = true);
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-    print(token);
+
     if (token == null) { //토쿤
       setState(() {
         _isLoading = false;
@@ -252,7 +289,7 @@ class _PostScreenState extends State<PostScreen> {
       },
     );
     if (response.statusCode == 200) {
-      print('게시물 삭제 완료');
+
     } else {
       throw Exception('Failed to delete post');
     }
@@ -263,7 +300,7 @@ class _PostScreenState extends State<PostScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.post['post_title'],
+          _boardName ?? '',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -287,73 +324,97 @@ class _PostScreenState extends State<PostScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16.0),
-            Text(
-              widget.post['post_content'],
-              style: TextStyle(
-                fontSize: 16.0,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 13.0),
+              Text(
+                widget.post['post_title'],
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                widget.post['board_id'] == 1 ?
-                Text(
-                  widget.post['student_id'].toString().substring(2, 4) + '학번',
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey,
-                  ),
-                ) :
-                Text(
-                  widget.post['student_id'].toString(),
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey,
-                  ),
+              SizedBox(height: 16.0),
+              Text(
+                widget.post['post_content'],
+                style: TextStyle(
+                  fontSize: 16.0,
                 ),
-                Text(
-                  DateFormat('yyyy-MM-dd HH:mm:ss')
-                      .format(DateTime.parse(widget.post['post_date'])),
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey,
+                //overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 16.0),
+              Divider(
+                height: 1.0,
+                thickness: 1.0,
+                color: Colors.grey[400],
+                indent: 0.0,
+                endIndent: 0.0,
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  widget.post['board_id'] == 1
+                      ? Text(
+                    widget.post['student_id'].toString().substring(2, 4) + '학번',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey,
+                    ),
+                  )
+                      : Text(
+                    widget.post['student_id'].toString(),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 32.0),
-            Divider(
-              height: 1.0,
-              thickness: 1.0,
-              color: Colors.grey[400],
-              indent: 0.0,
-              endIndent: 0.0,
-            ),
-            SizedBox(height: 16.0),
-            FutureBuilder<List<dynamic>>(
-              future: comments,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (snapshot.data!.isEmpty) {
-                    return Center(
-                      child: Text(
-                        '등록된 댓글이 없습니다.',
-                        style: TextStyle(
-                          fontSize: 16.0,
+                  Text(
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(widget.post['post_date'])),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 13.0,),
+              widget.post['board_id'] == 2
+                  ? Text(
+                _accountIntroduction ?? '',
+                style: TextStyle(color: Colors.grey),
+              )
+                  : Container(),
+              SizedBox(height: 20.0),
+              Divider(
+                height: 1.0,
+                thickness: 1.0,
+                color: Colors.grey[400],
+                indent: 0.0,
+                endIndent: 0.0,
+              ),
+              SizedBox(height: 16.0),
+              FutureBuilder<List<dynamic>>(
+                future: comments,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return Center(
+                        child: Text(
+                          '등록된 댓글이 없습니다.',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
                         ),
-                      ),
-                    );
-                  } else {
-                    return Expanded(
-                      child: ListView.builder(
+                      );
+                    } else {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           return Padding(
@@ -361,19 +422,15 @@ class _PostScreenState extends State<PostScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                widget.post['board_id'] == 1 ?
-                                Text(
-                                  snapshot.data![index]['student_id']
-                                      .toString()
-                                      .substring(2, 4) +
-                                      '학번',
+                                widget.post['board_id'] == 1
+                                    ? Text(
+                                  snapshot.data![index]['student_id'].toString().substring(2, 4) + '학번',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
-                                ) :
-                                Text(
-                                  snapshot.data![index]['student_id']
-                                      .toString(),
+                                )
+                                    : Text(
+                                  snapshot.data![index]['student_id'].toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -402,9 +459,7 @@ class _PostScreenState extends State<PostScreen> {
                                   ],
                                 ),
                                 Text(
-                                  DateFormat('yyyy-MM-dd HH:mm:ss').format(
-                                      DateTime.parse(snapshot.data![index]
-                                      ['comment_date'])),
+                                  DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(snapshot.data![index]['comment_date'])),
                                   style: TextStyle(
                                     fontSize: 12.0,
                                     color: Colors.grey,
@@ -415,27 +470,26 @@ class _PostScreenState extends State<PostScreen> {
                             ),
                           );
                         },
+                      );
+                    }
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        '댓글을 불러오는 중 오류가 발생했습니다. ${snapshot.error}',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.red,
+                        ),
                       ),
-
                     );
                   }
-                } else if (snapshot.hasError) {
                   return Center(
-                    child: Text(
-                      '댓글을 불러오는 중 오류가 발생했습니다. ${snapshot.error}',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.red,
-                      ),
-                    ),
+                    child: CircularProgressIndicator(),
                   );
-                }
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -469,5 +523,6 @@ class _PostScreenState extends State<PostScreen> {
         ),
       ),
     );
+
   }
 }

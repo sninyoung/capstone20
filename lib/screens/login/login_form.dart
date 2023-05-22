@@ -4,25 +4,30 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/login/signup_form.dart';
 import 'package:capstone/main.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-
-class LoginPage extends StatefulWidget { //StatefulWidget 로 설정
+class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> { //LoginPage  --> _LoginPageState 로 이동
+class _LoginPageState extends State<LoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-  TextEditingController student_id = TextEditingController();  //각각 변수들 지정(인스턴스생성)
+  TextEditingController student_id = TextEditingController();
   TextEditingController password = TextEditingController();
+  String fcmToken = '';
 
   final _formKey = GlobalKey<FormState>();
 
+  late var timer;
   @override
-  void initState() { //initState 초기화를 위해 필요한 저장공간.
+  void initState() {
     super.initState();
-    student_id = TextEditingController(text: ""); //변수를 여기서 초기화함.
+    student_id = TextEditingController(text: "");
     password = TextEditingController(text: "");
+    _checkSession();
+    _getFCMToken();
+
   }
 
   @override
@@ -32,10 +37,27 @@ class _LoginPageState extends State<LoginPage> { //LoginPage  --> _LoginPageStat
     super.dispose();
   }
 
+  Future<void> _checkSession() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MyHomePage()),
+      );
+    }
+  }
+
+  Future<void> _getFCMToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    setState(() {
+      fcmToken = token ?? '';
+    });
+  }
+
   @override
   Future<String?> loginUser(String studentId, String password) async {
-    final String apiUrl = 'http://3.39.88.187:3000/user/login?student_id=$studentId&password=$password'; // API URL 지정
-
+    final String apiUrl = 'http://3.39.88.187:3000/user/login?student_id=$studentId&password=$password&fcm_token=$fcmToken';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: <String, String>{

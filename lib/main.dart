@@ -3,26 +3,54 @@ import 'package:flutter/material.dart';
 import 'package:capstone/screens/login/login_form.dart';
 import 'package:capstone/screens/login/profile.dart';
 import 'package:capstone/drawer.dart';
-
-import 'package:capstone/screens/post/notice.dart';
-import 'package:flutter/material.dart';
-import 'package:capstone/screens/post/party_board.dart';
-import 'package:capstone/screens/post/free_board.dart';
-import 'package:capstone/screens/login/login_form.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:capstone/screens/login/profile.dart';
-import 'package:capstone/screens/gScore/gscore_list_screen.dart';
-import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:ui';
 import 'dart:math';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 
+//파이어베이스 알림 기능 구현을 위한,,뭐시기
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
 
 void main() async {
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  //======↓IOS용 권한 허용 코드↓=========
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  print('User granted permission: ${settings.authorizationStatus}');
+  //======↑IOS용 권한 허용 코드↑=========
+
+  FirebaseMessaging.instance.getToken().then((token) {
+    //토큰 확인용 코드
+    // print('Firebase Cloud Messaging Token: $token');
+  });
+
   runApp(MyApp());
 }
 

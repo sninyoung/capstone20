@@ -162,50 +162,50 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '컴퓨터공학과 2학년 공지',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.black,),
-        ),
-        centerTitle: true,
-        backgroundColor: Color(0xffC1D3FF),
-      ),
-      drawer: MyDrawer(),
-      backgroundColor: Colors.white,//여기까진 고정
-
-      body: Column(
-        children: [
-          Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: notices,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final notices = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: notices.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      dynamic notice = notices[index];
-                      return buildNoticeItem(context, notice);//, token
-                    },
-                  );
-                }
-                else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('${snapshot.error}'),
-                  );
-                }
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
-            ),
+        appBar: AppBar(
+          title: Text(
+            '컴퓨터공학과 2학년 공지',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black,),
           ),
-          Container(
-            child: buildTextComposer(),//메시지 입력창
-          )
-        ],
-      )
+          centerTitle: true,
+          backgroundColor: Color(0xffC1D3FF),
+        ),
+        drawer: MyDrawer(),
+        backgroundColor: Colors.white,//여기까진 고정
+
+        body: Column(
+          children: [
+            Expanded(
+              child: FutureBuilder<List<dynamic>>(
+                future: notices,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final notices = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: notices.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        dynamic notice = notices[index];
+                        return buildNoticeItem(context, notice);//, token
+                      },
+                    );
+                  }
+                  else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('${snapshot.error}'),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              ),
+            ),
+            Container(
+              child: buildTextComposer(),//메시지 입력창
+            )
+          ],
+        )
     );
   }
 
@@ -290,6 +290,3 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_2> {
     }
   }
 }
-
-
-

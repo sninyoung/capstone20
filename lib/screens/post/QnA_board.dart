@@ -19,12 +19,15 @@ class QnABoardScreen extends StatefulWidget {
 }
 
 class _QnABoardScreenState extends State<QnABoardScreen> {
-  late Future<List<dynamic>> _jobposts;
+  late Future<List<dynamic>> _posts;
+  TextEditingController _searchController = TextEditingController();
+  List<dynamic> _filteredPosts = [];
+  List<dynamic> allPosts = [];
 
   @override
   void initState() {
     super.initState();
-    _jobposts = _fetchPosts();
+    _posts = _fetchPosts();
   }
 
   Future<List<dynamic>> _fetchPosts() async {
@@ -34,6 +37,19 @@ class _QnABoardScreenState extends State<QnABoardScreen> {
     } else {
       throw Exception('Failed to load posts');
     }
+  }
+
+  void _filterPosts(String keyword) async {
+    allPosts = await _posts;
+    _filteredPosts = allPosts.where((post) {
+      final title = post['post_title'].toLowerCase();
+      final content = post['post_content'].toLowerCase();
+      return title.contains(keyword) || content.contains(keyword);
+    }).toList();
+    setState(() {
+      allPosts;
+      _filteredPosts;
+    });
   }
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
@@ -134,22 +150,41 @@ class _QnABoardScreenState extends State<QnABoardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: '검색어를 입력하세요',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    _filterPosts(_searchController.text);
+                  },
+                ),
+              ],
+            ),
             Expanded(
               child: FutureBuilder<List<dynamic>>(
-                future: _jobposts,
+                future: _posts,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    final jobposts = snapshot.data!;
-                    final int index81 = jobposts.indexWhere((post) => post['post_id'] == 81);
+                    final posts = snapshot.data!;
+                    final filterposts = _searchController.text.isEmpty ? posts : _filteredPosts;
+                    final int index81 = posts.indexWhere((post) => post['post_id'] == 81);
                     // 81번 게시물을 찾아서 해당 게시물을 리스트의 맨 앞으로 이동
                     if (index81 != -1) {
-                      final post81 = jobposts.removeAt(index81);
-                      jobposts.insert(0, post81);
+                      final post81 = posts.removeAt(index81);
+                      posts.insert(0, post81);
                     }
                     return ListView.builder(
-                      itemCount: jobposts.length,
+                      itemCount: filterposts.length,
                       itemBuilder: (context, index) {
-                        return _buildPostItem(context, jobposts[index]);
+                        return _buildPostItem(context, filterposts[index]);
                       },
                     );
                   } else if (snapshot.hasError) {
@@ -174,7 +209,7 @@ class _QnABoardScreenState extends State<QnABoardScreen> {
           ).then((value) {
             if (value == true) {
               setState(() {
-                _jobposts = _fetchPosts();
+                _posts = _fetchPosts();
               });
             }
           });

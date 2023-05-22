@@ -175,7 +175,6 @@ class _MyPostState extends State<MyPost> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<List<dynamic>>(
