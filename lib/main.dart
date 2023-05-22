@@ -162,7 +162,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
         });
       });
   }
-
+  void logout(BuildContext context) async {
+    final storage = new FlutterSecureStorage();
+    await storage.delete(key: 'token');
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +223,21 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
               },
               child: Text(
                 '로그인',
+                style: TextStyle(fontSize: 20),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                backgroundColor: Color(0xffC1D3FF),
+              ),
+            ),
+
+            SizedBox(height: 20.0),
+            ElevatedButton(
+              onPressed: () {
+                logout(context);
+              },
+              child: Text(
+                '로그아웃',
                 style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
