@@ -10,6 +10,8 @@
 
 [4. 인텔리제이-깃허브 연결 방법](https://github.com/malgumi/capstone_all/blob/master/README.md#4-%EC%9D%B8%ED%85%94%EB%A6%AC%EC%A0%9C%EC%9D%B4-%EA%B9%83%ED%97%88%EB%B8%8C-%EC%97%B0%EA%B2%B0-%EB%B0%A9%EB%B2%95)
 
+[5. TEST용 APK파일](https://github.com/malgumi/capstone_all#5-test%EC%9A%A9-apk-%ED%8C%8C%EC%9D%BC)
+
 
 ## 0. 개요 및 목적
 2023년도 캡스톤 디자인 과목 수강
