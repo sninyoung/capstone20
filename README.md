@@ -53,8 +53,8 @@ File - New - Project From Version Control... 클릭 후 깃허브 주소 입력.
 
 
 ## 5. TEST용 APK 파일
-테스트용 파일입니다. 각자 휴대폰에 다운 받아서 직접 해보시면 됩니다.
-ios유저는,, 앱스토어에 등록을 하는 방법밖에 없어서 현재 테스트 해 볼 길이 없습니다.
-테스트 도중 찾으신 버그는 각 기능 담당 팀에게 알려주시면 감사하겠습니다.
+테스트용 파일입니다. 각자 휴대폰에 다운 받아서 직접 해보시면 됩니다.<br>
+ios유저는,, 앱스토어에 등록을 하는 방법밖에 없어서 현재 테스트 해 볼 길이 없습니다.<br>
+테스트 도중 찾으신 버그는 각 기능 담당 팀에게 알려주시면 감사하겠습니다.<br>
 
 https://drive.google.com/file/d/1a-ToHxmS0k8G1QBXVLR7zlhoBLbuOxbT/view?usp=share_link
