@@ -8,7 +8,9 @@
 
 [3. 메인 화면 및 컨셉](https://github.com/malgumi/capstone_all#3-%EB%A9%94%EC%9D%B8-%ED%99%94%EB%A9%B4-%EB%B0%8F-%EC%BB%A8%EC%85%89)
 
-[4. 인텔리제이-깃허브 연결 방법](https://github.com/malgumi/capstone_all/blob/master/README.md#4-%EC%9D%B8%ED%85%94%EB%A6%AC%EC%A0%9C%EC%9D%B4-%EA%B9%83%ED%97%88%EB%B8%8C-%EC%97%B0%EA%B2%B0-%EB%B0%A9%EB%B2%95)
+[4. 인텔리제이-깃허브 연결 방법](https://github.com/malgumi/capstone_all#4-%EC%9D%B8%ED%85%94%EB%A6%AC%EC%A0%9C%EC%9D%B4-%EA%B9%83%ED%97%88%EB%B8%8C-%EC%97%B0%EA%B2%B0-%EB%B0%A9%EB%B2%95)
+
+[5. TEST용 APK파일](https://github.com/malgumi/capstone_all#5-test%EC%9A%A9-apk-%ED%8C%8C%EC%9D%BC)
 
 
 ## 0. 개요 및 목적
@@ -50,3 +52,11 @@ File - New - Project From Version Control... 클릭 후 깃허브 주소 입력.
 ![image](https://user-images.githubusercontent.com/97935451/229815040-24a89a34-f083-445e-9601-ca5ccfb2e8d7.png)
 
 <br>pull 받은 후 최신 버전이라면 commit 눌러서 변경 내용 확인 후 커밋 메시지 작성 후 push
+
+
+## 5. TEST용 APK 파일
+테스트용 파일입니다. 각자 휴대폰에 다운 받아서 직접 해보시면 됩니다.<br>
+ios유저는,, 앱스토어에 등록을 하는 방법밖에 없어서 현재 테스트 해 볼 길이 없습니다.<br>
+테스트 도중 찾으신 버그는 각 기능 담당 팀에게 알려주시면 감사하겠습니다.<br>
+
+https://drive.google.com/file/d/1a-ToHxmS0k8G1QBXVLR7zlhoBLbuOxbT/view?usp=share_link
