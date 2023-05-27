@@ -53,6 +53,8 @@ class _QnABoardScreenState extends State<QnABoardScreen> {
   }
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
+    DateTime postDateTime = DateTime.parse(post['post_date']);
+    DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -106,14 +108,14 @@ class _QnABoardScreenState extends State<QnABoardScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    post['student_id'].toString(),
+                    post['student_id'].toString().substring(2, 4) + '학번',
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
                     ),
                   ),
                   Text(
-                    DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(post['post_date'])),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,

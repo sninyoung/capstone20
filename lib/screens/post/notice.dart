@@ -34,25 +34,25 @@ class Notice extends StatelessWidget {
         body: Column(
           children: [
             SizedBox(height: 10),
-            Container(
-              height: 90.0,
-              child: Center(
-                child: Text(
-                  '공 지 사 항',
-                  style: TextStyle(
-                    fontSize: 30.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              padding: EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.black, width: 0.3),
-              ),
-            ),
+            // Container(
+            //   height: 90.0,
+            //   child: Center(
+            //     child: Text(
+            //       '공 지 사 항',
+            //       style: TextStyle(
+            //         fontSize: 30.0,
+            //         fontWeight: FontWeight.bold,
+            //       ),
+            //     ),
+            //   ),
+            //   margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+            //   padding: EdgeInsets.all(20.0),
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     borderRadius: BorderRadius.circular(10.0),
+            //     border: Border.all(color: Colors.black, width: 1.0),
+            //   ),
+            // ),
             //여기까지 공지사항 윗박스
 
             Padding(

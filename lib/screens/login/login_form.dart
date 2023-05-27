@@ -141,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                               MaterialPageRoute(builder: (context) => MyHomePage()),
                             );
                           } else { // 로그인 실패
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg), backgroundColor: Colors.red,));
                           }
                         }
                       },

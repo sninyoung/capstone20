@@ -58,6 +58,7 @@ class _SignUpPageState extends State<SignUpPage> {
     if (passwordValue != password2Value) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("비밀번호가 다릅니다."),
+        backgroundColor: Colors.red,
       ));
       return;
     }
@@ -80,6 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("회원가입에 성공했습니다."),
+          backgroundColor: Colors.green,
         ));
         Navigator.pushReplacement(
           context,
@@ -88,16 +90,19 @@ class _SignUpPageState extends State<SignUpPage> {
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("이미 가입된 사번입니다."),
+          backgroundColor: Colors.red,
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("회원 가입에 실패했습니다"),
+          backgroundColor: Colors.red,
         ));
       }
     } catch (error) {
       print(error);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("회원 가입에 실패했습니다."),
+        backgroundColor: Colors.red,
       ));
     }
   }
@@ -168,8 +173,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       return "비밀번호를 입력 해 주세요";
                     } else if (value.length < 8) {
                       return "비밀번호는 8자 이상이어야 합니다";
-                    } else if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$').hasMatch(value)) {
-                      return "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다";
+                    } else if (!RegExp(
+                        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
+                        .hasMatch(value) || value.contains('?')) {
+                      return "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함하며 '?' 문자를 사용할 수 없습니다";
                     }
                     return null;
                   },
@@ -211,6 +218,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           print(error);
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text("회원 가입에 실패했습니다."),
+                            backgroundColor: Colors.red,
                           ));
                         }
                       }

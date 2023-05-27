@@ -53,6 +53,8 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
   }
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
+    DateTime postDateTime = DateTime.parse(post['post_date']);
+    DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -113,7 +115,7 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
                     ),
                   ),
                   Text(
-                    DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(post['post_date'])),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,

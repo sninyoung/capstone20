@@ -65,6 +65,9 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
   }
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
+    DateTime postDateTime = DateTime.parse(post['post_date']);
+    DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
+
     return GestureDetector(
       onTap: () async {
         await Navigator.push(
@@ -121,7 +124,7 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
                   ),
                   Text(
                     DateFormat('yyyy-MM-dd HH:mm:ss')
-                        .format(DateTime.parse(post['post_date'])),
+                        .format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,

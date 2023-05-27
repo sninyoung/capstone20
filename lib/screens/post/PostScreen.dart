@@ -85,7 +85,7 @@ class _PostScreenState extends State<PostScreen> {
       setState(() {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 입력에 실패했습니다.(로그인 만료)')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 입력에 실패했습니다.(로그인 만료)'), backgroundColor: Colors.red,));
       });
       return;
     }
@@ -102,7 +102,7 @@ class _PostScreenState extends State<PostScreen> {
     if (response.statusCode == 201) {
       // 입력 성공 처리
       // 예시:
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 성공적으로 입력되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 성공적으로 입력되었습니다.'), backgroundColor: Colors.green,));
       _commentController.clear(); // 댓글 입력 완료 후, TextField를 초기화합니다.
       setState(() {
         comments = fetchComments(); // 댓글 리스트를 다시 불러옵니다.
@@ -110,7 +110,7 @@ class _PostScreenState extends State<PostScreen> {
     } else {
       // 실패 처리
       // 예시:
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 입력에 실패했습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 입력에 실패했습니다.'), backgroundColor: Colors.red,));
     }
   }
 
@@ -123,7 +123,7 @@ class _PostScreenState extends State<PostScreen> {
     if (token == null) {
       setState(() {
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 삭제에 실패했습니다.(로그인 만료)')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 삭제에 실패했습니다.(로그인 만료)'), backgroundColor: Colors.red,));
       });
       return;
     }
@@ -135,16 +135,16 @@ class _PostScreenState extends State<PostScreen> {
       },
     );
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 삭제되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 삭제되었습니다.'), backgroundColor: Colors.green,));
       setState(() {
         comments = fetchComments();
       });
     }
     else if (response.statusCode == 300){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('삭제 권한이 없습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('삭제 권한이 없습니다.'), backgroundColor: Colors.red,));
     }
     else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 삭제에 실패했습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 삭제에 실패했습니다.'), backgroundColor: Colors.red,));
     }
   }
 
@@ -156,7 +156,7 @@ class _PostScreenState extends State<PostScreen> {
     if (token == null) {
       setState(() {
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 수정에 실패했습니다.(로그인 만료)')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 수정에 실패했습니다.(로그인 만료)'), backgroundColor: Colors.red,));
       });
       return;
     }
@@ -171,16 +171,16 @@ class _PostScreenState extends State<PostScreen> {
       }),
     );
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 수정되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글이 수정되었습니다.'), backgroundColor: Colors.green,));
       setState(() {
         comments = fetchComments();
       });
     }
     else if (response.statusCode == 300){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 권한이 없습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('수정 권한이 없습니다.'), backgroundColor: Colors.red,));
     }
     else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 수정에 실패했습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('댓글 수정에 실패했습니다.'), backgroundColor: Colors.red,));
     }
   }
 
@@ -247,7 +247,7 @@ class _PostScreenState extends State<PostScreen> {
       setState(() {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 수정에 실패 했습니다.(로그인 만료)')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 수정에 실패 했습니다.(로그인 만료)'), backgroundColor: Colors.red,));
       });
       return;
     }
@@ -276,7 +276,7 @@ class _PostScreenState extends State<PostScreen> {
       setState(() {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 삭제에 실패했습니다. (로그인 만료)')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 삭제에 실패했습니다. (로그인 만료)'), backgroundColor: Colors.red,));
       });
       return;
     }
@@ -295,8 +295,28 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  String? _profileIntroduction;
+
+  Future<void> _fetchProfile(String studentId) async {
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/user/info?student_id=$studentId'),
+    );
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _profileIntroduction = responseData[0]['introduction'];
+      });
+    } else {
+      throw Exception('Failed to load profile information');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    DateTime postDateTime = DateTime.parse(widget.post['post_date']);
+    DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -374,7 +394,7 @@ class _PostScreenState extends State<PostScreen> {
                     ),
                   ),
                   Text(
-                    DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(widget.post['post_date'])),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
@@ -402,6 +422,7 @@ class _PostScreenState extends State<PostScreen> {
                 future: comments,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
+
                     if (snapshot.data!.isEmpty) {
                       return Center(
                         child: Text(
@@ -417,24 +438,65 @@ class _PostScreenState extends State<PostScreen> {
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
+                          DateTime commetDateTime = DateTime.parse(snapshot.data![index]['comment_date']);
+                          DateTime commetupdatedDateTime = commetDateTime.add(Duration(hours: 9));
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+
                               children: [
-                                widget.post['board_id'] == 1
+                                widget.post['board_id'] == 1 || widget.post['board_id'] == 4
                                     ? Text(
                                   snapshot.data![index]['student_id'].toString().substring(2, 4) + '학번',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
-                                    : Text(
-                                  snapshot.data![index]['student_id'].toString(),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    : GestureDetector(
+                                  onTap: () {
+                                    final studentId = snapshot.data![index]['student_id'].toString();
+                                    _fetchProfile(studentId).then((_) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('프로필 보기'),
+                                            content: Text(_profileIntroduction ?? '프로필 내용이 없습니다.'),
+                                            actions: [
+                                              TextButton(
+                                                child: Text('닫기'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    });
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 5),
+                                      Text(
+                                        snapshot.data![index]['student_id'].toString(),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Icon(
+                                        Icons.person,
+                                        color: Colors.blue,
+                                      ),
+                                    ],
                                   ),
                                 ),
+
+
+
+
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -458,8 +520,9 @@ class _PostScreenState extends State<PostScreen> {
                                     ),
                                   ],
                                 ),
+
                                 Text(
-                                  DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(snapshot.data![index]['comment_date'])),
+                                  DateFormat('yyyy-MM-dd HH:mm:ss').format(commetupdatedDateTime),
                                   style: TextStyle(
                                     fontSize: 12.0,
                                     color: Colors.grey,
@@ -526,3 +589,4 @@ class _PostScreenState extends State<PostScreen> {
 
   }
 }
+
