@@ -21,9 +21,9 @@ class Notice extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           title: Text(
-            '한남대학교 컴퓨터공학과',
+            '컴퓨터공학과',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black,),
+            style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
           backgroundColor: Color(0xffC1D3FF),
