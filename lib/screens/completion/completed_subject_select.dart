@@ -118,13 +118,18 @@ class _CompletionSelectState extends State<CompletionSelect> {
         ),
         ElevatedButton(
           onPressed: () async {
+            // 선택한 과목들을 courses 변수에 할당
+            courses.clear(); // 기존의 선택한 과목들을 초기화
+            courses.addAll(_compulsorySelections.map((subject) => subject.subject_name));
+            courses.addAll(_electiveSelections.map((subject) => subject.subject_name));
+
             bool success = await postRequiredCourses(studentId, courses);
             if (success) {
               // 성공적으로 이수과목 정보가 저장되었을 경우 알림
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Subjects successfully saved!')),
               );
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletionStatusPage()),
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletionStatusPage(context)),
               );
             } else {
               // 요청이 실패했을 경우 에러 메시지 표시

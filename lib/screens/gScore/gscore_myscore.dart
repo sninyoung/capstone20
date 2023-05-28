@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
-
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
-
 
 
 class MyScorePage extends StatefulWidget {

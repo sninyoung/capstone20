@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:core';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
@@ -42,7 +46,12 @@ void main() {
   ));
 }
 
-class CompletionStatusPage extends StatelessWidget {
+class CompletionStatusPage extends StatefulWidget {
+  @override
+  State<CompletionStatusPage> createState() => _CompletionStatusPageState();
+}
+
+class _CompletionStatusPageState extends State<CompletionStatusPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
@@ -101,9 +110,7 @@ class CompletionStatusTitle extends StatelessWidget {
 //나의이수현황 학생정보 studentInfo
 class StudentInfoWidget extends StatefulWidget {
   final String? studentId;
-
   StudentInfoWidget({required this.studentId});
-
   @override
   _StudentInfoWidgetState createState() => _StudentInfoWidgetState();
 }
@@ -111,7 +118,7 @@ class StudentInfoWidget extends StatefulWidget {
 class _StudentInfoWidgetState extends State<StudentInfoWidget> {
   late Future<Map<String, dynamic>> futureStudentInfo;
 
-  get studentInfo => null;
+  var studentInfo;
 
   Future<Map<String, dynamic>> fetchStudentInfo() async {
     var dio = Dio();
@@ -240,7 +247,6 @@ class MajorCreditWidget extends StatefulWidget {
 class _MajorCreditWidgetState extends State<MajorCreditWidget> {
   Map<String, dynamic> requiredCourses = {};
   int totalMajorCredits = 0;
-
   String get studentId => '';
 
   @override
@@ -296,6 +302,7 @@ class _MajorCreditWidgetState extends State<MajorCreditWidget> {
     );
   }
 }
+
 
 //전공이수과목 title
 class CompletedSubjectTitle extends StatelessWidget {
@@ -386,7 +393,11 @@ class CompletedSubject extends StatefulWidget {
 class _CompletedSubjectState extends State<CompletedSubject> {
   Map<String, dynamic> requiredCourses = {};
 
-  String get studentId => '';
+  List<Subject> compulsorySubjects = []; // 전공기초 과목 리스트
+  List<Subject> electiveSubjects = []; // 전공선택 과목 리스트
+
+  String studentId = ''; // 학생 ID
+  List<String> courses = []; // 선택한 과목 리스트
 
   @override
   void initState() {
