@@ -14,10 +14,10 @@ void main() {
 
 class FreeBoardScreen extends StatefulWidget {
   @override
-  _FreeBoardScreenState createState() => _FreeBoardScreenState();
+  FreeBoardScreenState createState() => FreeBoardScreenState();
 }
 
-class _FreeBoardScreenState extends State<FreeBoardScreen> {
+class FreeBoardScreenState extends State<FreeBoardScreen> {
   late Future<List<dynamic>> _posts;
   TextEditingController _searchController = TextEditingController();
   List<dynamic> _filteredPosts = [];
