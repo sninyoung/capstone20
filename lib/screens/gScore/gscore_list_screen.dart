@@ -5,6 +5,8 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 //신청글 목록 창
 final client = HttpClient();
@@ -74,6 +76,13 @@ class _GScoreForm extends State<GScoreForm> {
     }
   }
 
+  _launchURL() async {
+    const url = 'http://ce.hannam.ac.kr/sub5/menu_1.html?pPostNo=176133&pPageNo=4&pRowCount=10&isGongjiPostList=N';
+    final Uri uri = Uri.parse(url);
+    print(uri);
+    await launchUrl(uri);
+
+  }
 
   Future<void> _fetchMyPosts() async {
     final storage = FlutterSecureStorage();
@@ -171,6 +180,9 @@ class _GScoreForm extends State<GScoreForm> {
       throw Exception('예외 발생');
     }
   }
+
+
+
 
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
@@ -292,27 +304,63 @@ class _GScoreForm extends State<GScoreForm> {
                 color: Color(0xFFF4F5F9),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(fontSize: 13.0, color: Colors.black),
-                      children: <TextSpan>[
-                        TextSpan(text: '1. 각 항목별 점수를 확인해주세요.\n'),
-                        TextSpan(
-                          text: '2. TOPCIT 점수는 수기 입력을 통해 계산됩니다. \n',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+              child: Align(
+                alignment: Alignment.center,
+                child: RichText(
+                  textAlign: TextAlign.left,
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 15.0, color: Colors.black),
+                    children: <TextSpan>[
+                      TextSpan(text: '1.각 항목별 점수를 확인해주세요.\n'),
+                      TextSpan(
+                        text: '\n',
+                        style: TextStyle(fontSize: 4.0),
+                      ),
+                      TextSpan(
+                        text: '2.승인받은 게시글은 내 졸업인증점수에 반영됩니다. \n',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '\n',
+                        style: TextStyle(fontSize: 4.0),
+                      ),
+                      TextSpan(
+                        text: '3.인턴쉽, 해외연수 50일 이상의 점수는\n   첨부파일 확인후 ',
+                      ),
+                      TextSpan(
+                        text: '조교가 수기 입력',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '합니다.\n',
+                      ),
+                      TextSpan(
+                        text: '\n',
+                        style: TextStyle(fontSize: 4.0),
+                      ),
+                      TextSpan(
+                        text: '졸업인증 점수 내규 보러가기',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.w300,
+                          fontFamily: "NotoSansCJKkr",
+                          fontStyle: FontStyle.normal,
+                          fontSize: 15.0,
                         ),
-                        TextSpan(
-                          text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.',
-                        ),
-                      ],
-                    ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async{
+                            _launchURL();
+                          },
+                      )
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
+
+
 
 
           Container(
