@@ -14,6 +14,8 @@ import 'package:capstone/screens/post/QnA_board.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/post/notice.dart';
+import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
+import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -307,10 +309,10 @@ class _MyDrawerState extends State<MyDrawer> {
                 ),
                 ExpansionTile(
                     title: Text('졸업인증'),
-                    leading: Icon(Icons.subdirectory_arrow_left, color: Colors.grey[800]),
+                    leading: Icon(Icons.school, color: Colors.grey[800]),
                     children: <Widget>[
                       ListTile(
-                        leading: Icon(Icons.subdirectory_arrow_left, color: Colors.grey[800]),
+                        leading: Icon(Icons.list, color: Colors.grey[800]),
                         title: Text('졸업점수 신청 및 내역'),
                         onTap: () {
                           Navigator.push(
@@ -359,12 +361,32 @@ class _MyDrawerState extends State<MyDrawer> {
                     leading: Icon(Icons.subdirectory_arrow_left, color: Colors.grey[800]),
                     children: <Widget>[
                       ListTile(
-                          leading: Icon(Icons.add, color: Colors.grey[800]),
+                          leading: Icon(Icons.person_add, color: Colors.grey[800]),
                           title: Text('교수 계정 생성'),
                           onTap: (){
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SignUpPage()),
+                            );
+                          }
+                      ),
+                      ListTile(
+                          leading: Icon(Icons.edit_note, color: Colors.grey[800]),
+                          title: Text('졸업인증제 항목 관리'),
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => GScoreEditor()),
+                            );
+                          }
+                      ),
+                      ListTile(
+                          leading: Icon(Icons.playlist_add_check, color: Colors.grey[800]),
+                          title: Text('졸업인증제 일괄 승인'),
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => AdminGScoreForm()),
                             );
                           }
                       ),
