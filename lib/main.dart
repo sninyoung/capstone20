@@ -107,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
+    sumScore = 0;
 
     if (token == null) {
       return;
@@ -332,10 +333,33 @@ class PercentDonutPaint extends CustomPainter {
   double percentage;
   double textScaleFactor = 1.0; // 파이 차트에 들어갈 텍스트 크기를 정합니다.
   Color activeColor;
+  Map<String, dynamic> maxScore = {};
+
   PercentDonutPaint({required this.percentage, required this.activeColor});
+
+  Future<void> _getMaxScore() async { // 수정된 부분: Future<void> 반환 타입 추가
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final maxScoreTemp = jsonDecode(response.body);
+      for (var item in maxScoreTemp) {
+        String categoryName = item['max_category'];
+        int categoryScore = item['max_score'];
+        maxScore[categoryName] = categoryScore;
+      }
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
+    _getMaxScore();
     Paint paint = Paint() // 화면에 그릴 때 쓸 Paint를 정의합니다.
       ..color = Color(0xfff3f3f3)
       ..strokeWidth = 15.0 // 선의 길이를 정합니다.
@@ -354,8 +378,7 @@ class PercentDonutPaint extends CustomPainter {
     paint.color = activeColor; // 호를 그릴 때는 색을 바꿔줌.
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius),-pi / 2,
         arcAngle, false, paint); // 호(arc)를 그림.
-
-    drawText(canvas, size, "${(percentage*1000).round()} / 1000"); // 텍스트를 화면에 표시함.
+    drawText(canvas, size, "${(percentage *1000).round()} / 1000"); // 텍스트를 화면에 표시함.
   }
 
   // 원의 중앙에 텍스트를 적음.
