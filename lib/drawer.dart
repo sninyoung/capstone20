@@ -17,6 +17,8 @@ import 'package:capstone/screens/post/notice.dart';
 import 'package:capstone/screens/prof/prof_profile.dart';
 import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
+import 'package:capstone/screens/subject/MSmain.dart';
+
 
 class MyDrawer extends StatefulWidget {
 
@@ -346,6 +348,23 @@ class _MyDrawerState extends State<MyDrawer> {
                               MaterialPageRoute(builder: (context) => MyScorePage()),
                             );
                           }
+                      ),
+                    ]),
+
+                ExpansionTile(
+                    title: Text('과목정보'),
+                    leading: Icon(Icons.menu_book_rounded, color: Colors.grey[800]),
+                    children: <Widget>[
+                      ListTile(
+                        leading: Icon(Icons.search, color: Colors.grey[800]),
+                        title: Text('전공과목 정보'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MSmain()),
+                          );
+                        },
                       ),
                     ]),
 
