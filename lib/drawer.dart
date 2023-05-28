@@ -3,6 +3,7 @@ import 'package:capstone/screens/completion/completion_status.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
+import 'package:capstone/screens/gScore/gscore_admin_check.dart';
 import 'package:capstone/screens/login/adminsingup.dart';
 import 'package:capstone/screens/login/profile.dart';
 import 'package:capstone/screens/post/feedbackpage.dart';
@@ -471,6 +472,16 @@ class _MyDrawerState extends State<MyDrawer> {
                               MaterialPageRoute(builder: (context) => AdminGScoreForm()),
                             );
                           }
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.search, color: Colors.grey[800]),
+                        title: Text('졸업인증점수 검색'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AdminCheckPage()),
+                          );
+                        },
                       ),
                       ListTile(
                           leading: Icon(Icons.dynamic_feed, color: Colors.grey[800]),
