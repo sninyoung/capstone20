@@ -66,7 +66,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     elevation: 0.0,
     ),
     drawer: MyDrawer(),
-    body: SizedBox.expand(
+    body: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
