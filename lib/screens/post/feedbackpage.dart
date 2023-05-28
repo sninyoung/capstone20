@@ -1,80 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/post/PostScreen.dart';
+import 'package:capstone/screens/post/WritePostScreen.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone/drawer.dart';
 void main() {
   runApp(MaterialApp(
-    title: '내가 쓴 글',
-    home: MyPost(),
+    title: '피드백',
+    home: FeedBackScreen(),
   ));
 }
 
-class MyPost extends StatefulWidget {
+class FeedBackScreen extends StatefulWidget {
   @override
-  _MyPostState createState() => _MyPostState();
+  _FeedBackScreenState createState() => _FeedBackScreenState();
 }
 
-class _MyPostState extends State<MyPost> {
+class _FeedBackScreenState extends State<FeedBackScreen> {
   late Future<List<dynamic>> _posts;
+  TextEditingController _searchController = TextEditingController();
+  List<dynamic> _filteredPosts = [];
+  List<dynamic> allPosts = [];
 
   @override
   void initState() {
     super.initState();
     _posts = _fetchPosts();
   }
-  String _errorMessage = '';
-  bool _isLoading = false;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<List<dynamic>> _fetchPosts() async {
-    setState(() => _isLoading = true);
-
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    if (token == null) {
-      // 예외 처리
-      throw Exception('Failed to load token');
-    }
-
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/post/mypost'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-    );
-
-    if (response.statusCode == 201) {
+    final response = await http
+        .get(Uri.parse('http://3.39.88.187:3000/post/posts?board_id=90'));
+    if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-
       throw Exception('Failed to load posts');
     }
   }
 
-  //댓글 갯수 표시 기능 구현중
-  Future _fetchCommentsCount() async {
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/post/commentsAll'),
-    );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load comments count');
-    }
+
+  void _filterPosts(String keyword) async {
+    allPosts = await _posts;
+    _filteredPosts = allPosts.where((post) {
+      final title = post['post_title'].toLowerCase();
+      final content = post['post_content'].toLowerCase();
+      return title.contains(keyword) || content.contains(keyword);
+    }).toList();
+    setState(() {
+      allPosts;
+      _filteredPosts;
+    });
   }
-
-
-
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
     DateTime postDateTime = DateTime.parse(post['post_date']);
     DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
     return GestureDetector(
-
       onTap: () async {
         await Navigator.push(
           context,
@@ -101,19 +83,6 @@ class _MyPostState extends State<MyPost> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                post['board_id'] == 1
-                    ? '자유게시판'
-                    : post['board_id'] == 2
-                    ? '구인구직게시판'
-                    : post['board_id'] == 4
-                    ? 'QNA'
-                    : '', // 99인 경우 아무것도 출력하지 않음
-                style: TextStyle(
-                  fontSize: 10.0,
-
-                ),
-              ),
               Text(
                 post['post_title'],
                 style: TextStyle(
@@ -167,7 +136,7 @@ class _MyPostState extends State<MyPost> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '내가 쓴 글',
+          '피드백',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -178,29 +147,74 @@ class _MyPostState extends State<MyPost> {
         centerTitle: true,
         elevation: 0.0,
       ),
+      drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<dynamic>>(
-          future: _posts,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final posts = snapshot.data!;
-              return ListView.builder(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  return _buildPostItem(context, posts[index]);
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: '검색어를 입력하세요',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    _filterPosts(_searchController.text);
+                  },
+                ),
+              ],
+            ),
+            Expanded(
+              child: FutureBuilder<List<dynamic>>(
+                future: _posts,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final posts = snapshot.data!;
+                    final filterposts = _searchController.text.isEmpty ? posts : _filteredPosts;
+                    return ListView.builder(
+                      itemCount: filterposts.length,
+                      itemBuilder: (context, index) {
+                        return _buildPostItem(context, filterposts[index]);
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('${snapshot.error}'),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 },
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('${snapshot.error}'),
-              );
-            }
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
+              ),
+            ),
+          ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WritePostScreen(boardId: 1),
+            ),
+          ).then((value) {
+            if (value == true) {
+              setState(() {
+                _posts = _fetchPosts();
+              });
+            }
+          });
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Color(0xffC1D3FF),
       ),
     );
   }

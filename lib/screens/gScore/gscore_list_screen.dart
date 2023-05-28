@@ -75,8 +75,6 @@ class _GScoreForm extends State<GScoreForm> {
   }
 
 
-
-
   Future<void> _fetchMyPosts() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -285,34 +283,38 @@ class _GScoreForm extends State<GScoreForm> {
         ),
         body:ListView(children: [
           Container(height: MediaQuery.of(context).size.height * 0.01),
-          Container(
-              padding: EdgeInsets.all(16.0), // 상하좌우 16.0씩 padding 적용
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Container(
               width: MediaQuery.of(context).size.width * 0.97,
               height: MediaQuery.of(context).size.height * 0.2,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: Colors.black,
-                  width: 2,
-                ),
+                color: Color(0xFFF4F5F9),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
-                  children:[
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(fontSize: 13.0, color: Colors.black),
-                        children: <TextSpan>[
-                          TextSpan(text: '1. 각 항목별 점수를 확인해주세요.\n'),
-                          TextSpan(text: '2. TOPCIT 점수는 수기 입력을 통해 계산됩니다. \n', style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.'),
-                        ],
-                      ),
-                    )
-
-                  ]
-              )
-
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 13.0, color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(text: '1. 각 항목별 점수를 확인해주세요.\n'),
+                        TextSpan(
+                          text: '2. TOPCIT 점수는 수기 입력을 통해 계산됩니다. \n',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: '3. 인턴쉽, 해외연수 50일 이상의 점수는\n    캘린더의 시작일, 종료일로 계산됩니다.',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+
+
           Container(
               height: MediaQuery.of(context).size.height * 0.01
           ),
@@ -378,7 +380,7 @@ class _GScoreForm extends State<GScoreForm> {
               Expanded(
                 flex: 7,
                 child: Visibility(
-                  visible: userPermission == 2, // permission 값이 2인 경우에만 보이도록 설정
+                  visible: userPermission == 2 || userPermission == 3, // permission 값이 2또는 3인 경우에만 보이도록 설정
                   child: Container(
                     margin: EdgeInsets.only(right: 8.0),
                     child: TextField(
@@ -405,20 +407,29 @@ class _GScoreForm extends State<GScoreForm> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => GScoreApc()),
-                  );
+                  if(userPermission ==1){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GScoreApc()),
+                    );
+                  }
                 },
                 child: Text(
                   '신청',
                   style: TextStyle(fontSize: 15),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xffC1D3FF),
-                  fixedSize: Size(width * 0.08, height * 0.055),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    userPermission == 1
+                        ? Color(0xffC1D3FF)
+                        : Color(0xffbabfcc),
+                  ),
+                  fixedSize: MaterialStateProperty.all<Size>(
+                    Size(width * 0.08, height * 0.055),
+                  ),
                 ),
               ),
+
               Container(width: 10,),
             ],
           ),

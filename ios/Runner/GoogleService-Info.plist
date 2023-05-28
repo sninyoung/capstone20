@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>241700246642-gpr0rb8ed993usffo5huh6tt82s2ie2e.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.241700246642-gpr0rb8ed993usffo5huh6tt82s2ie2e</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCi2Yn9YFr45OQv8O2ge1nLHF77uqJPmn8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>241700246642</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.capstone</string>
+	<key>PROJECT_ID</key>
+	<string>capstone-c28c6</string>
+	<key>STORAGE_BUCKET</key>
+	<string>capstone-c28c6.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:241700246642:ios:aa36b780abe2265f4adeeb</string>
+	<key>DATABASE_URL</key>
+	<string>https://capstone-c28c6-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>

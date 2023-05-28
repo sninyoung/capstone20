@@ -19,6 +19,9 @@ class FreeBoardScreen extends StatefulWidget {
 
 class _FreeBoardScreenState extends State<FreeBoardScreen> {
   late Future<List<dynamic>> _posts;
+  TextEditingController _searchController = TextEditingController();
+  List<dynamic> _filteredPosts = [];
+  List<dynamic> allPosts = [];
 
   @override
   void initState() {
@@ -48,10 +51,23 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
     }
   }
 
-
-
+  void _filterPosts(String keyword) async {
+    allPosts = await _posts;
+    _filteredPosts = allPosts.where((post) {
+      final title = post['post_title'].toLowerCase();
+      final content = post['post_content'].toLowerCase();
+      return title.contains(keyword) || content.contains(keyword);
+    }).toList();
+    setState(() {
+      allPosts;
+      _filteredPosts;
+    });
+  }
 
   Widget _buildPostItem(BuildContext context, dynamic post) {
+    DateTime postDateTime = DateTime.parse(post['post_date']);
+    DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
+
     return GestureDetector(
       onTap: () async {
         await Navigator.push(
@@ -108,7 +124,7 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
                   ),
                   Text(
                     DateFormat('yyyy-MM-dd HH:mm:ss')
-                        .format(DateTime.parse(post['post_date'])),
+                        .format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
@@ -177,26 +193,52 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
       drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<dynamic>>(
-          future: _posts,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final posts = snapshot.data!;
-              return ListView.builder(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  return _buildPostItem(context, posts[index]);
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: '검색어를 입력하세요',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    _filterPosts(_searchController.text);
+                  },
+                ),
+              ],
+            ),
+            Expanded(
+              child: FutureBuilder<List<dynamic>>(
+                future: _posts,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final posts = snapshot.data!;
+                    final filterposts = _searchController.text.isEmpty ? posts : _filteredPosts;
+                    return ListView.builder(
+                      itemCount: filterposts.length,
+                      itemBuilder: (context, index) {
+                        return _buildPostItem(context, filterposts[index]);
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('${snapshot.error}'),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 },
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('${snapshot.error}'),
-              );
-            }
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(

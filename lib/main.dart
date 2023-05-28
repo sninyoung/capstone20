@@ -14,11 +14,48 @@ import 'package:capstone/screens/post/notice_2nd.dart' as Notice2nd;
 import 'package:capstone/screens/post/notice_3rd.dart' as Notice3rd;
 import 'package:capstone/screens/post/notice_4th.dart' as Notice4th;
 import 'package:capstone/screens/post/notice_all.dart' as NoticeAll;
-import 'package:capstone/screens/post/free_board.dart' as FreeNotice;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 
+//파이어베이스 알림 기능 구현을 위한,,뭐시기
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
 
 void main() async {
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  //======↓IOS용 권한 허용 코드↓=========
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  print('User granted permission: ${settings.authorizationStatus}');
+  //======↑IOS용 권한 허용 코드↑=========
+
+  FirebaseMessaging.instance.getToken().then((token) {
+    //토큰 확인용 코드
+    // print('Firebase Cloud Messaging Token: $token');
+  });
+
   runApp(MyApp());
 }
 
@@ -75,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
+    sumScore = 0;
 
     if (token == null) {
       return;
@@ -130,7 +168,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
         });
       });
   }
-
+  void logout(BuildContext context) async {
+    final storage = new FlutterSecureStorage();
+    await storage.delete(key: 'token');
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -459,10 +505,33 @@ class PercentDonutPaint extends CustomPainter {
   double percentage;
   double textScaleFactor = 1.0; // 파이 차트에 들어갈 텍스트 크기를 정합니다.
   Color activeColor;
+  Map<String, dynamic> maxScore = {};
+
   PercentDonutPaint({required this.percentage, required this.activeColor});
+
+  Future<void> _getMaxScore() async { // 수정된 부분: Future<void> 반환 타입 추가
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final maxScoreTemp = jsonDecode(response.body);
+      for (var item in maxScoreTemp) {
+        String categoryName = item['max_category'];
+        int categoryScore = item['max_score'];
+        maxScore[categoryName] = categoryScore;
+      }
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
+    _getMaxScore();
     Paint paint = Paint() // 화면에 그릴 때 쓸 Paint를 정의합니다.
       ..color = Color(0xfff3f3f3)
       ..strokeWidth = 15.0 // 선의 길이를 정합니다.
@@ -481,8 +550,7 @@ class PercentDonutPaint extends CustomPainter {
     paint.color = activeColor; // 호를 그릴 때는 색을 바꿔줌.
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius),-pi / 2,
         arcAngle, false, paint); // 호(arc)를 그림.
-
-    drawText(canvas, size, "${(percentage*1000).round()} / 1000"); // 텍스트를 화면에 표시함.
+    drawText(canvas, size, "${(percentage *1000).round()} / 1000"); // 텍스트를 화면에 표시함.
   }
 
   // 원의 중앙에 텍스트를 적음.

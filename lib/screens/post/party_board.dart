@@ -20,6 +20,9 @@ class PartyBoardScreen extends StatefulWidget {
 
 class _FreeBoardScreenState extends State<PartyBoardScreen> {
   late Future<List<dynamic>> _jobposts;
+  TextEditingController _searchController = TextEditingController();
+  List<dynamic> _filteredPosts = [];
+  List<dynamic> allPosts = [];
 
   @override
   void initState() {
@@ -36,7 +39,22 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
     }
   }
 
+  void _filterPosts(String keyword) async {
+    allPosts = await _jobposts;
+    _filteredPosts = allPosts.where((post) {
+      final title = post['post_title'].toLowerCase();
+      final content = post['post_content'].toLowerCase();
+      return title.contains(keyword) || content.contains(keyword);
+    }).toList();
+    setState(() {
+      allPosts;
+      _filteredPosts;
+    });
+  }
+
   Widget _buildPostItem(BuildContext context, dynamic post) {
+    DateTime postDateTime = DateTime.parse(post['post_date']);
+    DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -97,7 +115,7 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
                     ),
                   ),
                   Text(
-                    DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(post['post_date'])),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
@@ -134,16 +152,35 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: '검색어를 입력하세요',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    _filterPosts(_searchController.text);
+                  },
+                ),
+              ],
+            ),
             Expanded(
               child: FutureBuilder<List<dynamic>>(
                 future: _jobposts,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final jobposts = snapshot.data!;
+                    final posts = _searchController.text.isEmpty ? jobposts : _filteredPosts;
                     return ListView.builder(
-                      itemCount: jobposts.length,
+                      itemCount: posts.length,
                       itemBuilder: (context, index) {
-                        return _buildPostItem(context, jobposts[index]);
+                        return _buildPostItem(context, posts[index]);
                       },
                     );
                   } else if (snapshot.hasError) {

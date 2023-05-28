@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 
 
 
@@ -30,7 +31,7 @@ class GScoreApcCt extends StatefulWidget {
 class _GScoreApcCtState extends State<GScoreApcCt> {
 
   String? _selectedActivityType;
-
+  bool _isLoading = false;
   int? userId;
   int? userPermission;
   String? userName;
@@ -55,14 +56,15 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   // 점수를 입력할 수 있는 박스에서 입력된 값
   int? _acceptedScore;
   int? _subscore;
+  int? _inputscore;
   int? wasUploadedacceptedScore;
   // 신청 상태에 대한 드롭다운형식의 콤보박스에서 선택된 값
   String? _applicationStatus;
   String? wasUploadedpass;
-  String? _content;
+  TextEditingController _contentController = TextEditingController();
 
   // 반려 사유를 입력할 수 있는 텍스트 입력박스에서 입력된 값
-  String? _rejectionReason;
+  TextEditingController _reasonController = TextEditingController();
 
 
 
@@ -78,7 +80,20 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   PlatformFile? selectedFile; //저장소에서 선택한 파일
 
+  //작성된 게시글 번호
+  // 현재 페이지에는 int postUserId 변수에 할당되어 있음
 
+  //게시글이 정상적으로 업로드 되었는지 체크
+  int postUploadCheck = 0;
+
+  //파일이 정상적으로 서버에 업로드 되었는지 체크
+  int fileUploadCheck = 0;
+
+  //게시글이 정상적으로 삭제되었는지 체크
+  int postDeleteCheck = 0;
+
+  //새로 업로드할 파일의 정보
+  Map<String, dynamic> fileInfo={};
 
   List<String> activityTypes = []; //활동 종류(카테고리)
 
@@ -88,10 +103,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _scoreController = TextEditingController();
-  late Future<dynamic> _posts =  Future(() => null);
-
-  List<dynamic> allPosts = [];
-  List<dynamic> filteredPosts = [];
 
   @override
   void initState() {
@@ -99,39 +110,6 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     _fetchGsInfo();
     _fetchContent();
     _getUserInfo();
-  }
-  Future<void> _fetchMyPosts() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-
-    if(token == null){
-      return ;
-    }
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/posts'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      _posts = Future.value(data);
-      allPosts = await _posts;
-      filteredPosts = allPosts;
-
-      setState(() {
-        _posts;
-        allPosts;
-        filteredPosts;
-      });
-    } else if(response.statusCode == 401){
-      throw Exception('로그인 정보 만료됨');
-    }
-    else if(response.statusCode == 500){
-      throw Exception('서버 에러');
-    }
   }
   Future<void> _getWriterInfo() async {
 
@@ -154,32 +132,43 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
   }
 
   Future<void> _fetchGsInfo() async {
-    final response =
-    await http.get(Uri.parse('http://3.39.88.187:3000/gScore/info'));
-
-    if (response.statusCode == 200) {
-      final funcResult = jsonDecode(response.body);
-      for (var item in funcResult) {
-        String gsinfoType = item['gsinfo_type'];
-        if (!activityTypes.contains(gsinfoType)) {
-          activityTypes.add(gsinfoType);
-          activityNames[gsinfoType] = {};
-
-          setState(() {
-            activityTypes;
-            activityNames;
-          });
+    if (activityTypes.isEmpty) {
+      final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      if (typeResponse.statusCode == 200) {
+        final typeResult = jsonDecode(typeResponse.body);
+        for (var typeItem in typeResult) {
+          String gsinfoType = typeItem['gsinfo_type'];
+          if (!activityTypes.contains(gsinfoType)) {
+            activityTypes.add(gsinfoType);
+          }
         }
-
-        String gsinfoName = item['gsinfo_name'];
-        int gsinfoScore = item['gsinfo_score'];
-
-        if (activityNames.containsKey(gsinfoType)) {
-          activityNames[gsinfoType]![gsinfoName] = gsinfoScore;
-        }
+        setState(() {
+          activityTypes;
+        });
+      } else {
+        throw Exception('Failed to load types');
       }
-    } else {
-      throw Exception('Failed to load posts');
+    }
+  }
+
+  Future<void> _fetchNamesAndScores(String selectedType) async {
+    if (!activityNames.containsKey(selectedType)) {
+      final encodedType = Uri.encodeComponent(selectedType);
+      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      if (infoResponse.statusCode == 200) {
+        final infoResult = jsonDecode(infoResponse.body);
+        activityNames[selectedType] = {};
+        for (var infoItem in infoResult) {
+          String gsinfoName = infoItem['gsinfo_name'];
+          int gsinfoScore = infoItem['gsinfo_score'];
+          activityNames[selectedType]![gsinfoName] = gsinfoScore;
+        }
+        setState(() {
+          activityNames;
+        });
+      } else {
+        throw Exception('Failed to load names and scores');
+      }
     }
   }
 
@@ -204,13 +193,13 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       _applicationStatus = widget.post['gspost_pass'].toString();
 
       if (widget.post['gspost_content'] != null) {
-        _content = widget.post['gspost_content'].toString();
+        _contentController.text = widget.post['gspost_content'].toString();
       }
 
 
 
       if (widget.post['gspost_reason'] != null) {
-        _rejectionReason = widget.post['gspost_reason'].toString();
+        _reasonController.text = widget.post['gspost_reason'].toString();
       }
 
       wasUploadedFile = widget.post['gspost_file'];
@@ -328,80 +317,158 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
   }
 
-  void updateFile() async{
+  Future<void> updateFile() async{
+    setState(() => _isLoading = true);
     if(selectedFile!=null){
       if(wasUploadedFile==1){
-        deleteFile();
-        uploadFile();
+        await deleteFile();
+        await uploadFile();
+        if(fileUploadCheck ==1){
+          await _uploadfileToDB();
+        }
       }
       else{
-        uploadFile();
+        await uploadFile();
+        if(fileUploadCheck ==1){
+          await _uploadfileToDB();
+        }
       }
 
     }else{
       if(wasUploadedFile==1 && uploadedFileName==null){
-        deleteFile();
+        await deleteFile();
       }
 
     }
-
+    setState(() => _isLoading = false); // 버튼 활성화
 
   }
 
-  void uploadFile() async{
-    int postId = widget.post['gspost_id'];
-
-    if(selectedFile == null){Navigator.pop(context);}
-
-    else if(selectedFile!=null){
+  Future<void> uploadFile() async {
+    if (selectedFile != null) {
       final String fileName = selectedFile!.name;
       final bytes = File(selectedFile!.path!).readAsBytesSync();
 
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://3.39.88.187:3000/gScore/upload'),
-      );
+      final maxRetries = 3; // 최대 재시도 횟수
+      var retryCount = 0; // 현재 재시도 횟수
 
+      while (retryCount < maxRetries) {
+        try {
+          final request = http.MultipartRequest(
+            'POST',
+            Uri.parse('http://3.39.88.187:3000/gScore/upload'),
+          );
 
-      request.files.add(
-        http.MultipartFile.fromBytes('file', bytes, filename: fileName),
-      );
+          request.files.add(
+            http.MultipartFile.fromBytes('file', bytes, filename: fileName),
+          );
 
-      request.fields['gspostid'] = postId.toString();
+          request.fields['gspostid'] = widget.post['gspost_id'].toString();
+          final response = await request.send();
 
-      final response = await request.send();
+          print(response.statusCode);
+          if (response.statusCode == 201) {
+            print("파일 등록 성공");
 
-      if (response.statusCode == 201) {
-        print("파일 등록 성공");
+            var responseData = await response.stream.bytesToString();
+            var decodedData = json.decode(responseData);
+            var file = decodedData['file'];
 
-      } else {
-        print(response.statusCode);
-        print("파일 등록 실패");
+            fileInfo = {
+              'post_id': widget.post['gspost_id'],
+              'file_name': file['filename'],
+              'file_original_name': file['originalname'],
+              'file_size': file['size'],
+              'file_path': file['path'],
+            };
+            fileUploadCheck = 1;
+
+            print(fileInfo);
+            return; // 성공적으로 요청을 보냈으면 메서드를 종료
+          } else {
+            print(response.statusCode);
+            print("파일 등록 실패");
+          }
+        } catch (error) {
+          print('등록 네트워크 연결 오류: $error');
+        }
+
+        retryCount++;
+        await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
       }
 
+      print('재시도 횟수 초과');
     }
-
-
   }
 
-  void deleteFile() async {
+  Future<void> _uploadfileToDB() async {
+    final maxRetries = 3; // 최대 재시도 횟수
+    var retryCount = 0; // 현재 재시도 횟수
 
-    final response = await http.delete(
-      Uri.parse('http://3.39.88.187:3000/gScore/deleteFile?reqPath=${Uri.encodeComponent(uploadedFilePath ?? '')}'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+    while (retryCount < maxRetries) {
+      try {
+        final response = await http.post(
+          Uri.parse('http://3.39.88.187:3000/gScore/fileToDB'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(fileInfo),
+        );
 
-    if (response.statusCode == 200) {
-      print('파일 삭제 성공');
-    }else{
-      print(response.statusCode);
-      print('파일 삭제 실패');
+        if (response.statusCode == 201) {
+          print('DB저장 완료');
+          return; // 성공적으로 요청을 보냈으면 메서드를 종료
+        } else {
+          print(response.statusCode);
+          print('DB 에러');
+        }
+      } catch (error) {
+        print('db 네트워크 연결 오류: $error');
+      }
+
+      retryCount++;
+      await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
     }
 
+    print('재시도 횟수 초과'); // 최대 재시도 횟수를 초과하면 에러 메시지 출력
   }
-  void updatePost() async {
+
+  Future<void> deleteFile() async {
+    setState(() => _isLoading = true);
+    if(wasUploadedFile==1) {
+      final maxRetries = 3; // 최대 재시도 횟수
+      var retryCount = 0; // 현재 재시도 횟수
+      while (retryCount < maxRetries) {
+        try {
+          final response = await http.delete(
+            Uri.parse(
+                'http://3.39.88.187:3000/gScore/deleteFile?reqPath=${Uri
+                    .encodeComponent(uploadedFilePath ?? '')}'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+          );
+          setState(() => _isLoading = false); // 버튼 활성화
+          if (response.statusCode == 200) {
+            print('파일 삭제 성공');
+            return; // 성공적으로 요청을 보냈으면 메서드를 종료
+          } else {
+            print(response.statusCode);
+            print('파일 삭제 실패');
+          }
+        } catch (error) {
+          print('삭제 네트워크 연결 오류: $error');
+        }
+
+        retryCount++;
+        await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
+      }
+
+      print('재시도 횟수 초과');
+    }
+  }
+  Future<void> updatePost() async {
+    setState(() => _isLoading = true);
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -412,9 +479,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     }
     if(_activityName == 'TOPCIT' || _activityName == '50일 이상'){
       print(_acceptedScore);
+      _subscore = _inputscore;
     }
     else{
-      _acceptedScore = int.tryParse(_activityScore);
+      _subscore = int.tryParse(_activityScore);
     }
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
     final Map<String, dynamic> postData = {
@@ -422,15 +490,15 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       'gs_user': widget.post['gsuser_id'],
       'gspost_category': _activityType,
       'gspost_item': _activityName,
-      'gspost_content': _content,
+      'gspost_content': _contentController.text,
+      'gspost_score': _subscore,
       'prev_gspost_pass': widget.post['gspost_pass'],
       'gspost_pass': _applicationStatus,
-      'gspost_reason': _rejectionReason,
+      'gspost_reason': _reasonController.text,
       'gspost_start_date': _startDate != null ? formatter.format(_startDate!) : null,
       'gspost_end_date': _endDate != null ? formatter.format(_endDate!) : null,
       'gspost_file': fileCheck,
       'prev_acceptedScore': widget.post['gspost_accepted_score'],
-      'acceptedScore': _acceptedScore,
     };
     final response = await http.post(
       Uri.parse('http://3.39.88.187:3000/gScore/update'),
@@ -440,19 +508,20 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       },
       body: jsonEncode(postData),
     );
-
     if (response.statusCode == 200) {
+      postUploadCheck = 1;
       print("게시글 업데이트 성공");
       print(postData);
-      Navigator.pop(context);
     } else {
+      postUploadCheck = 0;
       print(response.statusCode);
       print(postData);
       print("게시글 업데이트 실패");
     }
-    await _fetchMyPosts();
   }
-  void deletePost() async {
+
+  Future<void> deletePost() async {
+    setState(() => _isLoading = true);
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -462,29 +531,27 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       return;
     }
 
-    final postData = {
-      'postId': widget.post['gspost_id'],
-    };
+    final postId = widget.post['gspost_id'];
+    final url = Uri.parse('http://3.39.88.187:3000/gScore/deletePost?postId=$postId');
 
     final response = await http.delete(
-      Uri.parse('http://3.39.88.187:3000/gScore/deletePost'),
+      url,
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
       },
-      body: jsonEncode(postData),
     );
-
+    setState(() => _isLoading = false); // 버튼 활성화
     if (response.statusCode == 200) {
+      postDeleteCheck = 1;
       print("게시글 삭제 성공");
-      print(postData);
-      Navigator.pop(context);
+      if(wasUploadedFile ==1){
+        await deleteFile();
+      }
     } else {
-      print(response.statusCode);
-      print( widget.post['gspost_id']);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
       print("게시글 삭제 실패");
+      print(response.statusCode);
     }
-    await _fetchMyPosts();
   }
   //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
   void _onActivityTypeChanged(String? newValue) {
@@ -494,6 +561,10 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       _scoreController.text = '';
       _activityScore = '';
     });
+
+    if (newValue != null) {
+      _fetchNamesAndScores(newValue);
+    }
   }
 
 
@@ -536,15 +607,20 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
         );
       },
     );
-
     if (result == true) {
-      deletePost(); // 게시물 삭제 함수 호출
-      if (wasUploadedFile == 1) {
-        deleteFile(); // 파일 삭제 함수 호출
-      }
-      Navigator.pop(context);
+      await deletePost(); // 게시물 삭제 함수 호출
+    }
+    if(postDeleteCheck ==1){
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => GScoreForm()))
+          .then((value) {
+        setState(() {});
+      });
     }
   }
+
   void _subscore_function(String value){
     if (value.isNotEmpty &&
         _activityName == 'TOPCIT' ||
@@ -593,7 +669,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
               children: <Widget>[
                 Row(
                   children: [
-                    if (userPermission == 2)
+                    if (userPermission == 2 || userPermission == 3)
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -612,7 +688,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           ),
                         ),
                       ),
-                    if (userPermission == 2)
+                    if (userPermission == 2 || userPermission == 3)
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -646,7 +722,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         ? _activityType
                         : _selectedActivityType ?? _activityType,
                     onChanged:
-                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                    (userPermission == 2) || (_applicationStatus == '승인' || _applicationStatus == '반려') || (userPermission == 3)
                         ? null
                         : _onActivityTypeChanged,
                     items: activityTypes
@@ -668,7 +744,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                     ),
                     value: _activityName,
                     onChanged:
-                    _applicationStatus == '승인' || _applicationStatus == '반려'
+                    (userPermission == 2) || (_applicationStatus == '승인' || _applicationStatus == '반려')
                         ? null
                         : _onActivityNameChanged,
                     items:
@@ -766,19 +842,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          readOnly: _activityName == 'TOPCIT' ||
-                              _activityName == '50일 이상'
-                              ? false
-                              : true,
+                          readOnly: _activityName == 'TOPCIT' || _activityName == '50일 이상' ? false : true,
                           decoration: const InputDecoration(
                             labelText: '점수',
                             border: OutlineInputBorder(),
                           ),
                           onChanged: _subscore_function,
                           controller: TextEditingController(
-                              text: _activityName == 'TOPCIT' && _subscore != null ? _subscore.toString()
-                                  : _activityName == '50일 이상' && _subscore != null ? _subscore.toString()
-                                  : activityNames[_activityType]?[_activityName]?.toString() ?? ''
+                            text: _activityScore != null ? _activityScore : activityNames[_activityType]?[_activityName]?.toString() ?? '',
                           ),
                         ),
                       ),
@@ -788,7 +859,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         padding: const EdgeInsets.all(8.0),
                         child: _activityName == 'TOPCIT' || _activityName == '50일 이상'
                             ? TextFormField(
-                          readOnly: userPermission != 2,
+                          enabled: userPermission == 2,
+                          readOnly: widget.post['gspost_accepted_score'] == null,
+                          initialValue: widget.post['gspost_accepted_score']?.toString() ?? '',
                           decoration: const InputDecoration(
                             labelText: '승인 점수',
                             border: OutlineInputBorder(),
@@ -796,14 +869,18 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              if (_activityName == 'TOPCIT' || _activityName == '50일 이상')
-                              {
-                                _acceptedScore = int.tryParse(value);
-                              }
+                              _inputscore = int.tryParse(value);
                             });
                           },
                         )
-                            : Container(),
+                            : TextFormField(
+                          enabled: false,
+                          initialValue: widget.post['gspost_accepted_score']?.toString() ?? '',
+                          decoration: const InputDecoration(
+                            labelText: '승인 점수',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -841,17 +918,12 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                     readOnly: _applicationStatus == '승인' ||
-                        _applicationStatus == '반려',
+                        _applicationStatus == '반려' || userPermission == 3,
                     decoration: const InputDecoration(
                       labelText: '비고',
                       border: OutlineInputBorder(),
                     ),
-                    controller: TextEditingController(text: _content),
-                    onChanged: (value) {
-                      setState(() {
-                        _content = value;
-                      });
-                    },
+                    controller: _contentController,
                   ),
                 ),
 
@@ -867,11 +939,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                         border: OutlineInputBorder(),
                       ),
                       enabled: userPermission == 2,
-                      onChanged: (value) {
-                        setState(() {
-                          _rejectionReason = value;
-                        });
-                      },
+                      controller: _reasonController,
                     )),
                 SizedBox(height: 8.0),
                 // 첨부파일 업로드박스
@@ -1001,14 +1069,14 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                           elevation: 5.0, //그림자효과
                           borderRadius: BorderRadius.circular(30.0), //둥근효과
-                          color: (userPermission == 2 || _applicationStatus == '대기')
+                          color: ((userPermission == 2 || _applicationStatus == '대기') && userPermission != 3)
                               ? const Color(0xffC1D3FF)
                               : const Color(0xff808080),
                           child: MaterialButton(
-                            onPressed: (userPermission == 2 || _applicationStatus == '대기') ? () {
+                            onPressed: ((userPermission == 2 || _applicationStatus == '대기'|| _isLoading) && userPermission !=3) ? () {
                               deletePostConfirmation();
                             } : null,
-                            child: const Text(
+                            child: _isLoading ? CircularProgressIndicator() :Text(
                               "삭제하기",
                               style: TextStyle(
                                 color: Colors.white,
@@ -1023,20 +1091,34 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
                       child: Material(
                         elevation: 5.0, //그림자효과
                         borderRadius: BorderRadius.circular(30.0), //둥근효과
-                        color: (userPermission == 2 || _applicationStatus == '대기')
+                        color: ((userPermission == 2 || _applicationStatus == '대기') && userPermission != 3)
                             ? const Color(0xffC1D3FF)
                             : const Color(0xff808080),
                         child: MaterialButton(
-                          onPressed: (userPermission == 2 || _applicationStatus == '대기')
-                              ? () {
-                            updateFile();
-                            updatePost();
+                          onPressed: ((userPermission == 2 || _applicationStatus == '대기'|| _isLoading) && userPermission !=3)
+                              ? () async{
+                            await updatePost();
+                            if(postUploadCheck == 1){
+                              setState(() => _isLoading = true);
+                              await updateFile();
+                              setState(() => _isLoading = false);
+                            }
+                            if(postUploadCheck ==1){
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => GScoreForm()))
+                                  .then((value) {
+                                setState(() {});
+                              });
+                            }else{
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 수정 실패: 서버 오류')));
+                            }
                             //수정 api
-                            Navigator.pop(context);
 
                           }
                               : null,
-                          child: const Text(
+                          child: _isLoading ? CircularProgressIndicator() :Text(
                             "수정하기",
                             style: TextStyle(
                               color: Colors.white,

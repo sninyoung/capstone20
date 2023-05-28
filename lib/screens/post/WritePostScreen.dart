@@ -37,7 +37,7 @@ class _WritePostScreenState extends State<WritePostScreen> {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('게시글 작성에 실패했습니다. (로그인 만료)')));
+            .showSnackBar(SnackBar(content: Text('게시글 작성에 실패했습니다. (로그인 만료)'), backgroundColor: Colors.red,));
       });
       return;
     }
