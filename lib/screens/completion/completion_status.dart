@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:capstone/drawer.dart';
 import 'package:dio/dio.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:core';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
@@ -54,17 +51,30 @@ class CompletionStatusPage extends StatefulWidget {
 class _CompletionStatusPageState extends State<CompletionStatusPage> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
+    return Scaffold(
+        appBar: AppBar(
+        title: Text(
+        '나의 이수현황',
+        style: TextStyle(
+        color: Colors.white,
+        fontSize: 20.0,
+        fontWeight: FontWeight.bold,
+    ),
+    ),
+    backgroundColor: Color(0xffC1D3FF),
+    centerTitle: true,
+    elevation: 0.0,
+    ),
+    drawer: MyDrawer(),
+    body: SizedBox.expand(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CompletionStatusTitle(),
-          StudentInfoWidget(
-            studentId: '',
-          ),
+          //StudentInfoWidget(studentId: '',),
           MajorCreditWidget(),
           CompletedSubjectTitle(),
-          //CompletedElectiveList(),
+          CompletedSubject(),
         ],
       ),
     );

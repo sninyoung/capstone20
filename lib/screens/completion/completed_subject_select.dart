@@ -129,8 +129,8 @@ class _CompletionSelectState extends State<CompletionSelect> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Subjects successfully saved!')),
               );
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletionStatusPage(context)),
-              );
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => CompletionStatusPage()),
+              // );
             } else {
               // 요청이 실패했을 경우 에러 메시지 표시
               ScaffoldMessenger.of(context).showSnackBar(
