@@ -36,7 +36,7 @@ Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
 }
 
 Future<Map<String, dynamic>> fetchProfessor(String proId) async {
-  final response = await http.get(Uri.parse('http://3.39.88.187:3000/prof/info?pro_id=$proId'));
+  final response = await http.get(Uri.parse('http://localhost:3000/prof/info?pro_id=$proId'));
   if (response.statusCode == 200) {
     final data = json.decode(response.body) as List<dynamic>;
     if (data.isNotEmpty) {

@@ -416,17 +416,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       );
                     }
                 ),
-                if (_userPermission == 2)
-                  ListTile(
-                  leading: Icon(Icons.person, color: Colors.grey[800]),
-                  title: Text('교수 정보 관리'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfProfile()),
-                    );
-                  },
-                ),
+
                 _accountPermission == "2" ?
                 ExpansionTile(
                     title: Text('관리자 페이지'),
@@ -441,6 +431,16 @@ class _MyDrawerState extends State<MyDrawer> {
                               MaterialPageRoute(builder: (context) => SignUpPage()),
                             );
                           }
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.person, color: Colors.grey[800]),
+                        title: Text('교수 정보 관리'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProfProfile()),
+                          );
+                        },
                       ),
                       ListTile(
                           leading: Icon(Icons.note_alt, color: Colors.grey[800]),

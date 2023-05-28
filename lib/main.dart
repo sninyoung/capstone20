@@ -21,6 +21,7 @@ import 'package:capstone/screens/post/QnA_board.dart' as QABoard;
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:async';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -304,13 +305,24 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   List<String> postTitles = [];
+  Timer? _timer;
+  bool hasFetchedData = false;
 
   @override
   void initState() {
     super.initState();
     _fetchPosts(); // 위젯 초기화시 게시물 가져오기
+
+    _timer = Timer.periodic(Duration(minutes: 15), (_) {
+      _fetchPosts();
+    });
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel(); // 타이머 중지
+    super.dispose();
+  }
   Future<void> _fetchPosts() async {
     // 게시물을 가져오는 코드를 작성합니다.
     String PartyTitlePost = '';
@@ -347,6 +359,7 @@ class _PostWidgetState extends State<PostWidget> {
         '$FreeTitlePost',
         '$QATitlePost',
       ];
+      hasFetchedData = true;
     });
   }
 
@@ -473,11 +486,20 @@ class NoticeWidget extends StatefulWidget {
 }
 class _NoticeWidgetState extends State<NoticeWidget> {
   List<String> noticeTitles = [];
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _fetchNotices(); // 위젯 초기화시 공지사항 가져오기
+    _fetchNotices(); // 위젯 초기화 시 공지사항 가져오기
+
+    _startFetchingNotices();
+  }
+
+  void _startFetchingNotices() {
+    _timer = Timer.periodic(Duration(minutes: 15), (timer) {
+      _fetchNotices(); // 공지사항 가져오기
+    });
   }
 
   Future<void> _fetchNotices() async {
@@ -527,10 +549,12 @@ class _NoticeWidgetState extends State<NoticeWidget> {
         '$noticeTitleAll',
       ];
     });
-    initState();
-    // initState()를 다시 호출하여 build() 메서드가 다시 실행되도록 합니다.
   }
-
+  @override
+  void dispose() {
+    _timer?.cancel(); // 위젯이 dispose될 때 타이머를 취소합니다.
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Column(
