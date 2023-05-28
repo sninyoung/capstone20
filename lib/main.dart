@@ -157,7 +157,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Scrollbar(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -177,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
                   color: Colors.grey,
                   thickness: 1,
                 ),
-                //PostWidget(),
+                PostWidget(),
                 Divider( // 추가: 실선
                   color: Colors.grey,
                   thickness: 1,
@@ -191,18 +190,19 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
             ),
           ),
         ),
-      ),
     );
   }
 }
 
 class SubWidget extends StatelessWidget {
+  final TextEditingController searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
+          padding: const EdgeInsets.only(left: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -247,25 +247,14 @@ class SubWidget extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          height: 190,
-          width: 350,
-          margin: EdgeInsets.only(left: 19, top: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Color(0xFF515151), // 테두리 색
-            ),
-          ),
-          // Container의 child widget 추가
-        ),
       ],
     );
   }
 }
 
-/*
+
+
+
 class PostWidget extends StatefulWidget {
   @override
   _PostWidgetState createState() => _PostWidgetState();
@@ -286,23 +275,23 @@ class _PostWidgetState extends State<PostWidget> {
     String FreeTitlePost = '';
     String QATitlePost = '';
 
-    PartyBoard.PartyBoardScreen partyBoardScreen = PartyBoard.PartyBoardScreen();
-    List<dynamic> fetchedPostParty = await partyBoardScreen.fetchPosts();
-
-    FreeBoard.FreeBoardScreen freeBoardScreen = FreeBoard.FreeBoardScreen();
-    List<dynamic> fetchedPostFree = await freeBoardScreen.fetchPosts();
-
-    QABoard.QnABoardScreen qnABoardScreen = QABoard.QnABoardScreen();
-    List<dynamic> fetchedPostQA = await qnABoardScreen.fetchPosts();
+    List<dynamic> fetchedPostParty = await PartyBoard.FreeBoardScreenState()
+        .fetchPosts();
+    List<dynamic> fetchedPostFree = await FreeBoard.FreeBoardScreenState()
+        .fetchPosts();
+    List<dynamic> fetchedPostQA = await QABoard.QnABoardScreenState()
+        .fetchPosts();
 
     // 각 리스트에서 최근 게시물이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
     if (fetchedPostParty.isNotEmpty) {
       String title = fetchedPostParty[0]['post_title'].toString();
-      PartyTitlePost = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      PartyTitlePost =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedPostFree.isNotEmpty) {
       String title = fetchedPostFree[0]['post_title'].toString();
-      FreeTitlePost = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      FreeTitlePost =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedPostQA.isNotEmpty) {
       String title = fetchedPostQA[0]['post_title'].toString();
@@ -322,81 +311,87 @@ class _PostWidgetState extends State<PostWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-        children: [
+      children: [
         Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-    Padding(
-    padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
-    child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-    Text(
-    '게시물',
-    style: TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
-    ),
-    ),
-    Text(
-      'post',
-      style: TextStyle(
-        fontSize: 16,
-        color: Colors.black45,
-      ),
-    ),
-    ],
-    ),
-    ),
-          Spacer(),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Post()),
-              );
-            },
-            child: Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.black45,
-              size: 16,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              elevation: 0,
-            ),
-          ),
-        ],
-        ),
-          Container(
-            height: 190,
-            width: 350,
-            margin: EdgeInsets.only(left: 19, top: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Color(0xFF515151), // 테두리 색
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '게시물',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'post',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: ListView.builder(
-              padding: EdgeInsets.zero, // ListView 내부의 패딩 제거
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: postTitles.length,
-              itemBuilder: (context, index) {
-                String grade = '';
+            Spacer(),
+          ],
+        ),
+        Container(
+          height: 120,
+          width: 350,
+          margin: EdgeInsets.only(left: 19, top: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Color(0xFF515151),
+            ),
+          ),
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: postTitles.length,
+            itemBuilder: (context, index) {
+              String grade = '';
 
-                if (index == 0) {
-                  grade = '구인구직 게시판   ';
-                } else if (index == 1) {
-                  grade = '자유 게시판      ';
-                } else if (index == 2) {
-                  grade = 'Q&A 게시판      ';
+              if (index == 0) {
+                grade = '구인구직 게시판   ';
+              } else if (index == 1) {
+                grade = '자유 게시판      ';
+              } else if (index == 2) {
+                grade = 'Q&A 게시판      ';
+              }
 
-                return Container(
-                  margin: EdgeInsets.only(left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
+              return InkWell(
+                onTap: () {
+                  if (index == 0) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>
+                          PartyBoard.PartyBoardScreen()), // 'JobBoardPage'로 이동
+                    );
+                  } else if (index == 1) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>
+                          FreeBoard.FreeBoardScreen()), // 'FreeBoardPage'로 이동
+                    );
+                  } else if (index == 2) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>
+                          QABoard.QnABoardScreen()), // 'QaBoardPage'로 이동
+                    );
+                  }
+                },
+                child: Container(
+                  margin: EdgeInsets.only(
+                      left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
                   child: Text.rich(
                     TextSpan(
                       children: [
@@ -417,19 +412,20 @@ class _PostWidgetState extends State<PostWidget> {
                       ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-          SizedBox(height: 16), // 원하는 크기로 설정하세요
-        ],
+        ),
+        SizedBox(height: 16),
+      ],
     );
   }
 }
-*/
 
 
-class NoticeWidget extends StatefulWidget {
+
+  class NoticeWidget extends StatefulWidget {
   @override
   _NoticeWidgetState createState() => _NoticeWidgetState();
 }
