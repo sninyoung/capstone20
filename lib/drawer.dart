@@ -358,6 +358,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       ListTile(
                         leading: Icon(Icons.search, color: Colors.grey[800]),
                         title: Text('전공과목 정보'),
+
                         onTap: () {
                           Navigator.push(
                             context,

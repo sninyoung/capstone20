@@ -105,7 +105,6 @@ class _MSmain extends State<MSmain> {
             Container(
               padding: EdgeInsets.fromLTRB(40, 30, 0, 1),
               child: Row(
-                //mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment:  MainAxisAlignment.spaceBetween,
                 children: [
