@@ -414,79 +414,206 @@ class _NoticeWidgetState extends State<NoticeWidget> {
 }
 
 
-class PercentDonut extends StatelessWidget {
+class PercentDonut extends StatefulWidget {
   const PercentDonut({Key? key, required this.percent, required this.color})
       : super(key: key);
   final percent;
   final color;
 
   @override
+  _PercentDonutState createState() => _PercentDonutState();
+}
+
+class _PercentDonutState extends State<PercentDonut> {
+  late Future<Map<String, dynamic>> _maxScoreFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _maxScoreFuture = _getMaxScore();
+  }
+
+  Future<Map<String, dynamic>> _getMaxScore() async {
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final maxScoreTemp = jsonDecode(response.body);
+      Map<String, dynamic> maxScore = {};
+      for (var item in maxScoreTemp) {
+        String categoryName = item['max_category'];
+        int categoryScore = item['max_score'];
+        maxScore[categoryName] = categoryScore;
+      }
+      return maxScore;
+    } else {
+      throw Exception('예외 발생');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-        height: 300,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(0)), // 직각 모서리 설정
-          border: Border.all(
-            color: Colors.white,
-            width: 2,
-          ),
+      padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
+      height: 380,
+      width: 380,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: Colors.black,
+          width: 2,
         ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [ Padding(
-                padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '졸업인증점수',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'graduation',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black45,
-                      ),
-                    ),
-                  ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 80,
+              ),
+              Text(
+                '졸업인증점수',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyScorePage()),
-                    );
-                  },
-                  child: Icon(
-                    Icons.arrow_forward_ios,
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyScorePage()),
+                  );
+                },
+                child: Text(
+                  '자세히',
+                  style: TextStyle(
                     color: Colors.black45,
-                    size: 16,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
+                    fontSize: 16,
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 25),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  onPrimary: Colors.black,
+                  elevation: 0,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            width: 300,
+            height: 300,
+            color: Colors.white,
+            child: FutureBuilder<Map<String, dynamic>>(
+              future: _maxScoreFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  Map<String, dynamic> maxScore = snapshot.data!;
 
-          ],
-        ),
+                  return CustomPaint(
+                    painter: PercentDonutPaint(
+                      percentage: widget.percent,
+                      activeColor: widget.color,
+                      maxScore: maxScore,
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
+class PercentDonutPaint extends CustomPainter {
+  final double percentage;
+  final double textScaleFactor;
+  final Color activeColor;
+  final Map<String, dynamic> maxScore;
+
+  PercentDonutPaint({
+    required this.percentage,
+    required this.activeColor,
+    required this.maxScore,
+    this.textScaleFactor = 1.0,
+  }) : super();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (maxScore.isEmpty) {
+      return;
+    }
+
+    Paint paint = Paint()
+      ..color = Color(0xfff3f3f3)
+      ..strokeWidth = 15.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    double radius = min(
+      size.width / 2 - paint.strokeWidth / 2,
+      size.height / 2 - paint.strokeWidth / 2,
+    );
+    Offset center = Offset(size.width / 2, size.height / 2);
+    canvas.drawCircle(center, radius, paint);
+
+    double arcAngle = 2 * pi * percentage;
+    paint.color = activeColor;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -pi / 2,
+      arcAngle,
+      false,
+      paint,
+    );
+
+    int maxScores = maxScore['총점'] ?? 0;
+    drawText(
+      canvas,
+      size,
+      "${(percentage * 1000).round()} / $maxScores",
+    );
+  }
+
+  void drawText(Canvas canvas, Size size, String text) {
+    double fontSize = getFontSize(size, text);
+
+    TextSpan sp = TextSpan(
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+      text: text,
+    );
+    TextPainter tp = TextPainter(text: sp, textDirection: TextDirection.ltr);
+
+    tp.layout();
+    double dx = size.width / 2 - tp.width / 2;
+    double dy = size.height / 2 - tp.height / 2;
+
+    Offset offset = Offset(dx, dy);
+    tp.paint(canvas, offset);
+  }
+
+  double getFontSize(Size size, String text) {
+    return size.width / text.length * textScaleFactor;
+  }
+
+  @override
+  bool shouldRepaint(PercentDonutPaint oldDelegate) {
+    return true;
+  }
+}
