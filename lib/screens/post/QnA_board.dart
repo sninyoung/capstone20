@@ -15,10 +15,10 @@ void main() {
 
 class QnABoardScreen extends StatefulWidget {
   @override
-  _QnABoardScreenState createState() => _QnABoardScreenState();
+  QnABoardScreenState createState() => QnABoardScreenState();
 }
 
-class _QnABoardScreenState extends State<QnABoardScreen> {
+class QnABoardScreenState extends State<QnABoardScreen> {
   late Future<List<dynamic>> _posts;
   TextEditingController _searchController = TextEditingController();
   List<dynamic> _filteredPosts = [];
