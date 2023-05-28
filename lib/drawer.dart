@@ -12,9 +12,12 @@ import 'package:capstone/screens/post/QnA_board.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/post/notice.dart';
+import 'package:capstone/screens/prof/prof_profile.dart';
 
 class MyDrawer extends StatefulWidget {
+
   const MyDrawer({Key? key}) : super(key: key);
+
 
   @override
   _MyDrawerState createState() => _MyDrawerState();
@@ -22,6 +25,8 @@ class MyDrawer extends StatefulWidget {
 
 
 class _MyDrawerState extends State<MyDrawer> {
+  int? _userPermission; //추가
+
   String _errorMessage = '';
   bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -77,7 +82,7 @@ class _MyDrawerState extends State<MyDrawer> {
       setState(() {
         _accountName = responseData[0]['student_id'].toString();
         _accountEmail = responseData[0]['name'];
-
+        _userPermission = responseData[0]['permission']; // 추가
 
       });
     } else {
@@ -220,7 +225,17 @@ class _MyDrawerState extends State<MyDrawer> {
                       );
                     }
                 ),
-
+                if (_userPermission == 2)
+                  ListTile(
+                  leading: Icon(Icons.person, color: Colors.grey[800]),
+                  title: Text('교수 정보 관리'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfProfile()),
+                    );
+                  },
+                ),
               ],
             ),
           ),
