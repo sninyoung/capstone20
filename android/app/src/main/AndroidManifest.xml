@@ -12,7 +12,7 @@
         </intent>
     </queries>
     <application
-            android:label="adder_main"
+            android:label="Capstone"
             android:name="${applicationName}"
             android:icon="@mipmap/ic_launcher"
             android:usesCleartextTraffic="true">
