@@ -14,48 +14,15 @@ import 'package:capstone/screens/post/notice_2nd.dart' as Notice2nd;
 import 'package:capstone/screens/post/notice_3rd.dart' as Notice3rd;
 import 'package:capstone/screens/post/notice_4th.dart' as Notice4th;
 import 'package:capstone/screens/post/notice_all.dart' as NoticeAll;
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'firebase_options.dart';
+import 'package:capstone/screens/subject/MSmain.dart';
+import 'package:capstone/screens/post/party_board.dart' as PartyBoard;
+import 'package:capstone/screens/post/free_board.dart' as FreeBoard;
+import 'package:capstone/screens/post/QnA_board.dart' as QABoard;
 
-//파이어베이스 알림 기능 구현을 위한,,뭐시기
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
 
-  print("Handling a background message: ${message.messageId}");
-}
 
 void main() async {
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  //======↓IOS용 권한 허용 코드↓=========
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
-  print('User granted permission: ${settings.authorizationStatus}');
-  //======↑IOS용 권한 허용 코드↑=========
-
-  FirebaseMessaging.instance.getToken().then((token) {
-    //토큰 확인용 코드
-    // print('Firebase Cloud Messaging Token: $token');
-  });
-
   runApp(MyApp());
 }
 
@@ -112,7 +79,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
-    sumScore = 0;
 
     if (token == null) {
       return;
@@ -168,15 +134,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
         });
       });
   }
-  void logout(BuildContext context) async {
-    final storage = new FlutterSecureStorage();
-    await storage.delete(key: 'token');
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -214,6 +172,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
                   color: Colors.grey,
                   thickness: 1,
                 ),
+                SubWidget(),
+                Divider( // 추가: 실선
+                  color: Colors.grey,
+                  thickness: 1,
+                ),
+                //PostWidget(),
+                Divider( // 추가: 실선
+                  color: Colors.grey,
+                  thickness: 1,
+                ),
                 PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
                 Divider( // 추가: 실선
                   color: Colors.grey,
@@ -227,6 +195,239 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
     );
   }
 }
+
+class SubWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '전공과목',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Major Subject',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ],
+              ),
+              Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MSmain()),
+                  );
+                },
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.black45,
+                  size: 16,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  elevation: 0,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          height: 190,
+          width: 350,
+          margin: EdgeInsets.only(left: 19, top: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Color(0xFF515151), // 테두리 색
+            ),
+          ),
+          // Container의 child widget 추가
+        ),
+      ],
+    );
+  }
+}
+
+/*
+class PostWidget extends StatefulWidget {
+  @override
+  _PostWidgetState createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  List<String> postTitles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPosts(); // 위젯 초기화시 게시물 가져오기
+  }
+
+  Future<void> _fetchPosts() async {
+    // 게시물을 가져오는 코드를 작성합니다.
+    String PartyTitlePost = '';
+    String FreeTitlePost = '';
+    String QATitlePost = '';
+
+    PartyBoard.PartyBoardScreen partyBoardScreen = PartyBoard.PartyBoardScreen();
+    List<dynamic> fetchedPostParty = await partyBoardScreen.fetchPosts();
+
+    FreeBoard.FreeBoardScreen freeBoardScreen = FreeBoard.FreeBoardScreen();
+    List<dynamic> fetchedPostFree = await freeBoardScreen.fetchPosts();
+
+    QABoard.QnABoardScreen qnABoardScreen = QABoard.QnABoardScreen();
+    List<dynamic> fetchedPostQA = await qnABoardScreen.fetchPosts();
+
+    // 각 리스트에서 최근 게시물이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
+    if (fetchedPostParty.isNotEmpty) {
+      String title = fetchedPostParty[0]['post_title'].toString();
+      PartyTitlePost = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    }
+    if (fetchedPostFree.isNotEmpty) {
+      String title = fetchedPostFree[0]['post_title'].toString();
+      FreeTitlePost = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    }
+    if (fetchedPostQA.isNotEmpty) {
+      String title = fetchedPostQA[0]['post_title'].toString();
+      QATitlePost = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    }
+
+    setState(() {
+      // postTitles 리스트에 저장된 최근 게시물들을 할당
+      postTitles = [
+        '$PartyTitlePost',
+        '$FreeTitlePost',
+        '$QATitlePost',
+      ];
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        children: [
+        Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+    Padding(
+    padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Text(
+    '게시물',
+    style: TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    ),
+    ),
+    Text(
+      'post',
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.black45,
+      ),
+    ),
+    ],
+    ),
+    ),
+          Spacer(),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Post()),
+              );
+            },
+            child: Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.black45,
+              size: 16,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              elevation: 0,
+            ),
+          ),
+        ],
+        ),
+          Container(
+            height: 190,
+            width: 350,
+            margin: EdgeInsets.only(left: 19, top: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Color(0xFF515151), // 테두리 색
+              ),
+            ),
+            child: ListView.builder(
+              padding: EdgeInsets.zero, // ListView 내부의 패딩 제거
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: postTitles.length,
+              itemBuilder: (context, index) {
+                String grade = '';
+
+                if (index == 0) {
+                  grade = '구인구직 게시판   ';
+                } else if (index == 1) {
+                  grade = '자유 게시판      ';
+                } else if (index == 2) {
+                  grade = 'Q&A 게시판      ';
+
+                return Container(
+                  margin: EdgeInsets.only(left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: grade,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: postTitles[index],
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Color(0xFF616161),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 16), // 원하는 크기로 설정하세요
+        ],
+    );
+  }
+}
+*/
+
 
 class NoticeWidget extends StatefulWidget {
   @override
@@ -256,33 +457,26 @@ class _NoticeWidgetState extends State<NoticeWidget> {
     List<dynamic> fetchedNotices4th = await Notice4th.NoticeTalkScreenState().fetchNotices();
     List<dynamic> fetchedNoticesAll = await NoticeAll.NoticeTalkScreenState().fetchNotices();
 
-    await Future.delayed(Duration(seconds: 2));
-
     // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
     if (fetchedNotices1st.isNotEmpty) {
       String title = fetchedNotices1st[0]['post_title'].toString();
       noticeTitle1st = title.length > 10 ? '${title.substring(0, 10)}...' : title;
-      noticeTitles.add(noticeTitle1st);
     }
     if (fetchedNotices2nd.isNotEmpty) {
       String title = fetchedNotices2nd[0]['post_title'].toString();
       noticeTitle2nd = title.length > 10 ? '${title.substring(0, 10)}...' : title;
-      noticeTitles.add(noticeTitle2nd);
     }
     if (fetchedNotices3rd.isNotEmpty) {
       String title = fetchedNotices3rd[0]['post_title'].toString();
       noticeTitle3rd = title.length > 10 ? '${title.substring(0, 10)}...' : title;
-      noticeTitles.add(noticeTitle3rd);
     }
     if (fetchedNotices4th.isNotEmpty) {
       String title = fetchedNotices4th[0]['post_title'].toString();
       noticeTitle4th = title.length > 10 ? '${title.substring(0, 10)}...' : title;
-      noticeTitles.add(noticeTitle4th);
     }
     if (fetchedNoticesAll.isNotEmpty) {
       String title = fetchedNoticesAll[0]['post_title'].toString();
       noticeTitleAll = title.length > 10 ? '${title.substring(0, 10)}...' : title;
-      noticeTitles.add(noticeTitleAll);
     }
 
     setState(() {
@@ -295,9 +489,8 @@ class _NoticeWidgetState extends State<NoticeWidget> {
         '$noticeTitleAll',
       ];
     });
-
-    // initState()를 다시 호출하여 build() 메서드가 다시 실행되도록 합니다.
     initState();
+    // initState()를 다시 호출하여 build() 메서드가 다시 실행되도록 합니다.
   }
 
   @override
@@ -351,7 +544,7 @@ class _NoticeWidgetState extends State<NoticeWidget> {
           ],
         ),
         Container(
-          height: 150,
+          height: 190,
           width: 350,
           margin: EdgeInsets.only(left: 19, top: 20),
           decoration: BoxDecoration(
@@ -423,7 +616,6 @@ class PercentDonut extends StatefulWidget {
   @override
   _PercentDonutState createState() => _PercentDonutState();
 }
-
 class _PercentDonutState extends State<PercentDonut> {
   late Future<Map<String, dynamic>> _maxScoreFuture;
 
@@ -458,80 +650,92 @@ class _PercentDonutState extends State<PercentDonut> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 10, 16, 16),
-      height: 380,
-      width: 380,
+      height: 300,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.all(Radius.circular(0)), // 직각 모서리 설정
         border: Border.all(
-          color: Colors.black,
+          color: Colors.white,
           width: 2,
         ),
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 80,
-              ),
-              Text(
-                '졸업인증점수',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [ Padding(
+                padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '졸업인증점수',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'graduation',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyScorePage()),
-                  );
-                },
-                child: Text(
-                  '자세히',
-                  style: TextStyle(
+                Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyScorePage()),
+                    );
+                  },
+                  child: Icon(
+                    Icons.arrow_forward_ios,
                     color: Colors.black45,
-                    fontSize: 16,
+                    size: 16,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  elevation: 0,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            width: 300,
-            height: 300,
-            color: Colors.white,
-            child: FutureBuilder<Map<String, dynamic>>(
-              future: _maxScoreFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else {
-                  Map<String, dynamic> maxScore = snapshot.data!;
-
-                  return CustomPaint(
-                    painter: PercentDonutPaint(
-                      percentage: widget.percent,
-                      activeColor: widget.color,
-                      maxScore: maxScore,
-                    ),
-                  );
-                }
-              },
+              ],
             ),
-          ),
-        ],
+            SizedBox(height: 25),
+            Container(
+              width: 200,
+              height: 200,
+              color: Colors.white,
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: _maxScoreFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else {
+                    Map<String, dynamic> maxScore = snapshot.data!;
+
+                    return CustomPaint(
+                      painter: PercentDonutPaint(
+                        percentage: widget.percent,
+                        activeColor: widget.color,
+                        maxScore: maxScore,
+                      ),
+                    );
+                  }
+                },
+              ), //색
+            ),
+          ],
+        ),
       ),
     );
   }

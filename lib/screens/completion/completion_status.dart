@@ -77,6 +77,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
           CompletedSubject(),
         ],
       ),
+    ),
     );
   }
 }
