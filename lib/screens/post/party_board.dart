@@ -27,10 +27,10 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
   @override
   void initState() {
     super.initState();
-    _jobposts = _fetchPosts();
+    _jobposts = fetchPosts();
   }
 
-  Future<List<dynamic>> _fetchPosts() async {
+  Future<List<dynamic>> fetchPosts() async {
     final response = await http.get(Uri.parse('http://3.39.88.187:3000/post/posts?board_id=2'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -204,7 +204,7 @@ class _FreeBoardScreenState extends State<PartyBoardScreen> {
           ).then((value) {
             if (value == true) {
               setState(() {
-                _jobposts = _fetchPosts();
+                _jobposts = fetchPosts();
               });
             }
           });
