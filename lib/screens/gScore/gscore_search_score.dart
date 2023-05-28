@@ -132,7 +132,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
             },
           ),
           title: Text(
-            '내 졸업인증점수',
+            '졸업인증점수',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
