@@ -1,3 +1,5 @@
+import 'package:capstone/screens/completion/completed_subject_select.dart';
+import 'package:capstone/screens/completion/completion_status.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
@@ -307,6 +309,40 @@ class _MyDrawerState extends State<MyDrawer> {
                     ),
                   ],
                 ),
+                //이수현황 - 나의 이수현황, 이수과목선택
+                ExpansionTile(
+                  title: Text('이수현황'),
+                  leading: Icon(
+                      Icons.add_task_rounded, color: Colors.grey[800]),
+                  children: <Widget>[
+                    ListTile(
+                        leading: Icon(
+                            Icons.add_task_rounded, color: Colors.grey[800]),
+                        title: Text('나의 이수현황'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                CompletionStatusPage()),
+                          );
+                        }
+                    ),
+                    ListTile(
+                      title: Text('이수과목 선택'),
+                      leading: Icon(
+                          Icons.assignment_turned_in_outlined,
+                          color: Colors.grey[800]
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              CompletionSelect()),
+                        );
+                      },
+                    )
+                  ],),
+
                 ExpansionTile(
                     title: Text('졸업인증'),
                     leading: Icon(Icons.school, color: Colors.grey[800]),
