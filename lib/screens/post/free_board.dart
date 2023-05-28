@@ -26,10 +26,10 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
   @override
   void initState() {
     super.initState();
-    _posts = _fetchPosts();
+    _posts = fetchPosts();
   }
 
-  Future<List<dynamic>> _fetchPosts() async {
+  Future<List<dynamic>> fetchPosts() async {
     final response = await http
         .get(Uri.parse('http://3.39.88.187:3000/post/posts?board_id=1'));
     if (response.statusCode == 200) {
@@ -77,7 +77,7 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
           ),
         );
         setState(() {
-          _posts = _fetchPosts();
+          _posts = fetchPosts();
         });
       },
       child: Padding(
@@ -251,7 +251,7 @@ class _FreeBoardScreenState extends State<FreeBoardScreen> {
           ).then((value) {
             if (value == true) {
               setState(() {
-                _posts = _fetchPosts();
+                _posts = fetchPosts();
               });
             }
           });
