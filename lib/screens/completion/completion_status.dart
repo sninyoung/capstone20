@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'dart:core';
-import 'package:capstone/main.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
 
@@ -11,11 +10,41 @@ import 'package:capstone/screens/completion/completed_subject_select.dart';
 void main() {
   runApp(MaterialApp(
     title: '나의 이수현황',
-    home: completionStatusPage(),
+    theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+          ),
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff858585),
+          ),
+          titleSmall: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xff858585),
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          //버튼 글씨 폰트
+          bodySmall: TextStyle(
+              color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        )),
+    home: CompletionStatusPage(),
   ));
 }
 
-class completionStatusPage extends StatelessWidget {
+class CompletionStatusPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
@@ -179,8 +208,53 @@ class _StudentInfoWidgetState extends State<StudentInfoWidget> {
 }
 
 //전공이수학점
-class MajorCreditWidget extends StatelessWidget {
+Future<int> fetchSubjectCredits(List<String> courses) async {
+  final dio = Dio();
+  final token = await storage.read(key: 'token');
+  int totalCredits = 0;
+
+  for (String course in courses) {
+    final response = await dio.get(
+      'http://3.39.88.187:3000/subject/info',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+      queryParameters: {'course_name': course},
+    );
+
+    if (response.statusCode == 200) {
+      totalCredits += response.data['credit']!;
+    } else {
+      throw Exception('Failed to load subject credit');
+    }
+  }
+  return totalCredits;
+}
+
+
+class MajorCreditWidget extends StatefulWidget {
   const MajorCreditWidget({Key? key}) : super(key: key);
+
+  @override
+  State<MajorCreditWidget> createState() => _MajorCreditWidgetState();
+}
+
+class _MajorCreditWidgetState extends State<MajorCreditWidget> {
+  Map<String, dynamic> requiredCourses = {};
+  int totalMajorCredits = 0;
+
+  String get studentId => '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRequiredCourses(studentId).then((data) {
+      setState(() {
+        requiredCourses = data;
+        totalMajorCredits = fetchSubjectCredits(requiredCourses['courses']) as int;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +274,7 @@ class MajorCreditWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             Text(
-              '48',
+              '$totalMajorCredits',
               style: Theme.of(context)
                   .textTheme
                   .bodyLarge!
@@ -284,61 +358,78 @@ class CompletedSubjectTitle extends StatelessWidget {
   }
 }
 
-//이수한 과목 ListView
-class CompletedElectiveSubject extends StatefulWidget {
-  @override
-  _CompletedElectiveSubjectState createState() =>
-      _CompletedElectiveSubjectState();
+
+//이수한 과목 ListView로 보여줌
+Future<Map<String, dynamic>> fetchRequiredCourses(String studentId) async {
+  final dio = Dio();
+  final token = await storage.read(key: 'token');
+
+  final response = await dio.get(
+    'http://3.39.88.187:3000/user/required',
+    options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ),
+    queryParameters: {'student_id': studentId},
+  );
+
+  if (response.statusCode == 200) {
+    return response.data;
+  } else {
+    throw Exception('Failed to load required courses');
+  }
 }
 
-class _CompletedElectiveSubjectState extends State<CompletedElectiveSubject> {
-  final List<String> _selectedSubjects = [];
-  bool _isLoading = true;
+class CompletedSubject extends StatefulWidget {
+  const CompletedSubject({Key? key}) : super(key: key);
+  @override
+  State<CompletedSubject> createState() => _CompletedSubjectState();
+}
+
+class _CompletedSubjectState extends State<CompletedSubject> {
+  Map<String, dynamic> requiredCourses = {};
+
+  String get studentId => '';
 
   @override
   void initState() {
     super.initState();
-    _fetchSubjects();
-  }
-
-  Future<void> _fetchSubjects() async {
-    try {
-      final dio = Dio();
-      final response =
-      await dio.get('http://3.39.88.187:3000/user/required/add');
-
-      if (response.statusCode == 200) {
-        var jsonData = response.data;
-        setState(() {
-          for (var item in jsonData) {
-            _selectedSubjects.add(item["subject_name"]);
-          }
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load subjects');
-      }
-    } catch (error) {
-      throw Exception('Failed to fetch subjects: $error');
-    }
+    fetchRequiredCourses(studentId).then((data) {
+      setState(() {
+        requiredCourses = data;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('선택한 이수과목'),
+        title: Text('My Completion Status'),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-        itemCount: _selectedSubjects.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_selectedSubjects[index]),
-          );
-        },
+      body: ListView(
+        children: [
+          Text('Completed Compulsory Subjects'),
+          ListView.builder(
+            itemCount: requiredCourses['compulsorySubjects']?.length ?? 0,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(requiredCourses['compulsorySubjects'][index]),
+              );
+            },
+          ),
+          Text('Completed Elective Subjects'),
+          ListView.builder(
+            itemCount: requiredCourses['electiveSubjects']?.length ?? 0,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(requiredCourses['electiveSubjects'][index]),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 }
+
+

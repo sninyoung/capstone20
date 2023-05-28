@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:capstone/main.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 //이수과목 선택 페이지
 
@@ -13,138 +17,130 @@ void main() {
   ));
 }
 
+//과목정보 불러오기
+Future<List> fetchSubjects() async {
+  var dio = Dio();
+  final response = await dio.get('http://3.39.88.187:3000/subject/');
+
+  if (response.statusCode == 200) {
+    return response.data as List;
+  } else {
+    throw Exception('Failed to load subjects');
+  }
+}
+
+//전공기초 전공선택 분류
+
+List<Subject> compulsorySubjects = [];
+List<Subject> electiveSubjects = [];
+
+class Subject {
+  final int subject_division;
+  final String subject_name;
+
+  Subject(this.subject_division, this.subject_name);
+}
+
+void divideSubjects(List subjects) {
+  for (var subject in subjects) {
+    if (subject['subject_division'] == 1) {
+      compulsorySubjects
+          .add(Subject(subject['subject_division'], subject['subject_name']));
+    } else if (subject['subject_division'] == 2) {
+      electiveSubjects
+          .add(Subject(subject['subject_division'], subject['subject_name']));
+    }
+  }
+}
+
+// 이수과목 정보 저장
+final storage = FlutterSecureStorage();
+
+Future<bool> postRequiredCourses(String studentId, List<String> courses) async {
+  final token = await storage.read(key: 'token');
+  final response = await http.post(
+    Uri.parse('http://3.39.88.187:3000/user/required/add'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'student_id': studentId,
+      'courses': courses,
+    }),
+  );
+  return response.statusCode == 200;
+}
+
+
+//
 class CompletionSelect extends StatefulWidget {
+  CompletionSelect({Key? key}) : super(key: key);
+
   @override
   _CompletionSelectState createState() => _CompletionSelectState();
 }
 
 class _CompletionSelectState extends State<CompletionSelect> {
-  final List<String> _compulsorySubjects = [];
-  final List<String> _electiveSubjects = [];
-  final List<String> _selectedCompulsorySubjects = [];
-  final List<String> _selectedElectiveSubjects = [];
-  bool _isLoading = true;
+  List<Subject> _compulsorySelections = [];
+  List<Subject> _electiveSelections = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchSubjects();
-  }
-
-  Future<void> _fetchSubjects() async {
-    try {
-      final dio = Dio();
-      final response = await dio.get('http://3.39.88.187:3000/subject/');
-
-      if (response.statusCode == 200) {
-        var jsonData = response.data;
-        setState(() {
-          for (var item in jsonData) {
-            if (item["subject_division"] == 1) {
-              _compulsorySubjects.add(item["subject_name"]);
-            } else if (item["subject_division"] == 2) {
-              _electiveSubjects.add(item["subject_name"]);
-            }
-          }
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load subjects');
-      }
-    } catch (error) {
-      throw Exception('Failed to fetch subjects: $error');
-    }
-  }
-
-  // 서버에 선택한 과목 저장
-  Future<void> _saveSubjects() async {
-    try {
-      final dio = Dio();
-      final response =
-      await dio.post('http://3.39.88.187:3000/user/required/add', data: {
-        'compulsory_subjects': _selectedCompulsorySubjects,
-        'elective_subjects': _selectedElectiveSubjects,
-      });
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to save subjects');
-      }
-    } catch (error) {
-      throw Exception('Failed to save subjects: $error');
-    }
-  }
+  String get studentId => '';
+  List<String> courses = [];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('이수과목 선택'),
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(20),
-              child: MultiSelectChipField<String>(
-                items: _compulsorySubjects
-                    .map((s) => MultiSelectItem<String>(s, s))
-                    .toList(),
-                initialValue: _selectedCompulsorySubjects,
-                title: Text("전공기초과목"),
-                headerColor: Colors.blue,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue),
-                ),
-                selectedChipColor: Colors.blue,
-                selectedTextStyle: TextStyle(color: Colors.white),
-                onTap: (values) {
-                  setState(() {
-                    _selectedCompulsorySubjects.clear();
-                    if(values != null) {
-                      _selectedCompulsorySubjects.addAll(values.whereType<String>());
-                    }
-                  });
-                },
-
-              ),
-            ),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(20),
-              child: MultiSelectChipField<String>(
-                items: _electiveSubjects
-                    .map((s) => MultiSelectItem<String>(s, s))
-                    .toList(),
-                initialValue: _selectedElectiveSubjects,
-                title: Text("전공선택과목"),
-                headerColor: Colors.blue,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue),
-                ),
-                selectedChipColor: Colors.blue,
-                selectedTextStyle: TextStyle(color: Colors.white),
-                onTap: (values) {
-                  setState(() {
-                    _selectedElectiveSubjects.clear();
-                    if(values != null) {
-                      _selectedElectiveSubjects.addAll(values.whereType<String>());
-                    }
-                  });
-                },
-
-              ),
-            ),
-          ],
+    return Column(
+      children: [
+        MultiSelectChipField<Subject>(
+          items: compulsorySubjects
+              .map((subject) =>
+                  MultiSelectItem<Subject>(subject, subject.subject_name))
+              .toList(),
+          title: Text("전공기초과목"),
+          selectedChipColor: Colors.blue,
+          onTap: (values) {
+            setState(() {
+              _compulsorySelections = values;
+            });
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _saveSubjects,
-        child: Icon(Icons.save),
-        tooltip: '저장',
-      ),
+        MultiSelectChipField<Subject>(
+          items: electiveSubjects
+              .map((subject) =>
+                  MultiSelectItem<Subject>(subject, subject.subject_name))
+              .toList(),
+          title: Text("전공선택과목"),
+          selectedChipColor: Colors.blue,
+          onTap: (values) {
+            setState(() {
+              _electiveSelections = values;
+            });
+          },
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            bool success = await postRequiredCourses(studentId, courses);
+            if (success) {
+              // 성공적으로 이수과목 정보가 저장되었을 경우 알림
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Subjects successfully saved!')),
+              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletionStatusPage()),
+              );
+            } else {
+              // 요청이 실패했을 경우 에러 메시지 표시
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to save subjects.')),
+              );
+            }
+          },
+          child: Text('저장'),
+        )
+,
+
+      ],
     );
   }
 }
+
