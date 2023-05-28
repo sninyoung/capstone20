@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'dart:core';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
