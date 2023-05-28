@@ -15,10 +15,10 @@ void main() {
 
 class PartyBoardScreen extends StatefulWidget {
   @override
-  _FreeBoardScreenState createState() => _FreeBoardScreenState();
+  FreeBoardScreenState createState() => FreeBoardScreenState();
 }
 
-class _FreeBoardScreenState extends State<PartyBoardScreen> {
+class FreeBoardScreenState extends State<PartyBoardScreen> {
   late Future<List<dynamic>> _jobposts;
   TextEditingController _searchController = TextEditingController();
   List<dynamic> _filteredPosts = [];
