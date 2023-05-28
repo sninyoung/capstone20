@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:capstone/main.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -21,7 +20,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
   }
 
   Future<void> fetchSubjectById() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/${widget.subjectId}'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/info?subject_id=${widget.subjectId}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -44,9 +43,9 @@ class _SubjectInfoState extends State<SubjectInfo> {
     }
   }
 
-  Subject? findSubjectByName(String name) {
+  Subject? findSubjectById(int subjectid) {
     return subjects.firstWhere(
-          (subject) => subject.subjectName == name,
+          (subject) => subject.subjectId == subjectid,
       orElse: () => Subject(
         subjectName: '',
         subjectDivision: 0,
@@ -57,14 +56,15 @@ class _SubjectInfoState extends State<SubjectInfo> {
         subjectCredit: 0,
         openingGrade: 0,
         openingSemester: '',
+        proName: 0,
       ),
     );
   }
   @override
   Widget build(BuildContext context) {
-    final subjectName = '고급프로그래밍'; // 주어진 subject_name 입력
+    final subjectId = widget.subjectId;
 
-    final subject = findSubjectByName(subjectName);
+    final subject = findSubjectById(subjectId);
 
     return Scaffold(
       appBar: AppBar(
@@ -74,8 +74,13 @@ class _SubjectInfoState extends State<SubjectInfo> {
             Navigator.pop(context); // 뒤로가기 버튼을 눌렀을 때 이전 화면으로 이동
           },
         ),
-        title: Text('한남대학교 컴퓨터공학과'),
+        title: Text('과목 정보',
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),),
         backgroundColor: Color(0xffC1D3FF),
+        centerTitle: true,
       ),
       body: subject != null
           ? SingleChildScrollView( // Added SingleChildScrollView to handle overflowing content
@@ -166,7 +171,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
                                               width: 10,
                                             ),
                                           ),
-                                          TextSpan(text: '장준혁', style: TextStyle(fontSize: 10, color: Colors.black)),
+                                          TextSpan(text: '${subject.proName}', style: TextStyle(fontSize: 10, color: Colors.black)),
                                         ])
                                 )
                             ),
@@ -361,6 +366,7 @@ class Subject {
   final int subjectCredit;
   final int openingGrade;
   final String openingSemester;
+  final int proName;
 
   Subject({
     required this.subjectName,
@@ -372,6 +378,7 @@ class Subject {
     required this.subjectCredit,
     required this.openingGrade,
     required this.openingSemester,
+    required this.proName,
   });
 
   factory Subject.fromJson(Map<String, dynamic> json) {
@@ -385,6 +392,7 @@ class Subject {
       subjectCredit: json['credit'] ?? 0,
       openingGrade: json['opening_grade'] ?? 0,
       openingSemester: json['opening_semester'] ?? '',
+      proName: json['pro_id'] ?? 0,
     );
   }
 }
