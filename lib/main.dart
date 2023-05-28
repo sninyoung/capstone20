@@ -113,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
+    sumScore = 0;
 
     if (token == null) {
       return;
@@ -173,57 +174,64 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('메인페이지'),
-        backgroundColor: Color(0xffC1D3FF),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Profile()),
-              );
-            },
-          ),
-        ],
-      ),
-      drawer: MyDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                NoticeWidget(), // NoticeWidget 추가
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                SubWidget(),
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                PostWidget(),
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-              ],
+        appBar: AppBar(
+          title: Text('메인페이지'),
+          backgroundColor: Color(0xffC1D3FF),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Profile()),
+                );
+              },
+            ),
+          ],
+        ),
+        drawer: MyDrawer(),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            setState(() async {
+              await _getUserInfo();
+            });},
+          child:
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  NoticeWidget(), // NoticeWidget 추가
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  SubWidget(),
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  PostWidget(),
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        )
     );
   }
 }
@@ -459,7 +467,7 @@ class _PostWidgetState extends State<PostWidget> {
 
 
 
-  class NoticeWidget extends StatefulWidget {
+class NoticeWidget extends StatefulWidget {
   @override
   _NoticeWidgetState createState() => _NoticeWidgetState();
 }
