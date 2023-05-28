@@ -223,7 +223,7 @@ Future<int> fetchSubjectCredits(List<String> courses) async {
     );
 
     if (response.statusCode == 200) {
-      totalCredits += response.data['credit']!;
+      totalCredits += response.data['credit'].toInt();
     } else {
       throw Exception('Failed to load subject credit');
     }

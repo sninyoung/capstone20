@@ -318,17 +318,17 @@ class _MyDrawerState extends State<MyDrawer> {
                     ListTile(
                         leading: Icon(
                             Icons.add_task_rounded, color: Colors.grey[800]),
-                        title: Text('나의이수현황'),
+                        title: Text('나의 이수현황'),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                completionStatusPage()),
+                                CompletionStatusPage()),
                           );
                         }
                     ),
                     ListTile(
-                      title: Text('이수과목선택'),
+                      title: Text('이수과목 선택'),
                       leading: Icon(
                           Icons.assignment_turned_in_outlined,
                           color: Colors.grey[800]
