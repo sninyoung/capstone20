@@ -20,6 +20,7 @@ import 'package:capstone/screens/prof/prof_profile.dart';
 import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:capstone/screens/subject/MSmain.dart';
+import 'package:capstone/screens/subject/MSmain_ASS.dart';
 
 
 class MyDrawer extends StatefulWidget {
@@ -438,6 +439,16 @@ class _MyDrawerState extends State<MyDrawer> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SignUpPage()),
+                            );
+                          }
+                      ),
+                      ListTile(
+                          leading: Icon(Icons.note_alt, color: Colors.grey[800]),
+                          title: Text('과목 정보 수정'),
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MSmainASS()),
                             );
                           }
                       ),

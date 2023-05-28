@@ -3,6 +3,8 @@ import 'package:capstone/screens/subject/subjectinfo.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+//import 'package:capstone/screens/subject/editsubject.dart';
+//import 'package:capstone/screens/subject/addsubject.dart';
 import 'package:capstone/main.dart';
 
 void main() {
@@ -11,6 +13,8 @@ void main() {
     home: MSmainASS(),
   ));
 }
+
+// 과목정보 조교페이지
 
 Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
   final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
@@ -131,7 +135,7 @@ class _MSmainASS extends State<MSmainASS> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => AddProfessorPage()),
+                            MaterialPageRoute(builder: (context) => AddSubjectPage()),
                           );
                         },
                         child: Text('과목 추가',
