@@ -56,13 +56,16 @@ class FreeBoardScreenState extends State<PartyBoardScreen> {
     DateTime postDateTime = DateTime.parse(post['post_date']);
     DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => PostScreen(post: post),
           ),
         );
+        setState(() {
+          _jobposts = fetchPosts();
+        });
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
