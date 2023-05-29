@@ -53,7 +53,7 @@ class Subject {
 class SubjectSelect extends StatefulWidget {
   final int subjectId;
 
-  SubjectSelect({required Key key, required this.subjectId}) : super(key: key);
+  SubjectSelect({Key? key, required this.subjectId}) : super(key: key);
 
   @override
   _SubjectSelectState createState() => _SubjectSelectState();

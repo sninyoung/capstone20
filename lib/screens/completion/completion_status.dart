@@ -7,6 +7,7 @@ import 'package:capstone/screens/completion/completed_subject_select.dart';
 
 //나의 이수현황 페이지
 
+//과목 모델
 class Subject {
   final String subject_name;
   final int credit;
@@ -248,36 +249,3 @@ class User {
 }
 */
 
-/*
-class SubjectList extends StatelessWidget {
-  final String subjectName;
-  final List<Subject> subjects;
-  final int? subjectCount;
-  final int? totalCredit;
-
-  SubjectList({
-    required this.subjectName,
-    required this.subjects,
-    this.subjectCount,
-    this.totalCredit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$subjectName (${subjectCount}과목, ${totalCredit}학점)'),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: subjects.length,
-          itemBuilder: (ctx, index) {
-            return ListTile(
-              title: Text(subjects[index].subject_name),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}*/
