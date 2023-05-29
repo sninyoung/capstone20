@@ -39,23 +39,6 @@ Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
   }
 }
 
-Future<Map<String, dynamic>> fetchProfessor(String proId) async {
-  final response = await http.get(Uri.parse('http://3.39.88.187:3000/prof/info?pro_id=$proId'));
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body) as List<dynamic>;
-    if (data.isNotEmpty) {
-      final professorData = data[0] as Map<String, dynamic>;
-      final name = professorData['name'];
-      final proId = professorData['pro_id'];
-      return {'name': name, 'pro_id': proId};
-    } else {
-      return {'name': 'Unknown', 'pro_id': ''}; // 교수명이 없는 경우 'Unknown'으로 설정
-    }
-  } else {
-    throw Exception('Failed to fetch professor');
-  }
-}
-
 class MSmainASS extends StatefulWidget {
   @override
   _MSmainASS createState() => _MSmainASS();
@@ -372,15 +355,7 @@ class _MSmainASS extends State<MSmainASS> {
                                         color: Colors.grey.withOpacity(0.5),
                                       ),
                                     ),
-                                    child: FutureBuilder<Map<String, dynamic>>(
-                                      future: fetchProfessor(subject['pro_id'].toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          final professor = snapshot.data!;
-                                          final proId = professor['pro_id'];
-                                          final name = professor['name'];
-
-                                          return Row(
+                                    child: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
@@ -410,13 +385,7 @@ class _MSmainASS extends State<MSmainASS> {
                                               ),
 
                                             ],
-                                          );
-                                        } else if (snapshot.hasError) {
-
-                                          return Text('Failed to fetch professor');
-                                        } else {
-                                          return Text('Loading professor...');}},
-                                    ),
+                                          ),
                                   ), // 추가적인 과목 정보 표시를 위한 코드 작성
                                 ),
                               );
@@ -586,13 +555,7 @@ class _MSmainASS extends State<MSmainASS> {
                                         color: Colors.grey.withOpacity(0.5),
                                       ),
                                     ),
-                                    child: FutureBuilder<Map<String, dynamic>>(
-                                      future: fetchProfessor(subject['pro_id'].toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          final professor = snapshot.data!;
-
-                                          return Row(
+                                    child: Row(
                                             mainAxisAlignment: MainAxisAlignment
                                                 .spaceBetween,
                                             crossAxisAlignment: CrossAxisAlignment
@@ -627,15 +590,8 @@ class _MSmainASS extends State<MSmainASS> {
                                               ),
 
                                             ],
-                                          );
-                                        } else if (snapshot.hasError) {
-                                          return Text(
-                                              'Failed to fetch professor');
-                                        } else {
-                                          return Text('Loading professor...');
-                                        }
-                                      },
-                                    ),
+                                          ),
+
                                   ),
 
                                 ), // 추가적인 교수 정보 표시를 위한 코드 작성
