@@ -522,6 +522,7 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
 
   Future<void> deletePost() async {
     setState(() => _isLoading = true);
+
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -534,24 +535,35 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
     final postId = widget.post['gspost_id'];
     final url = Uri.parse('http://3.39.88.187:3000/gScore/deletePost?postId=$postId');
 
-    final response = await http.delete(
-      url,
-      headers: <String, String>{
-        'Authorization': token,
-      },
-    );
-    setState(() => _isLoading = false); // 버튼 활성화
-    if (response.statusCode == 200) {
-      postDeleteCheck = 1;
-      print("게시글 삭제 성공");
-      if(wasUploadedFile ==1){
-        await deleteFile();
+    final maxRetries = 3; // 최대 재시도 횟수
+    var retryCount = 0; // 현재 재시도 횟수
+    while (retryCount < maxRetries) {
+      try {
+        final response = await http.delete(
+          url,
+          headers: <String, String>{
+            'Authorization': token,
+          },
+        );
+        setState(() => _isLoading = false); // 버튼 활성화
+        if (response.statusCode == 200) {
+          postDeleteCheck = 1;
+          print("게시글 삭제 성공");
+          return;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 삭제 실패: 서버 오류')));
+          print("게시글 삭제 실패");
+          print(response.statusCode);
+        }
+      } catch (error) {
+        print('삭제 네트워크 연결 오류: $error');
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
-      print("게시글 삭제 실패");
-      print(response.statusCode);
+
+      retryCount++;
+      await Future.delayed(Duration(seconds: 1)); // 1초 후에 재시도
     }
+
+    print('재시도 횟수 초과');
   }
   //활동종류 드롭박스 눌렀을시 활동명을 초기화 해줘야 충돌이 안남
   void _onActivityTypeChanged(String? newValue) {
@@ -608,6 +620,9 @@ class _GScoreApcCtState extends State<GScoreApcCt> {
       },
     );
     if (result == true) {
+      if(wasUploadedFile == 1){
+        await deleteFile();
+      }
       await deletePost(); // 게시물 삭제 함수 호출
     }
     if(postDeleteCheck ==1){
