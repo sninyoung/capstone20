@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/post/PostScreen.dart';
 import 'package:intl/intl.dart';
-import 'package:capstone/drawer.dart';
 void main() {
   runApp(MaterialApp(
     title: '내가 쓴 글',
@@ -66,15 +65,14 @@ class _MyPostState extends State<MyPost> {
       throw Exception('Failed to load comments count');
     }
   }
-
-
-
-
   Widget _buildPostItem(BuildContext context, dynamic post) {
+    if (post['board_id'] == 99 || post['board_id'] == 90 || post['board_id'] == 3 || post['board_id'] == 5 || post['board_id'] == 6 || post['board_id'] == 7 || post['board_id'] == 8) {
+      return SizedBox(); // 빈 SizedBox 반환하여 해당 게시물을 보여주지 않음
+    }
+
     DateTime postDateTime = DateTime.parse(post['post_date']);
     DateTime updatedDateTime = postDateTime.add(Duration(hours: 9));
     return GestureDetector(
-
       onTap: () async {
         await Navigator.push(
           context,
@@ -108,10 +106,9 @@ class _MyPostState extends State<MyPost> {
                     ? '구인구직게시판'
                     : post['board_id'] == 4
                     ? 'QNA'
-                    : '', // 99인 경우 아무것도 출력하지 않음
+                    : '',
                 style: TextStyle(
                   fontSize: 10.0,
-
                 ),
               ),
               Text(
@@ -157,11 +154,6 @@ class _MyPostState extends State<MyPost> {
       ),
     );
   }
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

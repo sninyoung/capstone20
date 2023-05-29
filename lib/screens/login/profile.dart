@@ -561,7 +561,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 } else if (!RegExp(
                     r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
                     .hasMatch(value) || value.contains('?')) {
-                  return "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함하며 '?' 문자를 사용할 수 없습니다";
+                  return "비밀번호는 대문자, 소문자, 숫자, 특수문자를\n포함하며 '?' 문자를 사용할 수 없습니다";
                 }
                 return null;
               },

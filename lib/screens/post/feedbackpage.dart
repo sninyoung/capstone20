@@ -19,19 +19,18 @@ class FeedBackScreen extends StatefulWidget {
 
 class _FeedBackScreenState extends State<FeedBackScreen> {
   late Future<List<dynamic>> _posts;
-  TextEditingController _searchController = TextEditingController();
-  List<dynamic> _filteredPosts = [];
+  late Future<List<dynamic>> _reportPosts;
   List<dynamic> allPosts = [];
 
   @override
   void initState() {
     super.initState();
     _posts = _fetchPosts();
+    _reportPosts = _fetchReportPosts();
   }
 
   Future<List<dynamic>> _fetchPosts() async {
-    final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/post/posts?board_id=90'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/post/posts?board_id=90'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -39,17 +38,24 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
     }
   }
 
+  Future<List<dynamic>> _fetchReportPosts() async {
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/post/getReport'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
 
-  void _filterPosts(String keyword) async {
-    allPosts = await _posts;
-    _filteredPosts = allPosts.where((post) {
-      final title = post['post_title'].toLowerCase();
-      final content = post['post_content'].toLowerCase();
-      return title.contains(keyword) || content.contains(keyword);
-    }).toList();
+  Future<void> _refreshPosts() async {
     setState(() {
-      allPosts;
-      _filteredPosts;
+      _posts = _fetchPosts();
+    });
+  }
+
+  Future<void> _refreshReportPosts() async {
+    setState(() {
+      _reportPosts = _fetchReportPosts();
     });
   }
 
@@ -64,12 +70,10 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
             builder: (context) => PostScreen(post: post),
           ),
         );
-        setState(() {
-          _posts = _fetchPosts();
-        });
+        _refreshPosts();
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
         child: Container(
           padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
@@ -88,6 +92,7 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black54,
                 ),
               ),
               SizedBox(height: 8.0),
@@ -95,6 +100,7 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                 post['post_content'],
                 style: TextStyle(
                   fontSize: 16.0,
+                  color: Colors.black54,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -104,15 +110,14 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    post['student_id'].toString().substring(2, 4) + '학번',
+                    post['student_id'].toString(),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
                     ),
                   ),
                   Text(
-                    DateFormat('yyyy-MM-dd HH:mm:ss')
-                        .format(updatedDateTime),
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(updatedDateTime),
                     style: TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
@@ -127,61 +132,87 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
     );
   }
 
-
-
-
+  Widget _buildButtonContainer(Widget child, VoidCallback onPressed) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+          child: Center(child: child),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '피드백',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            '피드백',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: const Color(0xffC1D3FF),
+          centerTitle: true,
+          elevation: 0.0,
+          bottom: TabBar(
+            indicatorSize: TabBarIndicatorSize.label,
+            labelColor: Colors.blueAccent,
+            unselectedLabelColor: Colors.grey,
+            tabs: [
+              Tab(
+                text: '피드백',
+              ),
+              Tab(
+                text: '신고 게시글',
+              ),
+            ],
           ),
         ),
-        backgroundColor: Color(0xffC1D3FF),
-        centerTitle: true,
-        elevation: 0.0,
-      ),
-      drawer: MyDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        drawer: MyDrawer(),
+        body: TabBarView(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: '검색어를 입력하세요',
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    _filterPosts(_searchController.text);
-                  },
-                ),
-              ],
-            ),
-            Expanded(
+            RefreshIndicator(
+              onRefresh: _refreshPosts,
               child: FutureBuilder<List<dynamic>>(
                 future: _posts,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final posts = snapshot.data!;
-                    final filterposts = _searchController.text.isEmpty ? posts : _filteredPosts;
                     return ListView.builder(
-                      itemCount: filterposts.length,
+                      itemCount: posts.length,
                       itemBuilder: (context, index) {
-                        return _buildPostItem(context, filterposts[index]);
+                        return _buildPostItem(context, posts[index]);
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('${snapshot.error}'),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              ),
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshReportPosts,
+              child: FutureBuilder<List<dynamic>>(
+                future: _reportPosts,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final reportPosts = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: reportPosts.length,
+                      itemBuilder: (context, index) {
+                        return _buildPostItem(context, reportPosts[index]);
                       },
                     );
                   } else if (snapshot.hasError) {
@@ -197,24 +228,6 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WritePostScreen(boardId: 1),
-            ),
-          ).then((value) {
-            if (value == true) {
-              setState(() {
-                _posts = _fetchPosts();
-              });
-            }
-          });
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Color(0xffC1D3FF),
       ),
     );
   }

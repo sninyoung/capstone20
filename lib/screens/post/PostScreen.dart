@@ -27,6 +27,7 @@ class _PostScreenState extends State<PostScreen> {
     comments = fetchComments();
     _fetchboard();
     _fetchintroduction();
+    _checkPostAuthor();
   }
 
   String? _boardName;
@@ -61,9 +62,6 @@ class _PostScreenState extends State<PostScreen> {
       throw Exception('Failed to load board');
     }
   }
-
-
-
   //댓글 가져오기
   Future<List<dynamic>> fetchComments() async {
     final response = await http.get(Uri.parse(
@@ -295,6 +293,22 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  Future<void> reportPost() async{
+    final response = await http.post(
+      Uri.parse('http://3.39.88.187:3000/post/reportPost/${widget.post['post_id']}'),
+    );
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('신고가 접수되었습니다.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      throw Exception('Failed to report Post.');
+    }
+  }
+
   String? _profileIntroduction;
 
   Future<void> _fetchProfile(String studentId) async {
@@ -310,7 +324,57 @@ class _PostScreenState extends State<PostScreen> {
       throw Exception('Failed to load profile information');
     }
   }
+  // 게시글 작성자 여부 확인을 위한 변수
+  bool isPostAuthor = false;
+  String? Permission;
+// 사용자 정보를 가져오고 게시글 작성자인지 확인하는 메서드
+  void _checkPostAuthor() async {
+    String studentId;
+    setState(() => _isLoading = true);
 
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = '토큰이 없습니다.';
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('게시글 작성에 실패했습니다. (로그인 만료)')));
+      });
+      return;
+    }
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/user/student'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      studentId = responseData[0]['student_id'].toString();
+      Permission = responseData[0]['permission'].toString();
+      if (studentId == widget.post['student_id'].toString()) {
+        setState(() {
+          isPostAuthor = true;
+        });
+      }
+      else if(Permission == '2' || Permission == '3'){
+        isPostAuthor = true;
+      }
+    }
+    else {
+      // Failure
+      setState(() {
+        final responseData = jsonDecode(response.body);
+
+        _isLoading = false;
+        _errorMessage = responseData['message'];
+      });
+    }
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -332,16 +396,76 @@ class _PostScreenState extends State<PostScreen> {
         elevation: 0.0,
         actions: [
           IconButton(
-            onPressed: _navigateToEditPostScreen,
-            icon: Icon(Icons.edit),
-          ),
-          IconButton(
             onPressed: () async {
-              await deletePost();
-              Navigator.pop(context);
+              bool confirmReport = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('게시글 신고'),
+                    content: Text('게시글을 신고 하시겠습니까?'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text('취소'),
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                      ),
+                      TextButton(
+                        child: Text('신고'),
+                        onPressed: () async {
+                          await reportPost();
+                          Navigator.pop(context, true);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
             },
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.report_gmailerrorred),
           ),
+
+          if (isPostAuthor) // 게시글 작성자인 경우에만 보여주기
+            IconButton(
+              onPressed: _navigateToEditPostScreen,
+              icon: Icon(Icons.edit),
+            ),
+          if (isPostAuthor) // 게시글 작성자인 경우에만 보여주기
+            IconButton(
+              onPressed: () async {
+                bool confirmDelete = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('게시글 삭제'),
+                      content: Text('게시글을 삭제 하시겠습니까?'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('취소'),
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                        ),
+                        TextButton(
+                          child: Text('삭제'),
+                          onPressed: () async {
+                            await deletePost();
+                            Navigator.pop(context, true); // 게시글 삭제 후 true 값을 반환하여 나가도록 함
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (confirmDelete == true) {
+                  await deletePost();
+                  Navigator.pop(context); // true 값을 받은 경우 게시글 삭제 후 나가도록 함
+                }
+              },
+              icon: Icon(Icons.delete),
+            ),
+
         ],
       ),
       body: SingleChildScrollView(
@@ -516,8 +640,38 @@ class _PostScreenState extends State<PostScreen> {
                                       icon: Icon(Icons.cancel_outlined),
                                       iconSize: 18,
                                       color: Colors.grey,
-                                      onPressed: () => _deleteComment(snapshot.data![index]['comment_id']),
+                                      onPressed: () async {
+                                        bool confirmDelete = await showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text('댓글 삭제'),
+                                              content: Text('댓글을 삭제 하시겠습니까?'),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: Text('취소'),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop(false);
+                                                  },
+                                                ),
+                                                TextButton(
+                                                  child: Text('삭제'),
+                                                  onPressed: (){
+                                                    _deleteComment(snapshot.data![index]['comment_id']);
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+
+                                        if (confirmDelete == true) {
+                                          _deleteComment(snapshot.data![index]['comment_id']);
+                                        }
+                                      },
                                     ),
+
                                   ],
                                 ),
 
@@ -589,4 +743,3 @@ class _PostScreenState extends State<PostScreen> {
 
   }
 }
-
