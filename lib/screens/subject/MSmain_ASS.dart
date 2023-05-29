@@ -15,7 +15,6 @@ void main() {
 }
 
 // 과목정보 조교페이지
-
 Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
   final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
@@ -277,8 +276,7 @@ class _MSmainASS extends State<MSmainASS> {
                       if (search.isNotEmpty) {
                         // 검색어가 있을 때 데이터를 필터링하여 표시
                         subjects = subjects.where((subject) =>
-                        subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase()) ||
-                            subject['pro_id'].toString().toLowerCase().contains(search.toLowerCase())).toList();
+                        subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase())).toList();
                       }
                       if (subjects.isEmpty) {
                         // 필터링된 결과가 없는 경우
@@ -313,7 +311,7 @@ class _MSmainASS extends State<MSmainASS> {
                                       ),
                                       SizedBox(height: 8.0),
                                       Text(
-                                        '교수명    ',
+                                        '학점    ',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15.0,
@@ -326,8 +324,8 @@ class _MSmainASS extends State<MSmainASS> {
                               }
                               final subject = subjects[index - 1];
 
-                              if (search.isNotEmpty && !subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase()) && !subject['pro_id'].toString().toLowerCase().contains(search.toLowerCase())) {
-                                // 검색어가 있고 현재 항목의 subject_name과 pro_id가 검색어와 일치하지 않으면 표시하지 않음
+                              if (search.isNotEmpty && !subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase())) {
+                                // 검색어가 있고 현재 항목의 subject_name과 검색어와 일치하지 않으면 표시하지 않음
                                 return Container();
                               }
 
@@ -376,7 +374,7 @@ class _MSmainASS extends State<MSmainASS> {
                                               ),
                                               SizedBox(height: 8.0),
                                               Text(
-                                                subject['pro_id'].toString(),
+                                                subject['credit'].toString(),
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 15.0,
@@ -386,7 +384,7 @@ class _MSmainASS extends State<MSmainASS> {
 
                                             ],
                                           ),
-                                  ), // 추가적인 과목 정보 표시를 위한 코드 작성
+                                  ),
                                 ),
                               );
                             },
@@ -466,11 +464,7 @@ class _MSmainASS extends State<MSmainASS> {
                         subject['subject_name']
                             .toString()
                             .toLowerCase()
-                            .contains(search.toLowerCase()) ||
-                            subject['pro_id']
-                                .toString()
-                                .toLowerCase()
-                                .contains(search.toLowerCase()))
+                            .contains(search.toLowerCase()))
                             .toList();
                       }
                       if (subjects.isEmpty) {
@@ -506,7 +500,7 @@ class _MSmainASS extends State<MSmainASS> {
                                       ),
                                       SizedBox(height: 8.0),
                                       Text(
-                                        '교수명    ',
+                                        '학점    ',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15.0,
@@ -522,12 +516,8 @@ class _MSmainASS extends State<MSmainASS> {
                                   !subject['subject_name']
                                       .toString()
                                       .toLowerCase()
-                                      .contains(search.toLowerCase()) &&
-                                  !subject['pro_id']
-                                      .toString()
-                                      .toLowerCase()
                                       .contains(search.toLowerCase())) {
-                                // 검색어가 있고 현재 항목의 subject_name과 pro_id가 검색어와 일치하지 않으면 표시하지 않음
+                                // 검색어가 있고 현재 항목의 subject_name과 검색어와 일치하지 않으면 표시하지 않음
                                 return Container();
                               }
 
@@ -581,7 +571,7 @@ class _MSmainASS extends State<MSmainASS> {
                                               ),
                                               SizedBox(height: 8.0),
                                               Text(
-                                                subject['pro_id'].toString(),
+                                                subject['credit'].toString(),
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 15.0,
