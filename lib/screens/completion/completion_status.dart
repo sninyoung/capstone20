@@ -4,45 +4,7 @@ import 'package:dio/dio.dart';
 import 'dart:core';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
-
 //나의이수현황 페이지
-void main() {
-  runApp(MaterialApp(
-    title: '나의 이수현황',
-    theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        textTheme: const TextTheme(
-          titleLarge: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w900,
-            color: Colors.black,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff858585),
-          ),
-          titleSmall: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Color(0xff858585),
-          ),
-          bodyLarge: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-          //버튼 글씨 폰트
-          bodySmall: TextStyle(
-              color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
-        )),
-    home: CompletionStatusPage(),
-  ));
-}
-
 class CompletionStatusPage extends StatefulWidget {
   @override
   State<CompletionStatusPage> createState() => _CompletionStatusPageState();
@@ -52,32 +14,32 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text(
-        '나의 이수현황',
-        style: TextStyle(
-        color: Colors.white,
-        fontSize: 20.0,
-        fontWeight: FontWeight.bold,
-    ),
-    ),
-    backgroundColor: Color(0xffC1D3FF),
-    centerTitle: true,
-    elevation: 0.0,
-    ),
-    drawer: MyDrawer(),
-    body: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CompletionStatusTitle(),
-          //StudentInfoWidget(studentId: '',),
-          MajorCreditWidget(),
-          CompletedSubjectTitle(),
-          CompletedSubject(),
-        ],
+          '나의 이수현황',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Color(0xffC1D3FF),
+        centerTitle: true,
+        elevation: 0.0,
       ),
-    ),
+      drawer: MyDrawer(),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CompletionStatusTitle(),
+            //StudentInfoWidget(studentId: '',),
+            MajorCreditWidget(),
+            CompletedSubjectTitle(),
+            CompletedSubject(),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -101,15 +63,23 @@ class CompletionStatusTitle extends StatelessWidget {
             children: [
               Text(
                 '나의 이수현황',
-                style: Theme.of(context).textTheme.titleLarge,
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
                   'completion status',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff858585),
+                  ),
                 ),
-              ),
+              )
             ],
           ),
         ),
@@ -121,7 +91,9 @@ class CompletionStatusTitle extends StatelessWidget {
 //나의이수현황 학생정보 studentInfo
 class StudentInfoWidget extends StatefulWidget {
   final String? studentId;
+
   StudentInfoWidget({required this.studentId});
+
   @override
   _StudentInfoWidgetState createState() => _StudentInfoWidgetState();
 }
@@ -182,42 +154,51 @@ class _StudentInfoWidgetState extends State<StudentInfoWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text(
-                          '${snapshot.data!['student_id']} 학번',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          ' | ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(fontSize: 24),
-                        ),
-                        Text(
-                          '${year} 학년',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          ' | ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(fontSize: 24),
-                        ),
-                        Text(
-                          '${snapshot.data!['major_type']}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
+                    Text(
+                    '${snapshot.data!['student_id']} 학번',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
+                    Text(
+                      ' | ',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      '${year} 학년',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      ' | ',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      '${snapshot.data!['major_type']}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          } else {
-            return Text("No student data");
-          }
+            ),
+        ),
+        );
+        } else {
+        return Text("No student data");
         }
+      }
       },
     );
   }
@@ -247,7 +228,6 @@ Future<int> fetchSubjectCredits(List<String> courses) async {
   return totalCredits;
 }
 
-
 class MajorCreditWidget extends StatefulWidget {
   const MajorCreditWidget({Key? key}) : super(key: key);
 
@@ -258,6 +238,7 @@ class MajorCreditWidget extends StatefulWidget {
 class _MajorCreditWidgetState extends State<MajorCreditWidget> {
   Map<String, dynamic> requiredCourses = {};
   int totalMajorCredits = 0;
+
   String get studentId => '';
 
   @override
@@ -266,7 +247,8 @@ class _MajorCreditWidgetState extends State<MajorCreditWidget> {
     fetchRequiredCourses(studentId).then((data) {
       setState(() {
         requiredCourses = data;
-        totalMajorCredits = fetchSubjectCredits(requiredCourses['courses']) as int;
+        totalMajorCredits =
+        fetchSubjectCredits(requiredCourses['courses']) as int;
       });
     });
   }
@@ -286,26 +268,39 @@ class _MajorCreditWidgetState extends State<MajorCreditWidget> {
           children: [
             Text(
               '전공학점 : ',
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,
             ),
             Text(
               '$totalMajorCredits',
-              style: Theme.of(context)
+              style: Theme
+                  .of(context)
                   .textTheme
                   .bodyLarge!
                   .copyWith(color: const Color(0xff2D0BB7)),
             ),
             Text(
               ' /',
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,
             ),
             Text(
               '66',
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,
             ),
             Text(
               '학점',
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,
             ),
           ],
         ),
@@ -313,7 +308,6 @@ class _MajorCreditWidgetState extends State<MajorCreditWidget> {
     );
   }
 }
-
 
 //전공이수과목 title
 class CompletedSubjectTitle extends StatelessWidget {
@@ -341,13 +335,19 @@ class CompletedSubjectTitle extends StatelessWidget {
                 children: [
                   Text(
                     '전공 이수과목',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyLarge,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, left: 8.0),
                     child: Text(
                       'completed subject',
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleSmall,
                     ),
                   ),
                 ],
@@ -361,7 +361,10 @@ class CompletedSubjectTitle extends StatelessWidget {
                         builder: (context) => CompletionSelect()));
               },
               style: ElevatedButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.bodySmall,
+                  textStyle: Theme
+                      .of(context)
+                      .textTheme
+                      .bodySmall,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   backgroundColor: const Color(0xff341F87)),
@@ -373,7 +376,6 @@ class CompletedSubjectTitle extends StatelessWidget {
     );
   }
 }
-
 
 //이수한 과목 ListView로 보여줌
 Future<Map<String, dynamic>> fetchRequiredCourses(String studentId) async {
@@ -397,6 +399,7 @@ Future<Map<String, dynamic>> fetchRequiredCourses(String studentId) async {
 
 class CompletedSubject extends StatefulWidget {
   const CompletedSubject({Key? key}) : super(key: key);
+
   @override
   State<CompletedSubject> createState() => _CompletedSubjectState();
 }
@@ -451,5 +454,3 @@ class _CompletedSubjectState extends State<CompletedSubject> {
     );
   }
 }
-
-

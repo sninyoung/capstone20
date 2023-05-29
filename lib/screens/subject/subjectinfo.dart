@@ -21,7 +21,8 @@ class _SubjectInfoState extends State<SubjectInfo> {
   }
 
   Future<void> fetchSubjectById() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/${widget.subjectId}'));
+    final response = await http
+        .get(Uri.parse('http://3.39.88.187:3000/subject/${widget.subjectId}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -46,7 +47,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
 
   Subject? findSubjectByName(String name) {
     return subjects.firstWhere(
-          (subject) => subject.subjectName == name,
+      (subject) => subject.subjectName == name,
       orElse: () => Subject(
         subjectName: '',
         subjectDivision: 0,
@@ -60,6 +61,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     final subjectName = '고급프로그래밍'; // 주어진 subject_name 입력
@@ -78,275 +80,289 @@ class _SubjectInfoState extends State<SubjectInfo> {
         backgroundColor: Color(0xffC1D3FF),
       ),
       body: subject != null
-          ? SingleChildScrollView( // Added SingleChildScrollView to handle overflowing content
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+          ? SingleChildScrollView(
+              // Added SingleChildScrollView to handle overflowing content
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '1. 교과목 정보',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
                   Container(
-                    alignment: Alignment.center,
                     width: double.infinity,
-                    margin: EdgeInsets.all(5),
+                    margin: EdgeInsets.all(10),
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.black12,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Text(
+                          '1. 교과목 정보',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          margin: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                  child: RichText(
-                                      text: TextSpan(
-                                          children: [
-                                            TextSpan(text: '• 과목명\n',
-                                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-                                            WidgetSpan(
-                                              child: SizedBox(
-                                                width: 10,
-                                              ),
-                                            ),
-                                            TextSpan(text: subject.subjectName, style: TextStyle(fontSize: 10, color: Colors.black)),
-                                          ])
-                                  )
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                        child: RichText(
+                                            text: TextSpan(children: [
+                                      TextSpan(
+                                          text: '• 과목명\n',
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black)),
+                                      WidgetSpan(
+                                        child: SizedBox(
+                                          width: 10,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                          text: subject.subjectName,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.black)),
+                                    ]))),
+                                    SizedBox(height: 10),
+                                    SizedBox(
+                                        child: RichText(
+                                            text: TextSpan(children: [
+                                      TextSpan(
+                                          text: '• 학점\n',
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black)),
+                                      WidgetSpan(
+                                        child: SizedBox(
+                                          width: 10,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: '${subject.subjectCredit}학점',
+                                        style: TextStyle(
+                                            fontSize: 10, color: Colors.black),
+                                      ),
+                                    ]))),
+                                  ]),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                      child: RichText(
+                                          text: TextSpan(children: [
+                                    TextSpan(
+                                        text: '• 담당교수\n',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black)),
+                                    WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                        text: '장준혁',
+                                        style: TextStyle(
+                                            fontSize: 10, color: Colors.black)),
+                                  ]))),
+                                  SizedBox(height: 10),
+                                  SizedBox(
+                                      child: RichText(
+                                          text: TextSpan(children: [
+                                    TextSpan(
+                                        text: '• 학수번호\n',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black)),
+                                    WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '${subject.subjectId}',
+                                      style: TextStyle(
+                                          fontSize: 10, color: Colors.black),
+                                    ),
+                                  ]))),
+                                ],
                               ),
-                              SizedBox(height:10),
-                              SizedBox(
-                                  child: RichText(
-                                      text: TextSpan(children: [
-                                        TextSpan(
-                                            text: '• 학점\n',
-                                            style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black)),
-                                        WidgetSpan(
-                                          child: SizedBox(
-                                            width: 10,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: '${subject.subjectCredit}학점',
-                                          style:
-                                          TextStyle(fontSize: 10, color: Colors.black),
-                                        ),
-                                      ]))),
-                            ]
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                      child: RichText(
+                                          text: TextSpan(children: [
+                                    TextSpan(
+                                        text: '• 이수구분\n',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black)),
+                                    WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                        text:
+                                            '${getSubjectDivisionText(subject.subjectDivision)}',
+                                        style: TextStyle(
+                                            fontSize: 10, color: Colors.black)),
+                                  ]))),
+                                  SizedBox(height: 10),
+                                  SizedBox(
+                                      child: RichText(
+                                          text: TextSpan(children: [
+                                    TextSpan(
+                                        text: '• 개설학년\n',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black)),
+                                    WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                        text:
+                                            '${subject.openingGrade}학년 ${subject.openingSemester}학기',
+                                        style: TextStyle(
+                                            fontSize: 10, color: Colors.black)),
+                                  ]))),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                                child: RichText(
-                                    text: TextSpan(
-                                        children: [
-                                          TextSpan(text: '• 담당교수\n',
-                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-                                          WidgetSpan(
-                                            child: SizedBox(
-                                              width: 10,
-                                            ),
-                                          ),
-                                          TextSpan(text: '장준혁', style: TextStyle(fontSize: 10, color: Colors.black)),
-                                        ])
-                                )
-                            ),
-                            SizedBox(height:10),
-                            SizedBox(
-                                child: RichText(
-                                    text: TextSpan(children: [
-                                      TextSpan(
-                                          text: '• 학수번호\n',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black)),
-                                      WidgetSpan(
-                                        child: SizedBox(
-                                          width: 10,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: '${subject.subjectId}',
-                                        style:
-                                        TextStyle(fontSize: 10, color: Colors.black),
-                                      ),
-                                    ]))),
-                          ],
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '2. 교과목 개요',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                                child: RichText(
-                                    text: TextSpan(
-                                        children: [
-                                          TextSpan(text: '• 이수구분\n',
-                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-                                          WidgetSpan(
-                                            child: SizedBox(
-                                              width: 10,
-                                            ),
-                                          ),
-                                          TextSpan(text: '${getSubjectDivisionText(subject.subjectDivision)}', style: TextStyle(fontSize: 10, color: Colors.black)),
-                                        ])
-                                )
-                            ),
-                            SizedBox(height:10),
-                            SizedBox(
-                                child: RichText(
-                                    text: TextSpan(children: [
-                                      TextSpan(
-                                          text: '• 개설학년\n',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black)),
-                                      WidgetSpan(
-                                        child: SizedBox(
-                                          width: 10,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                          text: '${subject.openingGrade}학년 ${subject.openingSemester}학기',
-                                          style: TextStyle(
-                                              fontSize: 10, color: Colors.black)),
-                                    ]))),
-                          ],
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Text(
+                            '${subject.subjectInfo}',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 10),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '3. 사용하는 언어',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Text(
+                            '${subject.useLanguage}',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 10),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '4. 학습목표',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Text(
+                            '${subject.classGoal}',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 10),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(5),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '2. 교과목 개요',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(5),
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Text(
-                      '${subject.subjectInfo}',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(5),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '3. 사용하는 언어',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(5),
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Text(
-                      '${subject.useLanguage}',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(5),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '4. 학습목표',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(5),
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Text(
-                      '${subject.classGoal}',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      )
+            )
           : Center(
-        child: Text('Subject not found.'),
-      ),
+              child: Text('Subject not found.'),
+            ),
     );
   }
 }
