@@ -489,7 +489,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       ),
                       ListTile(
                           leading: Icon(Icons.dynamic_feed, color: Colors.grey[800]),
-                          title: Text('피드백 확인'),
+                          title: Text('피드백 및 신고글'),
                           onTap: (){
                             Navigator.push(
                               context,
