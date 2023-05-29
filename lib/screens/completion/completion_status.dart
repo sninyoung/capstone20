@@ -1,455 +1,251 @@
 import 'package:flutter/material.dart';
-import 'package:capstone/drawer.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dart:core';
+import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
+//나의 이수현황 페이지
 
-//나의이수현황 페이지
-void main() {
-  runApp(MaterialApp(
-    title: '나의 이수현황',
-    theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        textTheme: const TextTheme(
-          titleLarge: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w900,
-            color: Colors.black,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff858585),
-          ),
-          titleSmall: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Color(0xff858585),
-          ),
-          bodyLarge: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-          //버튼 글씨 폰트
-          bodySmall: TextStyle(
-              color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
-        )),
-    home: CompletionStatusPage(),
-  ));
-}
+//과목 모델
+class Subject {
+  final String subject_name;
+  final int credit;
+  final int subject_division;
 
-class CompletionStatusPage extends StatefulWidget {
-  @override
-  State<CompletionStatusPage> createState() => _CompletionStatusPageState();
-}
+  //과목 모델
+  Subject({required this.subject_name,
+    required this.credit,
+    required this.subject_division});
 
-class _CompletionStatusPageState extends State<CompletionStatusPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-        title: Text(
-        '나의 이수현황',
-        style: TextStyle(
-        color: Colors.white,
-        fontSize: 20.0,
-        fontWeight: FontWeight.bold,
-    ),
-    ),
-    backgroundColor: Color(0xffC1D3FF),
-    centerTitle: true,
-    elevation: 0.0,
-    ),
-    drawer: MyDrawer(),
-    body: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CompletionStatusTitle(),
-          //StudentInfoWidget(studentId: '',),
-          MajorCreditWidget(),
-          CompletedSubjectTitle(),
-          CompletedSubject(),
-        ],
-      ),
-    ),
+  factory Subject.fromJson(Map<String, dynamic> json) {
+    return Subject(
+      subject_name: json['subject_name'],
+      credit: json['credit'],
+      subject_division: json['subject_division'],
     );
   }
 }
 
-//나의이수현황 title
-class CompletionStatusTitle extends StatelessWidget {
-  const CompletionStatusTitle({Key? key}) : super(key: key);
+//서버로부터 user의 이수과목 정보를 가져오기 위한 함수
+Future<List<Subject>> fetchSubjects() async {
+  final response =
+  await http.get(Uri.parse('http://3.39.88.187:3000/user/required'));
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0xffffffff),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '나의 이수현황',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  'completion status',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((item) => Subject.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load subjects');
   }
 }
 
-//나의이수현황 학생정보 studentInfo
-class StudentInfoWidget extends StatefulWidget {
-  final String? studentId;
-  StudentInfoWidget({required this.studentId});
-  @override
-  _StudentInfoWidgetState createState() => _StudentInfoWidgetState();
-}
+//이수과목 리스트뷰  SubjectList(subjects: fetchSubjects()
+class SubjectList extends StatelessWidget {
+  final Future<List<Subject>> subjects;
 
-class _StudentInfoWidgetState extends State<StudentInfoWidget> {
-  late Future<Map<String, dynamic>> futureStudentInfo;
-
-  var studentInfo;
-
-  Future<Map<String, dynamic>> fetchStudentInfo() async {
-    var dio = Dio();
-    var response = await dio.get('http://3.39.88.187:3000/user/info?',
-        queryParameters: {"student_id": widget.studentId});
-    if (response.statusCode == 200) {
-      return response.data['users'][0] ?? {}; // If null, return an empty map
-    } else {
-      throw Exception('Failed to load student info');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    futureStudentInfo = fetchStudentInfo();
-  }
-
-  String getYearFromStudentId(String studentId) {
-    if (studentId.length >= 8) {
-      return "'${studentId.substring(2, 4)}학번";
-    } else {
-      return "학번 정보 없음";
-    }
-  }
+  SubjectList({Key? key, required this.subjects}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: fetchStudentInfo(),
+    return FutureBuilder<List<Subject>>(
+      future: subjects,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              String title =
+              snapshot.data![index].subject_division == 'compulsory'
+                  ? '[전기]' + snapshot.data![index].subject_name
+                  : '[전선]' + snapshot.data![index].subject_name;
+              return ListTile(
+                title: Text(title),
+              );
+            },
+          );
         } else if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
-        } else {
-          String year = getYearFromStudentId(snapshot.data!['student_id']);
-          if (studentInfo != null) {
-            return SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xffC1D3FF),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20.0, top: 10.0, right: 20.0, bottom: 10.0),
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          '${snapshot.data!['student_id']} 학번',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          ' | ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(fontSize: 24),
-                        ),
-                        Text(
-                          '${year} 학년',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          ' | ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(fontSize: 24),
-                        ),
-                        Text(
-                          '${snapshot.data!['major_type']}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          } else {
-            return Text("No student data");
-          }
+          return Text("${snapshot.error}");
         }
+        return CircularProgressIndicator();
       },
     );
   }
 }
 
-//전공이수학점
-Future<int> fetchSubjectCredits(List<String> courses) async {
-  final dio = Dio();
-  final token = await storage.read(key: 'token');
-  int totalCredits = 0;
+class CompletionStatusPage extends StatefulWidget {
+  final String student_id;
+  final String grade;
+  final String major_type;
 
-  for (String course in courses) {
-    final response = await dio.get(
-      'http://3.39.88.187:3000/subject/info',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-      ),
-      queryParameters: {'course_name': course},
+  const CompletionStatusPage({Key? key,
+    required this.student_id,
+    required this.grade,
+    required this.major_type})
+      : super(key: key);
+
+  @override
+  State<CompletionStatusPage> createState() => _CompletionStatusPageState();
+}
+
+class _CompletionStatusPageState extends State<CompletionStatusPage> {
+  late List<Subject> _compulsorySelections;
+  late List<Subject> _electiveSelections;
+
+  @override
+  void initState() {
+    super.initState();
+    _compulsorySelections = [];
+    _electiveSelections = [];
+    //futureUser = fetchUser();
+  }
+
+  Future<void> _fetchData() async {
+    var response =
+    await http.get(Uri.parse('http://3.39.88.187:3000/user/required'));
+    var decodedData = jsonDecode(response.body);
+
+    List<Subject> compulsorySelections = [];
+    List<Subject> electiveSelections = [];
+
+    for (var subject in decodedData['compulsory']) {
+      compulsorySelections.add(Subject.fromJson(subject));
+    }
+    for (var subject in decodedData['elective']) {
+      electiveSelections.add(Subject.fromJson(subject));
+    }
+
+    setState(() {
+      _compulsorySelections = compulsorySelections;
+      _electiveSelections = electiveSelections;
+    });
+  }
+
+  int calculateTotalCredit(List<Subject> subjects) {
+    int total = 0;
+    for (var subject in subjects) {
+      total += subject.credit;
+    }
+    return total;
+  }
+
+
+  /*//헤더에 토큰 추가 방법으로 특정 학생 정보 가져오기
+  //${_student?.studentId} 부분은 현재 사용자의 ID -> 사용자가 로그인할 때 서버로부터 받아야 함
+  //_student는 현재 로그인한 학생의 정보를 저장하는 변수
+  Future<void> fetchCompletedSubjects() async {
+    late Future<User> futureUser;
+    final headers = { 'Authorization': 'Bearer ${_student?.token}'};
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/user/required'),
+      headers: headers,
     );
 
     if (response.statusCode == 200) {
-      totalCredits += (response.data['credit'] as num).toInt();
+      final List<dynamic> data = json.decode(response.body);
+      _completedSubjects = data.map((item) => Subject.fromJson(item)).toList();
+
+      setState(() {});
     } else {
-      throw Exception('Failed to load subject credit');
+      throw Exception('Failed to load completed subjects');
     }
-  }
-  return totalCredits;
-}
+  }*/
 
-
-class MajorCreditWidget extends StatefulWidget {
-  const MajorCreditWidget({Key? key}) : super(key: key);
-
-  @override
-  State<MajorCreditWidget> createState() => _MajorCreditWidgetState();
-}
-
-class _MajorCreditWidgetState extends State<MajorCreditWidget> {
-  Map<String, dynamic> requiredCourses = {};
-  int totalMajorCredits = 0;
-  String get studentId => '';
-
-  @override
-  void initState() {
-    super.initState();
-    fetchRequiredCourses(studentId).then((data) {
-      setState(() {
-        requiredCourses = data;
-        totalMajorCredits = fetchSubjectCredits(requiredCourses['courses']) as int;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: const Color(0xffF5F5F5),
-          borderRadius: BorderRadius.circular(10)),
-      height: 60,
-      margin: EdgeInsets.fromLTRB(20, 25, 20, 40),
-      child: Padding(
-        padding: const EdgeInsets.only(
-            left: 20.0, top: 10.0, right: 20.0, bottom: 10.0),
-        child: Row(
-          children: [
-            Text(
-              '전공학점 : ',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            Text(
-              '$totalMajorCredits',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge!
-                  .copyWith(color: const Color(0xff2D0BB7)),
-            ),
-            Text(
-              ' /',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            Text(
-              '66',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            Text(
-              '학점',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ],
-        ),
-      ),
+  /*//학생 정보 불러오기
+  Future<User> fetchUser() async {
+    final headers = { 'Authorization': 'Bearer ${_student?.token}'}; // 로그인 토큰
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/user/info'),
+      // user 정보를 받아오는 api endpoint
+      headers: headers,
     );
-  }
-}
 
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load user');
+    }
+  }*/
 
-//전공이수과목 title
-class CompletedSubjectTitle extends StatelessWidget {
-  const CompletedSubjectTitle({Key? key}) : super(key: key);
+  /*//이수과목 정보 불러오기
+  Future<void> fetchCompletedSubjects() async {
+    var response = await http.get(Uri.parse(
+        'http://3.39.88.187:3000/user/required?student_id=${_student
+            ?.studentId}'));
+    var decodedData = jsonDecode(response.body);
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-          color: Color(0xffffffff),
-          border: Border(
-              top: BorderSide(
-                color: const Color(0xff858585),
-                width: 0.8,
-                style: BorderStyle.solid,
-              ))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  Text(
-                    '전공 이수과목',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-                    child: Text(
-                      'completed subject',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CompletionSelect()));
-              },
-              style: ElevatedButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.bodySmall,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  backgroundColor: const Color(0xff341F87)),
-              child: Text('이수과목 편집'),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
+    List<Subject> compulsorySelections = [];
+    List<Subject> electiveSelections = [];
 
-
-//이수한 과목 ListView로 보여줌
-Future<Map<String, dynamic>> fetchRequiredCourses(String studentId) async {
-  final dio = Dio();
-  final token = await storage.read(key: 'token');
-
-  final response = await dio.get(
-    'http://3.39.88.187:3000/user/required',
-    options: Options(
-      headers: {'Authorization': 'Bearer $token'},
-    ),
-    queryParameters: {'student_id': studentId},
-  );
-
-  if (response.statusCode == 200) {
-    return response.data;
-  } else {
-    throw Exception('Failed to load required courses');
-  }
-}
-
-class CompletedSubject extends StatefulWidget {
-  const CompletedSubject({Key? key}) : super(key: key);
-  @override
-  State<CompletedSubject> createState() => _CompletedSubjectState();
-}
-
-class _CompletedSubjectState extends State<CompletedSubject> {
-  Map<String, dynamic> requiredCourses = {};
-
-  List<Subject> compulsorySubjects = []; // 전공기초 과목 리스트
-  List<Subject> electiveSubjects = []; // 전공선택 과목 리스트
-
-  String studentId = ''; // 학생 ID
-  List<String> courses = []; // 선택한 과목 리스트
-
-  @override
-  void initState() {
-    super.initState();
-    fetchRequiredCourses(studentId).then((data) {
+    if (response.statusCode == 200) {
+      for (var subject in decodedData['compulsory']) {
+        compulsorySelections.add(Subject.fromJson(subject));
+      }
+      for (var subject in decodedData['elective']) {
+        electiveSelections.add(Subject.fromJson(subject));
+      }
       setState(() {
-        requiredCourses = data;
+        _compulsorySelections = compulsorySelections;
+        _electiveSelections = electiveSelections;
       });
-    });
-  }
+    } else {
+      throw Exception('Failed to load completed subjects');
+    }
+  }*/
 
+//총 전공학점 계산
+/*  int calculateTotalCredit(List<Subject> subjects) {
+    int total = 0;
+    for (var subject in subjects) {
+      total += subject.credit;
+    }
+    return total;
+  }*/
+
+//빌드
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Completion Status'),
-      ),
-      body: ListView(
-        children: [
-          Text('Completed Compulsory Subjects'),
-          ListView.builder(
-            itemCount: requiredCourses['compulsorySubjects']?.length ?? 0,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(requiredCourses['compulsorySubjects'][index]),
-              );
-            },
+        title: Text(
+          '나의 이수현황',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
           ),
-          Text('Completed Elective Subjects'),
-          ListView.builder(
-            itemCount: requiredCourses['electiveSubjects']?.length ?? 0,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(requiredCourses['electiveSubjects'][index]),
-              );
-            },
-          ),
-        ],
+        ),
+        backgroundColor: Color(0xffC1D3FF),
+        centerTitle: true,
+        elevation: 0.0,
       ),
+      drawer: MyDrawer(),
+      body: Text('나의 이수현황')
     );
   }
 }
 
+
+/*
+class User {
+  final String student_id;
+  final int grade;
+  final String major_type;
+
+  User({
+    required this.student_id,
+    required this.grade,
+    required this.major_type,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      student_id: json['student_id'],
+      grade: json['grade'],
+      major_type: json['major_type'],
+    );
+  }
+}
+*/
 

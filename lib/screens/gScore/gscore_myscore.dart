@@ -21,6 +21,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
   int i = 0;
   List<Map<String, dynamic>> maxScores = [];
   Map<String,int> Maxscore = {};
+  Map<String, dynamic> allScore = {};
+  int student_id = 0;
+  int? score = 0;
+  Map<String, Map<String, int>>? details;
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
@@ -69,7 +73,12 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
     if (response.statusCode == 200) {
       final user = jsonDecode(response.body);
       final allScoreTemp = user['graduation_score'];
-      final allScore = jsonDecode(allScoreTemp);
+      final decodedAllScore = jsonDecode(allScoreTemp);
+      student_id = user['student_id'];
+
+      allScore.clear(); // 이전 값들을 제거하고 새로운 값을 저장
+      allScore.addAll(decodedAllScore);
+      print(allScore);
 
       allScore.forEach((key, value) {
         if (maxScores.any((score) => score.containsKey(key))) {
@@ -83,9 +92,11 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       allScore.forEach((key, value) {
         sumScore += value as int;
       });
+
+      _getdetails();
     }
 
-    a = (Maxscore["총점"] ?? 0) - sumScore;
+    a = (Maxscore ["총점"] ?? 0) - sumScore;
 
     if (a < 0) {
       leftScore = '졸업이 가능해요 축하해요';
@@ -97,7 +108,57 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
       leftScore;
     });
   }
+  Future<void> _getdetails() async {
+    final token = await storage.read(key: 'token');
 
+    if (token == null) {
+      return;
+    }
+
+    if (details == null) {
+      final postData = {
+        'userId': student_id,
+      };
+
+      print(postData);
+      final detailsResponse = await http.post(
+        Uri.parse('http://3.39.88.187:3000/gScore/detail'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': token,
+        },
+        body: jsonEncode(postData),
+      );
+
+      if (detailsResponse.statusCode == 200) {
+        final detailsList = jsonDecode(detailsResponse.body);
+        print(detailsList);
+        details = {};
+        for (final detail in detailsList) {
+          final category = detail['gspost_category'];
+          final item = detail['gspost_item'];
+          final score = detail['gspost_score'];
+
+          if (details![category] == null) {
+            details![category] = {};
+          }
+
+          details![category]![item] = score;
+
+        }
+      }
+      print("디테일 출력");
+      print(details);
+
+    }
+
+
+    if (mounted) {
+      setState(() {
+        details;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -242,6 +303,10 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
                                         child: gScore_check(
                                           name: maxScores[j].keys.first,
                                           maxScore: maxScores[j].values.first,
+                                          studentid: student_id,
+                                          allScore: allScore,
+                                          score: score,
+                                          details: details,
                                         ),
                                       ),
                                     ),
@@ -272,11 +337,22 @@ class _MyScorePage extends State<MyScorePage> with TickerProviderStateMixin {
 }
 //floating border
 class gScore_check extends StatefulWidget {
-  const gScore_check({Key? key, required this.name, required this.maxScore})
-      : super(key: key);
+  const gScore_check({
+    Key? key,
+    required this.name,
+    required this.maxScore,
+    required this.studentid,
+    required this.allScore,
+    required this.score,
+    required this.details,
+  }) : super(key: key);
 
   final dynamic name;
   final dynamic maxScore;
+  final int studentid;
+  final Map<String, dynamic> allScore;
+  final int? score;
+  final Map<String, Map<String, int>>? details;
 
   @override
   _gScoreCheckState createState() => _gScoreCheckState();
@@ -284,81 +360,14 @@ class gScore_check extends StatefulWidget {
 
 class _gScoreCheckState extends State<gScore_check> {
   final FlutterSecureStorage storage = FlutterSecureStorage();
-  int? score;
-  Map<String, Map<String, int>>? details; // 졸업점수 상세 정보 저장
-
-  Future<void> _getUserInfo() async {
-    final token = await storage.read(key: 'token');
-
-    if (token == null) {
-      return;
-    }
-
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/user'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final user = jsonDecode(response.body);
-      final allScoreTemp = user['graduation_score'];
-      final allScore = jsonDecode(allScoreTemp);
-      score = allScore[widget.name];
-
-      if (details == null) {
-        final postData = {
-          'userId': user['student_id'],
-          'category': widget.name,
-        };
-
-        final detailsResponse = await http.post(
-          Uri.parse('http://3.39.88.187:3000/gScore/detail'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': token,
-          },
-          body: jsonEncode(postData),
-        );
-
-        if (detailsResponse.statusCode == 200) {
-          final detailsList = jsonDecode(detailsResponse.body);
-          details = {};
-
-          for (final detail in detailsList) {
-            final category = detail['gspost_category'];
-            final item = detail['gspost_item'];
-            final score = detail['gspost_score'];
-
-            if (details![category] == null) {
-              details![category] = {};
-            }
-
-            details![category]![item] = score;
-          }
-        }
-        print(details);
-      }
-
-      if (score! > widget.maxScore) {
-        score = widget.maxScore;
-      }
-      setState(() {
-        score;
-        details;
-      });
-    } else {
-      throw Exception('예외 발생');
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    _getUserInfo();
   }
+
+
+
 
   void _showScoreDetails() {
     showDialog(
@@ -368,25 +377,30 @@ class _gScoreCheckState extends State<gScore_check> {
           title: const Text('졸업점수 상세보기'),
           content: SizedBox(
             width: double.maxFinite,
-            height: 130, // 원하는 높이로 조정하세요
+            height: 130,
             child: Scrollbar(
-              child: details!.isEmpty
-                  ? Center(child: Text('해당하는 졸업점수가 없습니다.'))
-                  : ListView.builder(
-                itemCount: details!.length,
+              child: ListView.builder(
+                itemCount: 1,
                 itemBuilder: (BuildContext context, int index) {
-                  final category = details!.keys.elementAt(index);
-                  final items = details![category]!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('카테고리 : $category'),
-                      const SizedBox(height: 10),
-                      for (final item in items.keys)
-                        if (items[item] != null)
-                          Text('$item : ${items[item]}'),
-                    ],
+                  final category = widget.details!.keys.firstWhere(
+                        (key) => key == widget.name,
+                    orElse: () => '',
                   );
+                  final items = widget.details![category] ?? {};
+                  if (category.isNotEmpty && items.isNotEmpty) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('카테고리 : $category'),
+                        const SizedBox(height: 10),
+                        for (final item in items.keys)
+                          if (items[item] != null)
+                            Text('$item : ${items[item]}'),
+                      ],
+                    );
+                  } else {
+                    return Center(child: Text('해당하는 졸업점수가 없습니다.'));
+                  }
                 },
               ),
             ),
@@ -404,15 +418,13 @@ class _gScoreCheckState extends State<gScore_check> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _showScoreDetails, // 클릭 시 팝업창 표시
+      onTap: _showScoreDetails,
       child: Container(
         padding: const EdgeInsets.all(8),
         width: 100,
-        // 원하는 너비로 수정해주세요
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -421,13 +433,13 @@ class _gScoreCheckState extends State<gScore_check> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: const Offset(0, 3), // 그림자 위치 조정
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         alignment: Alignment.center,
         child: Column(
-          mainAxisSize: MainAxisSize.min, // 내부 컨텐츠를 위해 최소한의 공간만 차지하도록 설정
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               child: Text(
@@ -444,7 +456,7 @@ class _gScoreCheckState extends State<gScore_check> {
             Container(
               color: Colors.white,
               child: Text(
-                '${score} / ${widget.maxScore}',
+                '${widget.allScore[widget.name]} / ${widget.maxScore}',
                 style: const TextStyle(
                   fontSize: 15,
                   color: Colors.black,

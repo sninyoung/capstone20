@@ -35,23 +35,6 @@ Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
   }
 }
 
-Future<Map<String, dynamic>> fetchProfessor(String proId) async {
-  final response = await http.get(Uri.parse('http://localhost:3000/prof/info?pro_id=$proId'));
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body) as List<dynamic>;
-    if (data.isNotEmpty) {
-      final professorData = data[0] as Map<String, dynamic>;
-      final name = professorData['name'];
-      final proId = professorData['pro_id'];
-      return {'name': name, 'pro_id': proId};
-    } else {
-      return {'name': 'Unknown', 'pro_id': ''}; // 교수명이 없는 경우 'Unknown'으로 설정
-    }
-  } else {
-    throw Exception('Failed to fetch professor');
-  }
-}
-
 class MSmain extends StatefulWidget {
   @override
   _MSmain createState() => _MSmain();
@@ -119,34 +102,6 @@ class _MSmain extends State<MSmain> {
                       ),
                     ),
                   ),
-
-                  /*
-                  //조교페이지 추가탭
-                  SizedBox(
-                    width: 110.0, // 원하는 너비로 설정
-                    height: 30.0, // 원하는 높이로 설정
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0, 40, 0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AddProfessorPage()),
-                          );
-                        },
-                        child: Text('과목 추가',
-                          style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold, color: Colors.white,),),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo, // 배경 색상 변경
-                          padding: EdgeInsets.symmetric(vertical: 6.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                   */
                 ],
               ),
             ),
@@ -209,7 +164,7 @@ class _MSmain extends State<MSmain> {
                           },
                         )
                             : Container(),
-                        hintText: '과목명 또는 교수명을 입력하세요',
+                        hintText: '과목명을 입력하세요',
                         labelStyle: TextStyle(color: Colors.black),
                         focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.transparent),
@@ -289,8 +244,7 @@ class _MSmain extends State<MSmain> {
                       if (search.isNotEmpty) {
                         // 검색어가 있을 때 데이터를 필터링하여 표시
                         subjects = subjects.where((subject) =>
-                        subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase()) ||
-                            subject['pro_id'].toString().toLowerCase().contains(search.toLowerCase())).toList();
+                        subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase())).toList();
                         //subject['subject_name'].toString() == search).toList();
                       }
                       if (subjects.isEmpty) {
@@ -326,7 +280,7 @@ class _MSmain extends State<MSmain> {
                                       ),
                                       SizedBox(height: 8.0),
                                       Text(
-                                        '교수명    ',
+                                        '학점    ',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15.0,
@@ -339,8 +293,8 @@ class _MSmain extends State<MSmain> {
                               }
                               final subject = subjects[index - 1];
 
-                              if (search.isNotEmpty && !subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase()) && !subject['pro_id'].toString().toLowerCase().contains(search.toLowerCase())) {
-                                // 검색어가 있고 현재 항목의 subject_name과 pro_id가 검색어와 일치하지 않으면 표시하지 않음
+                              if (search.isNotEmpty && !subject['subject_name'].toString().toLowerCase().contains(search.toLowerCase())) {
+                                // 검색어가 있고 현재 항목의 subject_name과 검색어와 일치하지 않으면 표시하지 않음
                                 return Container();
                               }
                               return ListTile(
@@ -367,15 +321,7 @@ class _MSmain extends State<MSmain> {
                                         color: Colors.grey.withOpacity(0.5),
                                       ),
                                     ),
-                                    child: FutureBuilder<Map<String, dynamic>>(
-                                      future: fetchProfessor(subject['pro_id'].toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          final professor = snapshot.data!;
-                                          final proId = professor['pro_id'];
-                                          final name = professor['name'];
-
-                                          return Row(
+                                    child: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
@@ -396,7 +342,7 @@ class _MSmain extends State<MSmain> {
                                               ),
                                               SizedBox(height: 8.0),
                                               Text(
-                                                subject['pro_id'].toString(),
+                                                subject['credit'].toString(),
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 15.0,
@@ -405,14 +351,8 @@ class _MSmain extends State<MSmain> {
                                               ),
 
                                             ],
-                                          );
-                                        } else if (snapshot.hasError) {
-
-                                          return Text('Failed to fetch professor');
-                                        } else {
-                                          return Text('Loading professor...');}},
-                                    ),
-                                  ), // 추가적인 과목 정보 표시를 위한 코드 작성
+                                          ),
+                                  ),
                                 ),
                               );
                             },
@@ -488,15 +428,10 @@ class _MSmain extends State<MSmain> {
                       if (search.isNotEmpty) {
                         // 검색어가 있을 때 데이터를 필터링하여 표시
                         subjects = subjects.where((subject) =>
-
                         subject['subject_name']
                             .toString()
                             .toLowerCase()
-                            .contains(search.toLowerCase()) ||
-                            subject['pro_id']
-                                .toString()
-                                .toLowerCase()
-                                .contains(search.toLowerCase()))
+                            .contains(search.toLowerCase()))
                             .toList();
                       }
                       if (subjects.isEmpty) {
@@ -532,7 +467,7 @@ class _MSmain extends State<MSmain> {
                                       ),
                                       SizedBox(height: 8.0),
                                       Text(
-                                        '교수명    ',
+                                        '학점    ',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15.0,
@@ -548,12 +483,8 @@ class _MSmain extends State<MSmain> {
                                   !subject['subject_name']
                                       .toString()
                                       .toLowerCase()
-                                      .contains(search.toLowerCase()) &&
-                                  !subject['pro_id']
-                                      .toString()
-                                      .toLowerCase()
                                       .contains(search.toLowerCase())) {
-                                // 검색어가 있고 현재 항목의 subject_name과 pro_id가 검색어와 일치하지 않으면 표시하지 않음
+                                // 검색어가 있고 현재 항목의 subject_name과 검색어와 일치하지 않으면 표시하지 않음
                                 return Container();
                               }
 
@@ -581,13 +512,7 @@ class _MSmain extends State<MSmain> {
                                         color: Colors.grey.withOpacity(0.5),
                                       ),
                                     ),
-                                    child: FutureBuilder<Map<String, dynamic>>(
-                                      future: fetchProfessor(subject['pro_id'].toString()),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          final professor = snapshot.data!;
-
-                                          return Row(
+                                    child: Row(
                                             mainAxisAlignment: MainAxisAlignment
                                                 .spaceBetween,
                                             crossAxisAlignment: CrossAxisAlignment
@@ -613,7 +538,7 @@ class _MSmain extends State<MSmain> {
                                               ),
                                               SizedBox(height: 8.0),
                                               Text(
-                                                subject['pro_id'].toString(),
+                                                subject['credit'].toString(),
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 15.0,
@@ -622,18 +547,10 @@ class _MSmain extends State<MSmain> {
                                               ),
 
                                             ],
-                                          );
-                                        } else if (snapshot.hasError) {
-                                          return Text(
-                                              'Failed to fetch professor');
-                                        } else {
-                                          return Text('Loading professor...');
-                                        }
-                                      },
-                                    ),
+                                          ),
                                   ),
 
-                                ), // 추가적인 교수 정보 표시를 위한 코드 작성
+                                ),
                               );
                             },
                           )
