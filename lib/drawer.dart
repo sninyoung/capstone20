@@ -422,7 +422,7 @@ class _MyDrawerState extends State<MyDrawer> {
                     }
                 ),
 
-                _accountPermission == "2" ?
+                _accountPermission == "2" || _accountPermission == "3" ?
                 ExpansionTile(
                     title: Text('관리자 페이지'),
                     leading: Icon(Icons.subdirectory_arrow_left, color: Colors.grey[800]),
