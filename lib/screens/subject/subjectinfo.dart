@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:capstone/main.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -21,8 +20,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
   }
 
   Future<void> fetchSubjectById() async {
-    final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/subject/${widget.subjectId}'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/info?subject_id=${widget.subjectId}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -45,9 +43,9 @@ class _SubjectInfoState extends State<SubjectInfo> {
     }
   }
 
-  Subject? findSubjectByName(String name) {
+  Subject? findSubjectById(int subjectid) {
     return subjects.firstWhere(
-      (subject) => subject.subjectName == name,
+          (subject) => subject.subjectId == subjectid,
       orElse: () => Subject(
         subjectName: '',
         subjectDivision: 0,
@@ -58,15 +56,15 @@ class _SubjectInfoState extends State<SubjectInfo> {
         subjectCredit: 0,
         openingGrade: 0,
         openingSemester: '',
+        proName: 0,
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
-    final subjectName = '고급프로그래밍'; // 주어진 subject_name 입력
+    final subjectId = widget.subjectId;
 
-    final subject = findSubjectByName(subjectName);
+    final subject = findSubjectById(subjectId);
 
     return Scaffold(
       appBar: AppBar(
@@ -76,51 +74,113 @@ class _SubjectInfoState extends State<SubjectInfo> {
             Navigator.pop(context); // 뒤로가기 버튼을 눌렀을 때 이전 화면으로 이동
           },
         ),
-        title: Text('한남대학교 컴퓨터공학과'),
+        title: Text('과목 정보',
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),),
         backgroundColor: Color(0xffC1D3FF),
+        centerTitle: true,
       ),
       body: subject != null
-          ? SingleChildScrollView(
-              // Added SingleChildScrollView to handle overflowing content
+          ? SingleChildScrollView( // Added SingleChildScrollView to handle overflowing content
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    '1. 교과목 정보',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Container(
+                    alignment: Alignment.center,
                     width: double.infinity,
-                    margin: EdgeInsets.all(10),
+                    margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.black12,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          '1. 교과목 정보',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          margin: EdgeInsets.all(5),
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                        child: RichText(
-                                            text: TextSpan(children: [
+                              SizedBox(
+                                  child: RichText(
+                                      text: TextSpan(
+                                          children: [
+                                            TextSpan(text: '• 과목명\n',
+                                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                                            WidgetSpan(
+                                              child: SizedBox(
+                                                width: 10,
+                                              ),
+                                            ),
+                                            TextSpan(text: subject.subjectName, style: TextStyle(fontSize: 10, color: Colors.black)),
+                                          ])
+                                  )
+                              ),
+                              SizedBox(height:10),
+                              SizedBox(
+                                  child: RichText(
+                                      text: TextSpan(children: [
+                                        TextSpan(
+                                            text: '• 학점\n',
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black)),
+                                        WidgetSpan(
+                                          child: SizedBox(
+                                            width: 10,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${subject.subjectCredit}학점',
+                                          style:
+                                          TextStyle(fontSize: 10, color: Colors.black),
+                                        ),
+                                      ]))),
+                            ]
+                        ),
+
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                                child: RichText(
+                                    text: TextSpan(
+                                        children: [
+                                          TextSpan(text: '• 담당교수\n',
+                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                                          WidgetSpan(
+                                            child: SizedBox(
+                                              width: 10,
+                                            ),
+                                          ),
+                                          TextSpan(text: '${subject.proName}', style: TextStyle(fontSize: 10, color: Colors.black)),
+                                        ])
+                                )
+                            ),
+                            SizedBox(height:10),
+                            SizedBox(
+                                child: RichText(
+                                    text: TextSpan(children: [
                                       TextSpan(
-                                          text: '• 과목명\n',
+                                          text: '• 학수번호\n',
                                           style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold,
@@ -131,17 +191,37 @@ class _SubjectInfoState extends State<SubjectInfo> {
                                         ),
                                       ),
                                       TextSpan(
-                                          text: subject.subjectName,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.black)),
+                                        text: '${subject.subjectId}',
+                                        style:
+                                        TextStyle(fontSize: 10, color: Colors.black),
+                                      ),
                                     ]))),
-                                    SizedBox(height: 10),
-                                    SizedBox(
-                                        child: RichText(
-                                            text: TextSpan(children: [
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                                child: RichText(
+                                    text: TextSpan(
+                                        children: [
+                                          TextSpan(text: '• 이수구분\n',
+                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                                          WidgetSpan(
+                                            child: SizedBox(
+                                              width: 10,
+                                            ),
+                                          ),
+                                          TextSpan(text: '${getSubjectDivisionText(subject.subjectDivision)}', style: TextStyle(fontSize: 10, color: Colors.black)),
+                                        ])
+                                )
+                            ),
+                            SizedBox(height:10),
+                            SizedBox(
+                                child: RichText(
+                                    text: TextSpan(children: [
                                       TextSpan(
-                                          text: '• 학점\n',
+                                          text: '• 개설학년\n',
                                           style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold,
@@ -152,217 +232,126 @@ class _SubjectInfoState extends State<SubjectInfo> {
                                         ),
                                       ),
                                       TextSpan(
-                                        text: '${subject.subjectCredit}학점',
-                                        style: TextStyle(
-                                            fontSize: 10, color: Colors.black),
-                                      ),
+                                          text: '${subject.openingGrade}학년 ${subject.openingSemester}학기',
+                                          style: TextStyle(
+                                              fontSize: 10, color: Colors.black)),
                                     ]))),
-                                  ]),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                      child: RichText(
-                                          text: TextSpan(children: [
-                                    TextSpan(
-                                        text: '• 담당교수\n',
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black)),
-                                    WidgetSpan(
-                                      child: SizedBox(
-                                        width: 10,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                        text: '장준혁',
-                                        style: TextStyle(
-                                            fontSize: 10, color: Colors.black)),
-                                  ]))),
-                                  SizedBox(height: 10),
-                                  SizedBox(
-                                      child: RichText(
-                                          text: TextSpan(children: [
-                                    TextSpan(
-                                        text: '• 학수번호\n',
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black)),
-                                    WidgetSpan(
-                                      child: SizedBox(
-                                        width: 10,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '${subject.subjectId}',
-                                      style: TextStyle(
-                                          fontSize: 10, color: Colors.black),
-                                    ),
-                                  ]))),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                      child: RichText(
-                                          text: TextSpan(children: [
-                                    TextSpan(
-                                        text: '• 이수구분\n',
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black)),
-                                    WidgetSpan(
-                                      child: SizedBox(
-                                        width: 10,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                        text:
-                                            '${getSubjectDivisionText(subject.subjectDivision)}',
-                                        style: TextStyle(
-                                            fontSize: 10, color: Colors.black)),
-                                  ]))),
-                                  SizedBox(height: 10),
-                                  SizedBox(
-                                      child: RichText(
-                                          text: TextSpan(children: [
-                                    TextSpan(
-                                        text: '• 개설학년\n',
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black)),
-                                    WidgetSpan(
-                                      child: SizedBox(
-                                        width: 10,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                        text:
-                                            '${subject.openingGrade}학년 ${subject.openingSemester}학기',
-                                        style: TextStyle(
-                                            fontSize: 10, color: Colors.black)),
-                                  ]))),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(10),
-                    padding: EdgeInsets.all(5),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '2. 교과목 개요',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          margin: EdgeInsets.all(5),
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Text(
-                            '${subject.subjectInfo}',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 10),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(10),
-                    padding: EdgeInsets.all(5),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '3. 사용하는 언어',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          margin: EdgeInsets.all(5),
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Text(
-                            '${subject.useLanguage}',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 10),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(10),
-                    padding: EdgeInsets.all(5),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '4. 학습목표',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          margin: EdgeInsets.all(5),
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Text(
-                            '${subject.classGoal}',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 10),
-                          ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            )
-          : Center(
-              child: Text('Subject not found.'),
             ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '2. 교과목 개요',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Text(
+                      '${subject.subjectInfo}',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '3. 사용하는 언어',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Text(
+                      '${subject.useLanguage}',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '4. 학습목표',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Text(
+                      '${subject.classGoal}',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )
+          : Center(
+        child: Text('Subject not found.'),
+      ),
     );
   }
 }
@@ -377,6 +366,7 @@ class Subject {
   final int subjectCredit;
   final int openingGrade;
   final String openingSemester;
+  final int proName;
 
   Subject({
     required this.subjectName,
@@ -388,6 +378,7 @@ class Subject {
     required this.subjectCredit,
     required this.openingGrade,
     required this.openingSemester,
+    required this.proName,
   });
 
   factory Subject.fromJson(Map<String, dynamic> json) {
@@ -401,6 +392,7 @@ class Subject {
       subjectCredit: json['credit'] ?? 0,
       openingGrade: json['opening_grade'] ?? 0,
       openingSemester: json['opening_semester'] ?? '',
+      proName: json['pro_id'] ?? 0,
     );
   }
 }

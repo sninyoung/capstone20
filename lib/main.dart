@@ -18,12 +18,47 @@ import 'package:capstone/screens/subject/MSmain.dart';
 import 'package:capstone/screens/post/party_board.dart' as PartyBoard;
 import 'package:capstone/screens/post/free_board.dart' as FreeBoard;
 import 'package:capstone/screens/post/QnA_board.dart' as QABoard;
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:async';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
 
 
 
 void main() async {
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   WidgetsFlutterBinding.ensureInitialized();
+
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  //======↓IOS용 권한 허용 코드↓=========
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  print('User granted permission: ${settings.authorizationStatus}');
+  //======↑IOS용 권한 허용 코드↑=========
   runApp(MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
@@ -79,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
+    sumScore = 0;
 
     if (token == null) {
       return;
@@ -139,57 +175,64 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('메인페이지'),
-        backgroundColor: Color(0xffC1D3FF),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Profile()),
-              );
-            },
-          ),
-        ],
-      ),
-      drawer: MyDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                NoticeWidget(), // NoticeWidget 추가
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                SubWidget(),
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                PostWidget(),
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-                PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
-                Divider( // 추가: 실선
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-              ],
+        appBar: AppBar(
+          title: Text('메인페이지'),
+          backgroundColor: Color(0xffC1D3FF),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Profile()),
+                );
+              },
+            ),
+          ],
+        ),
+        drawer: MyDrawer(),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            setState(() async {
+              await _getUserInfo();
+            });},
+          child:
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  NoticeWidget(), // NoticeWidget 추가
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  SubWidget(),
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  PostWidget(),
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                  PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
+                  Divider( // 추가: 실선
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        )
     );
   }
 }
@@ -262,13 +305,24 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   List<String> postTitles = [];
+  Timer? _timer;
+  bool hasFetchedData = false;
 
   @override
   void initState() {
     super.initState();
     _fetchPosts(); // 위젯 초기화시 게시물 가져오기
+
+    _timer = Timer.periodic(Duration(minutes: 15), (_) {
+      _fetchPosts();
+    });
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel(); // 타이머 중지
+    super.dispose();
+  }
   Future<void> _fetchPosts() async {
     // 게시물을 가져오는 코드를 작성합니다.
     String PartyTitlePost = '';
@@ -305,6 +359,7 @@ class _PostWidgetState extends State<PostWidget> {
         '$FreeTitlePost',
         '$QATitlePost',
       ];
+      hasFetchedData = true;
     });
   }
 
@@ -425,17 +480,26 @@ class _PostWidgetState extends State<PostWidget> {
 
 
 
-  class NoticeWidget extends StatefulWidget {
+class NoticeWidget extends StatefulWidget {
   @override
   _NoticeWidgetState createState() => _NoticeWidgetState();
 }
 class _NoticeWidgetState extends State<NoticeWidget> {
   List<String> noticeTitles = [];
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _fetchNotices(); // 위젯 초기화시 공지사항 가져오기
+    _fetchNotices(); // 위젯 초기화 시 공지사항 가져오기
+
+    _startFetchingNotices();
+  }
+
+  void _startFetchingNotices() {
+    _timer = Timer.periodic(Duration(minutes: 15), (timer) {
+      _fetchNotices(); // 공지사항 가져오기
+    });
   }
 
   Future<void> _fetchNotices() async {
@@ -485,10 +549,12 @@ class _NoticeWidgetState extends State<NoticeWidget> {
         '$noticeTitleAll',
       ];
     });
-    initState();
-    // initState()를 다시 호출하여 build() 메서드가 다시 실행되도록 합니다.
   }
-
+  @override
+  void dispose() {
+    _timer?.cancel(); // 위젯이 dispose될 때 타이머를 취소합니다.
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Column(

@@ -3,6 +3,7 @@ import 'package:capstone/screens/completion/completion_status.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
+import 'package:capstone/screens/gScore/gscore_admin_check.dart';
 import 'package:capstone/screens/login/adminsingup.dart';
 import 'package:capstone/screens/login/profile.dart';
 import 'package:capstone/screens/post/feedbackpage.dart';
@@ -20,6 +21,7 @@ import 'package:capstone/screens/prof/prof_profile.dart';
 import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:capstone/screens/subject/MSmain.dart';
+import 'package:capstone/screens/subject/MSmain_ASS.dart';
 
 
 class MyDrawer extends StatefulWidget {
@@ -419,17 +421,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       );
                     }
                 ),
-                if (_userPermission == 2)
-                  ListTile(
-                  leading: Icon(Icons.person, color: Colors.grey[800]),
-                  title: Text('교수 정보 관리'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfProfile()),
-                    );
-                  },
-                ),
+
                 _accountPermission == "2" ?
                 ExpansionTile(
                     title: Text('관리자 페이지'),
@@ -442,6 +434,26 @@ class _MyDrawerState extends State<MyDrawer> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SignUpPage()),
+                            );
+                          }
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.person, color: Colors.grey[800]),
+                        title: Text('교수 정보 관리'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProfProfile()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                          leading: Icon(Icons.note_alt, color: Colors.grey[800]),
+                          title: Text('과목 정보 수정'),
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MSmainASS()),
                             );
                           }
                       ),
@@ -464,6 +476,16 @@ class _MyDrawerState extends State<MyDrawer> {
                               MaterialPageRoute(builder: (context) => AdminGScoreForm()),
                             );
                           }
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.search, color: Colors.grey[800]),
+                        title: Text('졸업인증점수 검색'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AdminCheckPage()),
+                          );
+                        },
                       ),
                       ListTile(
                           leading: Icon(Icons.dynamic_feed, color: Colors.grey[800]),
