@@ -79,7 +79,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _errorMessage = '';
   bool _isLoading = false;
@@ -89,12 +89,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   double newPercentage = 0.0;
   int sumScore = 0;
   double chartScore = 0;
-  int i =0;
+  int i = 0;
 
   late AnimationController percentageAnimationController;
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
+    final response = await http.get(
+        Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -136,13 +137,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
       allScore.forEach((key, value) {
         if (maxScores.any((score) => score.containsKey(key))) {
-          final maxScore = maxScores.firstWhere((score) => score.containsKey(key))[key] as int;
+          final maxScore = maxScores.firstWhere((score) =>
+              score.containsKey(key))[key] as int;
           if (value > maxScore) {
             allScore[key] = maxScore;
           }
         }
       });
-      allScore.forEach((key, value){
+      allScore.forEach((key, value) {
         sumScore += value as int;
       });
       chartScore = (sumScore / 1000) as double;
@@ -151,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       sumScore;
     });
     percentage = newPercentage;
-    newPercentage= chartScore;
+    newPercentage = chartScore;
     percentageAnimationController.forward();
   }
 
@@ -160,13 +162,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
     super.initState();
     _getUserInfo();
 
-    percentageAnimationController =  AnimationController(
+    percentageAnimationController = AnimationController(
         vsync: this,
         duration: new Duration(milliseconds: 2000)
     )
-      ..addListener((){
+      ..addListener(() {
         setState(() {
-          percentage=lerpDouble(percentage,newPercentage,percentageAnimationController.value)!;
+          percentage = lerpDouble(
+              percentage, newPercentage, percentageAnimationController.value)!;
         });
       });
   }
@@ -175,64 +178,53 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('메인페이지'),
-          backgroundColor: Color(0xffC1D3FF),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.person),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Profile()),
-                );
-              },
-            ),
-          ],
-        ),
-        drawer: MyDrawer(),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            setState(() async {
-              await _getUserInfo();
-            });},
-          child:
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Divider( // 추가: 실선
-                    color: Colors.grey,
-                    thickness: 1,
-                  ),
-                  NoticeWidget(), // NoticeWidget 추가
-                  Divider( // 추가: 실선
-                    color: Colors.grey,
-                    thickness: 1,
-                  ),
-                  SubWidget(),
-                  Divider( // 추가: 실선
-                    color: Colors.grey,
-                    thickness: 1,
-                  ),
-                  PostWidget(),
-                  Divider( // 추가: 실선
-                    color: Colors.grey,
-                    thickness: 1,
-                  ),
-                  PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
-                  Divider( // 추가: 실선
-                    color: Colors.grey,
-                    thickness: 1,
-                  ),
-                ],
-              ),
+      appBar: AppBar(
+        title: Text('메인페이지'),
+        backgroundColor: Color(0xffC1D3FF),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Profile()),
+              );
+            },
+          ),
+        ],
+      ),
+      drawer: MyDrawer(),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() async {
+            await _getUserInfo();
+          });
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                SizedBox(height: 16), // Add SizedBox for spacing
+                NoticeWidget(),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                SubWidget(),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                PostWidget(),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                ),
+              ],
             ),
           ),
-        )
+        ),
+      ),
     );
   }
 }
@@ -242,63 +234,72 @@ class SubWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '전공과목',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'Major Subject',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black45,
-                    ),
-                  ),
-                ],
-              ),
-              Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MSmain()),
-                  );
-                },
-                child: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black45,
-                  size: 16,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  elevation: 0,
-                ),
-              ),
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Color(0xFF515151),
+          width: 1,
         ),
-      ],
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 16.0, bottom: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '전공과목',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Major Subject',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
+                ),
+                Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MSmain()),
+                    );
+                  },
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.black45,
+                    size: 16,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 
 
-
-class PostWidget extends StatefulWidget {
+  class PostWidget extends StatefulWidget {
   @override
   _PostWidgetState createState() => _PostWidgetState();
 }
@@ -367,112 +368,114 @@ class _PostWidgetState extends State<PostWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '게시물',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'post',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black45,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Spacer(),
-          ],
-        ),
         Container(
-          height: 120,
-          width: 350,
-          margin: EdgeInsets.only(left: 19, top: 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: Color(0xFF515151),
+              width: 1,
             ),
           ),
-          child: ListView.builder(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: postTitles.length,
-            itemBuilder: (context, index) {
-              String grade = '';
-
-              if (index == 0) {
-                grade = '구인구직 게시판   ';
-              } else if (index == 1) {
-                grade = '자유 게시판      ';
-              } else if (index == 2) {
-                grade = 'Q&A 게시판      ';
-              }
-
-              return InkWell(
-                onTap: () {
-                  if (index == 0) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          PartyBoard.PartyBoardScreen()), // 'JobBoardPage'로 이동
-                    );
-                  } else if (index == 1) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          FreeBoard.FreeBoardScreen()), // 'FreeBoardPage'로 이동
-                    );
-                  } else if (index == 2) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          QABoard.QnABoardScreen()), // 'QaBoardPage'로 이동
-                    );
-                  }
-                },
-                child: Container(
-                  margin: EdgeInsets.only(
-                      left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
-                  child: Text.rich(
-                    TextSpan(
+          child: Padding(
+            padding: const EdgeInsets.only(top:16, left:16, bottom: 16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: grade,
+                        Text(
+                          '게시물',
                           style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        TextSpan(
-                          text: postTitles[index],
+                        Text(
+                          'post',
                           style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF616161),
+                            fontSize: 16,
+                            color: Colors.black45,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    Spacer(),
+                  ],
                 ),
-              );
-            },
+                SizedBox(height: 20),
+                ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: postTitles.length,
+                  itemBuilder: (context, index) {
+                    String grade = '';
+
+                    if (index == 0) {
+                      grade = '구인구직 게시판   ';
+                    } else if (index == 1) {
+                      grade = '자유 게시판      ';
+                    } else if (index == 2) {
+                      grade = 'Q&A 게시판      ';
+                    }
+
+                    return InkWell(
+                      onTap: () {
+                        if (index == 0) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                PartyBoard.PartyBoardScreen()), // 'JobBoardPage'로 이동
+                          );
+                        } else if (index == 1) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                FreeBoard.FreeBoardScreen()), // 'FreeBoardPage'로 이동
+                          );
+                        } else if (index == 2) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                QABoard.QnABoardScreen()), // 'QaBoardPage'로 이동
+                          );
+                        }
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(
+                            left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: grade,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              TextSpan(
+                                text: postTitles[index],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xFF616161),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 16),
       ],
     );
   }
@@ -511,32 +514,42 @@ class _NoticeWidgetState extends State<NoticeWidget> {
     String noticeTitleAll = '';
 
     // 각 파일에서 최근 공지사항 가져오기
-    List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState().fetchNotices();
-    List<dynamic> fetchedNotices2nd = await Notice2nd.NoticeTalkScreenState().fetchNotices();
-    List<dynamic> fetchedNotices3rd = await Notice3rd.NoticeTalkScreenState().fetchNotices();
-    List<dynamic> fetchedNotices4th = await Notice4th.NoticeTalkScreenState().fetchNotices();
-    List<dynamic> fetchedNoticesAll = await NoticeAll.NoticeTalkScreenState().fetchNotices();
+    List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState()
+        .fetchNotices();
+    List<dynamic> fetchedNotices2nd = await Notice2nd.NoticeTalkScreenState()
+        .fetchNotices();
+    List<dynamic> fetchedNotices3rd = await Notice3rd.NoticeTalkScreenState()
+        .fetchNotices();
+    List<dynamic> fetchedNotices4th = await Notice4th.NoticeTalkScreenState()
+        .fetchNotices();
+    List<dynamic> fetchedNoticesAll = await NoticeAll.NoticeTalkScreenState()
+        .fetchNotices();
 
     // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
     if (fetchedNotices1st.isNotEmpty) {
       String title = fetchedNotices1st[0]['post_title'].toString();
-      noticeTitle1st = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      noticeTitle1st =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedNotices2nd.isNotEmpty) {
       String title = fetchedNotices2nd[0]['post_title'].toString();
-      noticeTitle2nd = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      noticeTitle2nd =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedNotices3rd.isNotEmpty) {
       String title = fetchedNotices3rd[0]['post_title'].toString();
-      noticeTitle3rd = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      noticeTitle3rd =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedNotices4th.isNotEmpty) {
       String title = fetchedNotices4th[0]['post_title'].toString();
-      noticeTitle4th = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      noticeTitle4th =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedNoticesAll.isNotEmpty) {
       String title = fetchedNoticesAll[0]['post_title'].toString();
-      noticeTitleAll = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      noticeTitleAll =
+      title.length > 10 ? '${title.substring(0, 10)}...' : title;
     }
 
     setState(() {
@@ -550,74 +563,75 @@ class _NoticeWidgetState extends State<NoticeWidget> {
       ];
     });
   }
+
   @override
   void dispose() {
     _timer?.cancel(); // 위젯이 dispose될 때 타이머를 취소합니다.
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '공지',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'notice',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black45,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Notice()),
-                );
-              },
-              child: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black45,
-                size: 16,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                elevation: 0,
-              ),
-            ),
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Color(0xFF515151),
+          width: 1,
         ),
-        Container(
-          height: 190,
-          width: 350,
-          margin: EdgeInsets.only(left: 19, top: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Color(0xFF515151), // 테두리 색
-            ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top:16, left:16, bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '공지',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'notice',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Notice()),
+                  );
+                },
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.black45,
+                  size: 16,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  elevation: 0,
+                ),
+              ),
+            ],
           ),
-          child: ListView.builder(
-            padding: EdgeInsets.zero, // ListView 내부의 패딩 제거
+          SizedBox(height: 20),
+          ListView.builder(
+            padding: EdgeInsets.zero,
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: noticeTitles.length,
@@ -637,7 +651,12 @@ class _NoticeWidgetState extends State<NoticeWidget> {
               }
 
               return Container(
-                margin: EdgeInsets.only(left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
+                margin: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: index == 0 ? 8 : 0,
+                  bottom: 8,
+                ),
                 child: Text.rich(
                   TextSpan(
                     children: [
@@ -661,15 +680,14 @@ class _NoticeWidgetState extends State<NoticeWidget> {
               );
             },
           ),
-        ),
-        SizedBox(height: 16), // 원하는 크기로 설정하세요
-      ],
+        ],
+      ),
     );
   }
 }
 
 
-class PercentDonut extends StatefulWidget {
+  class PercentDonut extends StatefulWidget {
   const PercentDonut({Key? key, required this.percent, required this.color})
       : super(key: key);
   final percent;
@@ -712,91 +730,101 @@ class _PercentDonutState extends State<PercentDonut> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
-      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(0)), // 직각 모서리 설정
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white,
-          width: 2,
+          color: Color(0xFF515151),
+          width: 1,
         ),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [ Padding(
-                padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '졸업인증점수',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+      child: Container(
+        height: 300,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(0)),
+          border: Border.all(
+            color: Colors.white,
+            width: 2,
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0, left: 16.0, bottom:16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '졸업인증점수',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'graduation',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black45,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'graduation',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black45,
-                      ),
+                  ),
+                  Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyScorePage()),
+                      );
+                    },
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.black45,
+                      size: 16,
                     ),
-                  ],
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 190,
+                height: 190,
+                color: Colors.white,
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: _maxScoreFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      Map<String, dynamic> maxScore = snapshot.data!;
+
+                      return CustomPaint(
+                        painter: PercentDonutPaint(
+                          percentage: widget.percent,
+                          activeColor: widget.color,
+                          maxScore: maxScore,
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyScorePage()),
-                    );
-                  },
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.black45,
-                    size: 16,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 25),
-            Container(
-              width: 200,
-              height: 200,
-              color: Colors.white,
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: _maxScoreFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else {
-                    Map<String, dynamic> maxScore = snapshot.data!;
-
-                    return CustomPaint(
-                      painter: PercentDonutPaint(
-                        percentage: widget.percent,
-                        activeColor: widget.color,
-                        maxScore: maxScore,
-                      ),
-                    );
-                  }
-                },
-              ), //색
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
