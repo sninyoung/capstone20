@@ -331,11 +331,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                CompletionStatusPage(
-                                  student_id: '',
-                                  grade: '',
-                                  major_type: '',
-                                )),
+                                CompletionStatusPage()),
                           );
                         }
                     ),

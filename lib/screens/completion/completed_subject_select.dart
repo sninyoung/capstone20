@@ -7,6 +7,8 @@ import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
 
 //이수과목 선택 페이지
+
+//학생 모델
 class Student {
   final int studentId;
 
@@ -21,6 +23,7 @@ class Student {
   }
 }
 
+//과목 모델
 class Subject {
   final int subjectId;
   final String subjectName;
@@ -60,6 +63,8 @@ class SubjectSelect extends StatefulWidget {
 }
 
 class _SubjectSelectState extends State<SubjectSelect> {
+  final storage = new FlutterSecureStorage();
+
   List<Subject> _subjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
   List<MultiSelectItem<Subject>> _electiveItems = [];
@@ -120,7 +125,18 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
   //유저 정보 불러오기
   Future<void> fetchUser() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/user'));
+    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
+    if (token == null) {
+      throw Exception('Authentication token not found');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/user/info'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token, // 헤더에 토큰 추가
+      },
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -132,12 +148,18 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
+
   //과목 정보 저장
   Future<void> saveSubjects() async {
+    final token = await storage.read(key: 'token');  // Storage에서 토큰 읽기
+    if (token == null) {
+      throw Exception('Authentication token not found');
+    }
+
     final compulsorySubjectIds =
-        _compulsorySelections.map((e) => e.subjectId).toList();
+    _compulsorySelections.map((e) => e.subjectId).toList();
     final electiveSubjectIds =
-        _electiveSelections.map((e) => e.subjectId).toList();
+    _electiveSelections.map((e) => e.subjectId).toList();
 
     final data = {
       'student_id': _student?.studentId,
@@ -149,6 +171,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       Uri.parse('http://3.39.88.187:3000/user/required/add'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,  // 헤더에 토큰 추가
       },
       body: jsonEncode(data),
     );
@@ -157,6 +180,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       throw Exception('Failed to save subjects');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +205,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
           padding: EdgeInsets.all(20),
           child: Column(
             children: <Widget>[
-              SizedBox(height: 40),
+              SizedBox(height: 20),
               Container(
                 child: Text(
                   '이수한 과목을 선택하세요!',
@@ -191,7 +215,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   ),
                 ),
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 30),
               Column(
                 children: [
                   Container(
@@ -321,11 +345,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CompletionStatusPage(
-                                student_id: '',
-                                grade: '',
-                                major_type: '',
-                              )));
+                          builder: (context) => CompletionStatusPage()));
                 },
                 style: ElevatedButton.styleFrom(
                     textStyle: TextStyle(
