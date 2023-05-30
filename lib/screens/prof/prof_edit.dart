@@ -99,7 +99,7 @@ class _EditProfessorPageState extends State<EditProfessorPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('삭제 Error'),
+          content: Text('삭제 Error : 사용되고 있는 교수 정보입니다.'),
         ),
       );
     }
