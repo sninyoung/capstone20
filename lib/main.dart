@@ -198,6 +198,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         onRefresh: () async {
           setState(() async {
             await _getUserInfo();
+            await _getMaxScores();
           });
         },
         child: Padding(
