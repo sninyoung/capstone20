@@ -27,6 +27,7 @@ class Student {
 //과목 모델
 class Subject {
   final int subjectId;
+  final int proId;
   final String subjectName;
   final int credit;
   final int subjectDivision;
@@ -35,6 +36,7 @@ class Subject {
 
   Subject({
     required this.subjectId,
+    required this.proId,
     required this.subjectName,
     required this.credit,
     required this.subjectDivision,
@@ -45,6 +47,7 @@ class Subject {
   factory Subject.fromJson(Map<String, dynamic> json) {
     return Subject(
       subjectId: json['subject_id'],
+      proId: json['pro_id'],
       subjectName: json['subject_name'],
       credit: json['credit'],
       subjectDivision: json['subject_division'],
@@ -141,6 +144,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
             subjectName: '',
             subjectDivision: 0,
             subjectId: 0,
+            proId: 0,
             credit: 0,
           ),
     );
@@ -174,35 +178,25 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
   //이수과목 정보 저장
 
-  Future<CompletedSubjects> saveCompletedSubjects(String studentId,
-      String subjectId, String proId) async {
-    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
-    if (token == null) {
-      throw Exception('Authentication token not found');
-    }
+  Future<void> saveCompletedSubjects(int student_id, int subject_id, int pro_id) async {
+    var url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
-    final compulsorySubjectIds =
-    _compulsorySelections.map((e) => e.subjectId).toList();
-    final electiveSubjectIds =
-    _electiveSelections.map((e) => e.subjectId).toList();
+    var body = json.encode({
+      "student_id": student_id,
+      "subject_id": subject_id,
+      "pro_id": pro_id
+    });
 
-    final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/user/required/add'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token, // 헤더에 토큰 추가
-      },
-      body: jsonEncode(<String, String>{
-        'student_id': studentId,
-        'subject_id': subjectId,
-        'pro_id': proId,
-      }),
+    var response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: body
     );
 
-    if (response.statusCode == 201) {
-      return CompletedSubjects.fromJson(jsonDecode(response.body));
+    if (response.statusCode == 200) {
+      print('이수과목이 성공적으로 저장되었습니다.');
     } else {
-      throw Exception('Failed to save completedSubjects.');
+      print('이수과목 저장에 실패하였습니다.');
     }
   }
 
@@ -237,7 +231,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   '이수한 과목을 선택하세요!',
                   style: TextStyle(
                     fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -366,9 +360,21 @@ class _SubjectSelectState extends State<SubjectSelect> {
               ),
               SizedBox(height: 40),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, CompletionStatusPage() as Route<Object?>);
+                onPressed: () async {
+                  // 선택한 각각의 과목을 서버에 저장합니다.
+                  for (var subject in _compulsorySelections) {
+                    if (subject != null && _student != null) {
+                      await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
+                    }
+                  }
+                  for (var subject in _electiveSelections) {
+                    if (subject != null && _student != null) {
+                      await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
+                    }
+                  }
+                  print('모든 선택한 과목이 저장되었습니다.');
                 },
+
                 style: ElevatedButton.styleFrom(
                     textStyle: TextStyle(
                       fontSize: 16,
@@ -381,6 +387,8 @@ class _SubjectSelectState extends State<SubjectSelect> {
                     minimumSize: Size(100, 50)),
                 child: Text('저장'),
               ),
+              SizedBox(height: 20.0),
+              buildFutureBuilder(),
             ],
           ),
         ),
