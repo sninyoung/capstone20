@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/subject/subjectinfo.dart';
 
-// 학생페이지 [전공기초 Tab]
+// [전공기초 Tab]-학생
 
 Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
   final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));

@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:capstone/screens/subject/CS_Tab_ASS.dart';
 import 'package:capstone/screens/subject/ES_Tab_ASS.dart';
 
-// 조교페이지 [과목정보 메인]
+// [과목정보 메인]-조교
 
 void main() {
   runApp(MaterialApp(

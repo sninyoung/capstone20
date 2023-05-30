@@ -5,7 +5,7 @@ import 'package:capstone/screens/subject/subjectinfo.dart';
 //import 'package:capstone/screens/subject/editsubject.dart';
 //import 'package:capstone/screens/subject/addsubject.dart';
 
-// 조교페이지 [전공기초 Tab]
+// [전공기초 Tab]-조교
 
 Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
   final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
