@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
@@ -53,6 +54,25 @@ class Subject {
   }
 }
 
+//이수과목 모델
+class CompletedSubjects {
+  final int studentId;
+  final int subjectId;
+  final int proId;
+
+  const CompletedSubjects(
+      {required this.studentId, required this.subjectId, required this.proId});
+
+  factory CompletedSubjects.fromJson(Map<String, dynamic> json) {
+    return CompletedSubjects(
+        studentId: json['student_id'],
+        subjectId: json['subject_id'],
+        proId: json['pro_id']
+    );
+  }
+}
+
+
 class SubjectSelect extends StatefulWidget {
   final int subjectId;
 
@@ -64,6 +84,8 @@ class SubjectSelect extends StatefulWidget {
 
 class _SubjectSelectState extends State<SubjectSelect> {
   final storage = new FlutterSecureStorage();
+  final TextEditingController _controller = TextEditingController();
+  Future<CompletedSubjects>? _futureCompletedSubjects;
 
   List<Subject> _subjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
@@ -86,7 +108,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 //과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+    await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -96,13 +118,13 @@ class _SubjectSelectState extends State<SubjectSelect> {
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
@@ -113,13 +135,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
   Subject? findSubjectByName(String name) {
     return _subjects.firstWhere(
-      (subject) => subject.subjectName == name,
-      orElse: () => Subject(
-        subjectName: '',
-        subjectDivision: 0,
-        subjectId: 0,
-        credit: 0,
-      ),
+          (subject) => subject.subjectName == name,
+      orElse: () =>
+          Subject(
+            subjectName: '',
+            subjectDivision: 0,
+            subjectId: 0,
+            credit: 0,
+          ),
     );
   }
 
@@ -149,9 +172,11 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
 
-  //과목 정보 저장
-  Future<void> saveSubjects() async {
-    final token = await storage.read(key: 'token');  // Storage에서 토큰 읽기
+  //이수과목 정보 저장
+
+  Future<CompletedSubjects> saveCompletedSubjects(String studentId,
+      String subjectId, String proId) async {
+    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
     if (token == null) {
       throw Exception('Authentication token not found');
     }
@@ -161,27 +186,28 @@ class _SubjectSelectState extends State<SubjectSelect> {
     final electiveSubjectIds =
     _electiveSelections.map((e) => e.subjectId).toList();
 
-    final data = {
-      'student_id': _student?.studentId,
-      'compulsory_subjects': compulsorySubjectIds,
-      'elective_subjects': electiveSubjectIds,
-    };
-
     final response = await http.post(
       Uri.parse('http://3.39.88.187:3000/user/required/add'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,  // 헤더에 토큰 추가
+        'Authorization': token, // 헤더에 토큰 추가
       },
-      body: jsonEncode(data),
+      body: jsonEncode(<String, String>{
+        'student_id': studentId,
+        'subject_id': subjectId,
+        'pro_id': proId,
+      }),
     );
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to save subjects');
+    if (response.statusCode == 201) {
+      return CompletedSubjects.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to save completedSubjects.');
     }
   }
 
 
+//빌드
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -263,14 +289,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                         ),
                         _compulsorySelections == null ||
-                                _compulsorySelections.isEmpty
+                            _compulsorySelections.isEmpty
                             ? Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "선택안함",
-                                  style: TextStyle(color: Colors.black54),
-                                ))
+                            padding: EdgeInsets.all(10),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "선택안함",
+                              style: TextStyle(color: Colors.black54),
+                            ))
                             : Container(),
                       ],
                     ),
@@ -324,14 +350,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           checkColor: Color(0xff8BB4F2),
                         ),
                         _electiveSelections == null ||
-                                _electiveSelections.isEmpty
+                            _electiveSelections.isEmpty
                             ? Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "선택안함",
-                                  style: TextStyle(color: Colors.black54),
-                                ))
+                            padding: EdgeInsets.all(10),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "선택안함",
+                              style: TextStyle(color: Colors.black54),
+                            ))
                             : Container(),
                       ],
                     ),
@@ -339,13 +365,18 @@ class _SubjectSelectState extends State<SubjectSelect> {
                 ],
               ),
               SizedBox(height: 40),
-              ElevatedButton(
+              (_futureCompletedSubjects == null) ? ElevatedButton(
                 onPressed: () async {
-                  await saveSubjects();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CompletionStatusPage()));
+                  _futureCompletedSubjects =
+                      saveCompletedSubjects(_student!.studentId.toString(),
+                          _compulsorySelections.map((e) => e.subjectId)
+                              .toList()
+                              .join(','),
+                          _electiveSelections.map((e) => e.subjectId)
+                              .toList()
+                              .join(','));
+
+                  setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
                     textStyle: TextStyle(
@@ -358,11 +389,26 @@ class _SubjectSelectState extends State<SubjectSelect> {
                     backgroundColor: const Color(0xff341F87),
                     minimumSize: Size(100, 50)),
                 child: Text('저장'),
-              ),
+              ) : buildFutureBuilder(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  FutureBuilder<CompletedSubjects> buildFutureBuilder() {
+    return FutureBuilder<CompletedSubjects>(
+      future: _futureCompletedSubjects,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Text(snapshot.data!.subjectId as String);
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+
+        return const CircularProgressIndicator();
+      },
     );
   }
 }
