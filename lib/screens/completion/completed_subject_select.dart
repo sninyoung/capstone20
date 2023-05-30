@@ -212,7 +212,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '이수과목',
           style: TextStyle(
             color: Colors.white,
@@ -233,7 +233,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
             children: <Widget>[
               SizedBox(height: 20),
               Container(
-                child: Text(
+                child: const Text(
                   '이수한 과목을 선택하세요!',
                   style: TextStyle(
                     fontSize: 16.0,
@@ -259,7 +259,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           initialChildSize: 0.4,
                           listType: MultiSelectListType.CHIP,
                           searchable: false,
-                          buttonText: Text(
+                          buttonText: const Text(
                             "전공기초과목",
                             style: TextStyle(
                               fontSize: 14.0,
@@ -268,7 +268,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           title: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(
+                            child: const Text(
                               "전공기초과목",
                               style: TextStyle(
                                 fontSize: 14.0,
@@ -365,18 +365,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                 ],
               ),
               SizedBox(height: 40),
-              (_futureCompletedSubjects == null) ? ElevatedButton(
-                onPressed: () async {
-                  _futureCompletedSubjects =
-                      saveCompletedSubjects(_student!.studentId.toString(),
-                          _compulsorySelections.map((e) => e.subjectId)
-                              .toList()
-                              .join(','),
-                          _electiveSelections.map((e) => e.subjectId)
-                              .toList()
-                              .join(','));
-
-                  setState(() {});
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, CompletionStatusPage() as Route<Object?>);
                 },
                 style: ElevatedButton.styleFrom(
                     textStyle: TextStyle(
@@ -385,11 +376,11 @@ class _SubjectSelectState extends State<SubjectSelect> {
                       color: const Color(0xffffff),
                     ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(6.0)),
                     backgroundColor: const Color(0xff341F87),
                     minimumSize: Size(100, 50)),
                 child: Text('저장'),
-              ) : buildFutureBuilder(),
+              ),
             ],
           ),
         ),
