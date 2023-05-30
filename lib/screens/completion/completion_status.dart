@@ -74,8 +74,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     }
   }
 
-
-
   //빌드
   @override
   Widget build(BuildContext context) {
@@ -94,7 +92,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
         elevation: 0.0,
       ),
       drawer: MyDrawer(),
-      body: s(
+      body: SingleChildScrollView(
         child: Column(
           children: [
             //나의 이수현황 title
@@ -180,15 +178,21 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               padding: EdgeInsets.fromLTRB(22, 16, 16, 16),
               margin: EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Color(0xffF5F5F5),
-              ),
+                  borderRadius: BorderRadius.circular(15),
+                  color: Color(0xffF5F5F5),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Color(0xff858585),
+                        offset: Offset(0, 5),
+                        blurRadius: 5.0,
+                        spreadRadius: 0.0)
+                  ]),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    '총 전공학점 : ',
+                    '총 전공학점 :  ',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16.0,
@@ -199,7 +203,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                     '48',
                     style: TextStyle(
                       color: Color(0xff2D0BB7),
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -214,24 +218,27 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 ],
               ),
             ),
-            SizedBox(height: 40.0,),
+            SizedBox(
+              height: 40.0,
+            ),
 
             //전공 이수과목 & 이수과목 편집 버튼
             Container(
               height: 80,
               padding: EdgeInsets.fromLTRB(30, 16, 16, 16),
               decoration: BoxDecoration(
-                  border: Border(
-                      top: BorderSide(
-                    color: Color(0xff858585),
-                    width: 0.8,
-                  )),
-                  color: Color(0xffffffff),
-                  ),
+                border: Border(
+                    top: BorderSide(
+                  color: Color(0xff858585),
+                  width: 0.8,
+                )),
+                color: Color(0xffffffff),
+              ),
               child: Row(
                 children: [
-                  //전공 이수과목 title 왼쪽 정렬
+                  //전공 이수과목 title
                   Row(
+                    //왼쪽 정렬
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -267,9 +274,10 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       )
                     ],
                   ),
-                  //이수과목 편집 버튼 오른쪽 끝 정렬
+                  //이수과목 편집 버튼
                   Expanded(
                     child: Align(
+                      //오른쪽 끝 정렬
                       alignment: Alignment.centerRight,
                       child: SizedBox(
                         height: 40,
@@ -315,7 +323,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               padding: const EdgeInsets.all(20.0),
               margin: const EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 border: Border.all(
                     width: 0.8,
                     color: Color(0xff858585),
@@ -323,9 +331,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 color: Color(0xffffffff),
               ),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         '전공선택과목',
@@ -352,18 +363,21 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                     height: 15.0,
                   ),
                   //전공선택과목 이수과목 리스트
-                  Text('웹서버 프로그래밍'),
+                  Text('subjectName'),
                 ],
               ),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
 
             //전공기초과목 ListView
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(20.0),
               margin: const EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 border: Border.all(
                     width: 0.8,
                     color: Color(0xff858585),
@@ -371,9 +385,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 color: Color(0xffffffff),
               ),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         '전공기초과목',
@@ -400,10 +417,11 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                     height: 15.0,
                   ),
                   //전공선택과목 이수과목 리스트
-                  Text('파이썬 프로그래밍'),
+                  Text('subjectName'),
                 ],
               ),
-            )
+            ),
+            SizedBox(height: 50.0),
           ],
         ),
       ),
