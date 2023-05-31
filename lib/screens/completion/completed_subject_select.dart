@@ -113,7 +113,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
-      //print('Response body: ${response.body}');
+      print('Response body: ${response.body}');
 
       final List<dynamic> data = json.decode(response.body);
       _subjects = data.map((item) => Subject.fromJson(item)).toList();
@@ -153,7 +153,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
 
   // 유저 정보 불러오기
-// 유저 정보 불러오기
   Future<void> fetchUser() async {
     final storage = FlutterSecureStorage();
     final String? token = await storage.read(key: 'token');
@@ -476,39 +475,22 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
 
-  // 데이터 가져오기
+  //데이터 가져오기
   FutureBuilder<List<Subject>> buildFutureBuilder() {
-    if (_student == null) {
-      return FutureBuilder<List<Subject>>(
-        future: Future.value(null),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            return Text('No data available');
-          }
-        },
-      );
-    } else {
-      return FutureBuilder<List<Subject>>(
-        future: fetchCompletedSubjects(_student!.studentId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasData) {
-            final completedSubjects = snapshot.data!;
-            return Text('Completed subjects retrieved: $completedSubjects');
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            return Text('No data available');
-          }
-        },
-      );
-    }
+    return FutureBuilder<List<Subject>>(
+      future: fetchCompletedSubjects(_student?.studentId ?? 0),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasData) {
+          final completedSubjects = snapshot.data!;
+          return Text('Completed subjects retrieved: $completedSubjects');
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return Text('No data available');
+        }
+      },
+    );
   }
-
-
 }
