@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:core';
 import 'dart:async';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -150,34 +151,40 @@ class _SubjectSelectState extends State<SubjectSelect> {
     );
   }
 
-  //유저 정보 불러오기
+
+  // 유저 정보 불러오기
   Future<void> fetchUser() async {
-    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
+    final storage = FlutterSecureStorage();
+    final String? token = await storage.read(key: 'token');
     if (token == null) {
       throw Exception('Authentication token not found');
     }
 
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/info'),
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/info');
+    final http.Respon유se response = await http.get(
+      url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token, // 헤더에 토큰 추가
+        'Authorization': 'Bearer $token',
       },
     );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      _student = Student.fromJson(data);
-
+      if (data.containsKey('student_id')) {
+        _student = Student.fromJson(data);
+      } else {
+        throw Exception('Failed to parse user data');
+      }
       setState(() {});
     } else {
-      throw Exception('Failed to load user');
+      throw Exception('Failed to load user: ${response.statusCode}');
     }
   }
 
 
-  //이수과목 정보 저장
 
+  //이수과목 정보 저장
   Future<void> saveCompletedSubjects(int student_id, int subject_id, int pro_id) async {
     var url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 

@@ -47,7 +47,7 @@ class CompletionStatusPage extends StatefulWidget {
 }
 
 class _CompletionStatusPageState extends State<CompletionStatusPage> {
-  final storage = new FlutterSecureStorage();
+  final storage = FlutterSecureStorage();
 
 
   //이수과목 정보 불러오기
