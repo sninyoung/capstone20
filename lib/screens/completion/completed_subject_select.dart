@@ -236,7 +236,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
   //이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
-    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required');
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required/subject');
     final Uri uriWithParams = url.replace(queryParameters: {'student_id': studentId.toString()});
 
     final http.Response response = await http.get(
@@ -510,4 +510,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
       },
     );
   }
+
+
+
 }
+
+
