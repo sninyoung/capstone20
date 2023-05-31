@@ -113,7 +113,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
-      print('Response body: ${response.body}');
+      //print('Response body: ${response.body}');
 
       final List<dynamic> data = json.decode(response.body);
       _subjects = data.map((item) => Subject.fromJson(item)).toList();
@@ -205,7 +205,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
 
   // 이수과목 정보 저장
-  Future<void> saveCompletedSubjects(int studentId, int subjectId, int proId) async {
+  Future<bool> saveCompletedSubjects(int studentId, int subjectId, int proId) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
     final body = json.encode({
@@ -223,12 +223,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
     if (response.statusCode == 200) {
       print('이수과목이 성공적으로 저장되었습니다.');
       print('서버 응답: ${response.body}'); // 서버의 응답을 출력합니다.
+      return true;
     } else {
       print('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}');
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
-      throw Exception('Failed to save completed subjects');
+      return false;
     }
   }
+
 
 
 
@@ -427,19 +429,34 @@ class _SubjectSelectState extends State<SubjectSelect> {
                     // 선택한 각각의 과목을 서버에 저장
                     for (var subject in _compulsorySelections) {
                       if (subject != null && _student != null) {
-                        await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
-                        print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student?.studentId ?? 0}');
+                        bool isSuccess = await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
+                        if (isSuccess) {
+                          print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                        } else {
+                          print('필수 과목 저장 실패: ${subject.subjectName}');
+                        }
                       }
                     }
+
                     for (var subject in _electiveSelections) {
                       if (subject != null && _student != null) {
-                        await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
-                        print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student?.studentId ?? 0}');
+                        bool isSuccess = await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
+                        if (isSuccess) {
+                          print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                        } else {
+                          print('선택 과목 저장 실패: ${subject.subjectName}');
+                        }
                       }
                     }
+
+                    // 완료된 과목을 다시 가져오기
+                    List<Subject> completedSubjects = await fetchCompletedSubjects(_student?.studentId ?? 0);
+                    print('모든 선택한 과목이 저장되었습니다.');
+                    print('Completed subjects retrieved: $completedSubjects');
                   } catch (e) {
                     print("과목 저장 중 오류 발생: $e");
                   }
+
                   print('모든 선택한 과목이 저장되었습니다.');
 
                   // 저장 후 나의 이수현황 페이지로 이동
