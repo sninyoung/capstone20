@@ -8,9 +8,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
 
-//이수과목 선택 페이지
+// 이수과목 선택 페이지
 
-//학생 모델
+// 학생 모델
 class Student {
   final int studentId;
 
@@ -25,7 +25,7 @@ class Student {
   }
 }
 
-//과목 모델
+// 과목 모델
 class Subject {
   final int subjectId;
   final int proId;
@@ -58,24 +58,26 @@ class Subject {
   }
 }
 
-//이수과목 모델
+// 이수과목 모델
 class CompletedSubjects {
   final int studentId;
   final int subjectId;
   final int proId;
 
-  const CompletedSubjects(
-      {required this.studentId, required this.subjectId, required this.proId});
+  const CompletedSubjects({
+    required this.studentId,
+    required this.subjectId,
+    required this.proId,
+  });
 
   factory CompletedSubjects.fromJson(Map<String, dynamic> json) {
     return CompletedSubjects(
-        studentId: json['student_id'],
-        subjectId: json['subject_id'],
-        proId: json['pro_id']
+      studentId: json['student_id'],
+      subjectId: json['subject_id'],
+      proId: json['pro_id'],
     );
   }
 }
-
 
 class SubjectSelect extends StatefulWidget {
   final int subjectId;
@@ -108,27 +110,23 @@ class _SubjectSelectState extends State<SubjectSelect> {
     fetchUser();
   }
 
-//과목정보 불러오기
+  // 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
-      //print('Response body: ${response.body}');
-
       final List<dynamic> data = json.decode(response.body);
       _subjects = data.map((item) => Subject.fromJson(item)).toList();
 
       // Update _compulsoryItems and _electiveItems here.
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
-          .map((subject) =>
-          MultiSelectItem<Subject>(subject, subject.subjectName))
+          .map((subject) => MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
-          .map((subject) =>
-          MultiSelectItem<Subject>(subject, subject.subjectName))
+          .map((subject) => MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
@@ -140,17 +138,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
   Subject? findSubjectByName(String name) {
     return _subjects.firstWhere(
           (subject) => subject.subjectName == name,
-      orElse: () =>
-          Subject(
-            subjectName: '',
-            subjectDivision: 0,
-            subjectId: 0,
-            proId: 0,
-            credit: 0,
-          ),
+      orElse: () => Subject(
+        subjectName: '',
+        subjectDivision: 0,
+        subjectId: 0,
+        proId: 0,
+        credit: 0,
+      ),
     );
   }
-
 
   // 유저 정보 불러오기
   Future<void> fetchUser() async {
@@ -202,10 +198,8 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-
-
   // 이수과목 정보 저장
-  Future<bool> saveCompletedSubjects(int studentId, int subjectId, int proId) async {
+  void saveCompletedSubjects(int studentId, int subjectId, int proId) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
     final body = json.encode({
@@ -228,7 +222,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
         ),
       );
       print('서버 응답: ${response.body}'); // 서버의 응답을 출력합니다.
-      return true;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -236,14 +229,10 @@ class _SubjectSelectState extends State<SubjectSelect> {
         ),
       );
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
-      return false;
     }
   }
 
-
-
-
-  //이수과목 가져오기
+  // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
     final Uri url = Uri.parse('http://3.39.88.187:3000/user/required/subject');
     final Uri uriWithParams = url.replace(queryParameters: {'student_id': studentId.toString()});
@@ -264,12 +253,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-
-
-
-
-
-//빌드
+  // 빌드
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -350,15 +334,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
                             },
                           ),
                         ),
-                        _compulsorySelections == null ||
-                            _compulsorySelections.isEmpty
+                        _compulsorySelections == null || _compulsorySelections.isEmpty
                             ? Container(
-                            padding: EdgeInsets.all(10),
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "선택안함",
-                              style: TextStyle(color: Colors.black54),
-                            ))
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "선택안함",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
                             : Container(),
                       ],
                     ),
@@ -411,15 +395,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           checkColor: Color(0xff8BB4F2),
                         ),
-                        _electiveSelections == null ||
-                            _electiveSelections.isEmpty
+                        _electiveSelections == null || _electiveSelections.isEmpty
                             ? Container(
-                            padding: EdgeInsets.all(10),
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "선택안함",
-                              style: TextStyle(color: Colors.black54),
-                            ))
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "선택안함",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
                             : Container(),
                       ],
                     ),
@@ -438,23 +422,19 @@ class _SubjectSelectState extends State<SubjectSelect> {
                     // 선택한 각각의 과목을 서버에 저장
                     for (var subject in _compulsorySelections) {
                       if (subject != null && _student != null) {
-                        bool isSuccess = await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
-                        if (isSuccess) {
-                          print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                        } else {
-                          print('필수 과목 저장 실패: ${subject.subjectName}');
-                        }
+                        saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
+                        print(
+                          '저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}',
+                        );
                       }
                     }
 
                     for (var subject in _electiveSelections) {
                       if (subject != null && _student != null) {
-                        bool isSuccess = await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
-                        if (isSuccess) {
-                          print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                        } else {
-                          print('선택 과목 저장 실패: ${subject.subjectName}');
-                        }
+                        saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
+                        print(
+                          '저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}',
+                        );
                       }
                     }
 
@@ -477,20 +457,19 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xffffff),
-                    ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.0)
-                    ),
-                    backgroundColor: const Color(0xff341F87),
-                    minimumSize: Size(100, 50)
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xffffff),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  backgroundColor: const Color(0xff341F87),
+                  minimumSize: Size(100, 50),
                 ),
                 child: Text('저장'),
-              )
-              ,
+              ),
               SizedBox(height: 20.0),
               buildFutureBuilder(),
             ],
@@ -500,8 +479,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     );
   }
 
-
-  //데이터 가져오기
+  // 데이터 가져오기
   FutureBuilder<List<Subject>> buildFutureBuilder() {
     return FutureBuilder<List<Subject>>(
       future: fetchCompletedSubjects(_student?.studentId ?? 0),
@@ -519,9 +497,4 @@ class _SubjectSelectState extends State<SubjectSelect> {
       },
     );
   }
-
-
-
 }
-
-
