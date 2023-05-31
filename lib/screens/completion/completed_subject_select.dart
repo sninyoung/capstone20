@@ -195,8 +195,10 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
     if (response.statusCode == 200) {
       print('이수과목이 성공적으로 저장되었습니다.');
+      print('서버 응답: ${response.body}'); // 서버의 응답을 출력합니다.
     } else {
-      print('이수과목 저장에 실패하였습니다.');
+      print('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}');
+      print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
     }
   }
 
@@ -361,20 +363,38 @@ class _SubjectSelectState extends State<SubjectSelect> {
               SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () async {
-                  // 선택한 각각의 과목을 서버에 저장합니다.
-                  for (var subject in _compulsorySelections) {
-                    if (subject != null && _student != null) {
-                      await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
-                    }
+                  if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
+                    print("선택된 과목이 없습니다.");
+                    return;
                   }
-                  for (var subject in _electiveSelections) {
-                    if (subject != null && _student != null) {
-                      await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
+
+                  try {
+                    // 선택한 각각의 과목을 서버에 저장
+                    for (var subject in _compulsorySelections) {
+                      if (subject != null && _student != null) {
+                        await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
+                        print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student?.studentId ?? 0}');
+                      }
                     }
+                    for (var subject in _electiveSelections) {
+                      if (subject != null && _student != null) {
+                        await saveCompletedSubjects(_student?.studentId ?? 0, subject.subjectId, subject.proId ?? 0);
+                        print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student?.studentId ?? 0}');
+                      }
+                    }
+                  } catch (e) {
+                    print("과목 저장 중 오류 발생: $e");
                   }
                   print('모든 선택한 과목이 저장되었습니다.');
-                },
 
+                  // 저장 후 나의 이수현황 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                     textStyle: TextStyle(
                       fontSize: 16,
@@ -382,11 +402,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
                       color: const Color(0xffffff),
                     ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.0)),
+                        borderRadius: BorderRadius.circular(6.0)
+                    ),
                     backgroundColor: const Color(0xff341F87),
-                    minimumSize: Size(100, 50)),
+                    minimumSize: Size(100, 50)
+                ),
                 child: Text('저장'),
-              ),
+              )
+,
               SizedBox(height: 20.0),
               buildFutureBuilder(),
             ],
@@ -400,13 +423,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
     return FutureBuilder<CompletedSubjects>(
       future: _futureCompletedSubjects,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Text(snapshot.data!.subjectId as String);
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasData) {
+          return Text('Completed subjects retrieved: ${snapshot.data}');
         } else if (snapshot.hasError) {
-          return Text('${snapshot.error}');
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return Text('No data available');
         }
-
-        return const CircularProgressIndicator();
       },
     );
   }

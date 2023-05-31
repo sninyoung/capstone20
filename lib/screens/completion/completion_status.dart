@@ -49,8 +49,11 @@ class CompletionStatusPage extends StatefulWidget {
 class _CompletionStatusPageState extends State<CompletionStatusPage> {
   final storage = new FlutterSecureStorage();
 
+
   //이수과목 정보 불러오기
   Future<List<Subject>> fetchCompletedSubjects() async {
+    print('Fetching completed subjects...');
+
     final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
     if (token == null) {
       throw Exception('Authentication token not found');
@@ -68,6 +71,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
       final List<dynamic> data = json.decode(response.body);
       final List<Subject> subjects =
           data.map((item) => Subject.fromJson(item)).toList();
+
+      print('Completed subjects retrieved: $subjects');
+
       return subjects;
     } else {
       throw Exception('Failed to load saved subjects');
@@ -363,7 +369,37 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                     height: 15.0,
                   ),
                   //전공선택과목 이수과목 리스트
-                  Text('subjectName'),
+                  FutureBuilder<List<Subject>>(
+                    future: fetchCompletedSubjects(),  // 이전에 정의한 fetchCompletedSubjects 메소드 사용
+                    builder: (BuildContext context, AsyncSnapshot<List<Subject>> snapshot) {
+                      print('FutureBuilder snapshot: $snapshot');
+                      if (snapshot.hasData) {  // 데이터가 있을 경우
+                        List<Subject> subjects = snapshot.data!;
+
+                        // subjectDivision이 2인 과목들을 전공선택과목으로 간주하고 리스트 생성
+                        List<Subject> electiveSubjects =
+                        subjects.where((subject) => subject.subjectDivision == 2).toList();
+
+                        return ListView.builder(
+                          shrinkWrap: true,  // 부모 크기에 맞게 자신의 크기를 줄임
+                          physics: NeverScrollableScrollPhysics(),  // ListView 스크롤 비활성화
+                          itemCount: electiveSubjects.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(electiveSubjects[index].subjectName),
+                              subtitle: Text('학점: ${electiveSubjects[index].credit}'),
+                            );
+                          },
+                        );
+                      } else if (snapshot.hasError) {  // 에러가 발생한 경우
+                        return Text('${snapshot.error}');
+                      }
+
+                      // 기본적으로 로딩 Spinner를 표시
+                      return CircularProgressIndicator();
+                    },
+                  ),
+
                 ],
               ),
             ),
