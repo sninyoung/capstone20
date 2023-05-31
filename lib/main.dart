@@ -112,6 +112,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       throw Exception('Failed to load max scores');
     }
   }
+  void logout(BuildContext context) async {
+    final storage = new FlutterSecureStorage();
+    await storage.delete(key: 'token');
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+    );
+  }
 
   Future<void> _getUserInfo() async {
     final token = await storage.read(key: 'token');
@@ -189,6 +198,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 context,
                 MaterialPageRoute(builder: (context) => Profile()),
               );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+
+                logout(context);
+
             },
           ),
         ],
