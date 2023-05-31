@@ -113,8 +113,13 @@ class _AddProfessorPageState extends State<AddProfessorPage> {
                     backgroundColor: MaterialStateProperty.all<Color>(
                       Color(0xffC1D3FF),
                     ),
+                    minimumSize: MaterialStateProperty.all<Size>(Size.zero),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.zero),
                   ),
-                  child: Text('추가'),
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text('추가'),
+                  ),
                 ),
               ),
             ),

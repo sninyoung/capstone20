@@ -115,7 +115,7 @@ class _ProfProfile extends State<ProfProfile> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20.0, 8.0, 0.0, 8.0),
             child: Row(
-              mainAxisAlignment:  MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
@@ -138,35 +138,37 @@ class _ProfProfile extends State<ProfProfile> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 70.0, // 원하는 너비로 설정
-                  height: 35.0, // 원하는 높이로 설정
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AddProfessorPage()),
-                        );
-                      },
-                      child: Text(
-                        '추가',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      margin: EdgeInsets.only(right: 16.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AddProfessorPage()),
+                          );
+                        },
+                        child: Text(
+                          '추가',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffC1D3FF), // 배경 색상 변경
+                          padding: EdgeInsets.symmetric(vertical: 6.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(0.0),
+                          ),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffC1D3FF), // 배경 색상 변경
-                        padding: EdgeInsets.symmetric(vertical: 6.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0.0),                    ),
-                      ),
                     ),
+                  ),
                 ),
-              ),
               ],
             ),
           ),
