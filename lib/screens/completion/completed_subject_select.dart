@@ -160,12 +160,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
       throw Exception('Authentication token not found');
     }
 
-    final Uri url = Uri.parse('http://3.39.88.187:3000/user/info');
-    final http.Respon유se response = await http.get(
-      url,
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/student');
+    final Uri uriWithParams = url.replace(queryParameters: {'token': token});
+
+    final http.Response response = await http.get(
+      uriWithParams,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $token', // 토큰을 포함한 Authorization 헤더 추가
       },
     );
 
@@ -181,6 +183,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       throw Exception('Failed to load user: ${response.statusCode}');
     }
   }
+
 
 
 
