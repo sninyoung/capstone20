@@ -221,11 +221,20 @@ class _SubjectSelectState extends State<SubjectSelect> {
     );
 
     if (response.statusCode == 200) {
-      print('이수과목이 성공적으로 저장되었습니다.');
+      // 성공적으로 추가되었을 때의 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이수과목이 성공적으로 저장되었습니다.'),
+        ),
+      );
       print('서버 응답: ${response.body}'); // 서버의 응답을 출력합니다.
       return true;
     } else {
-      print('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}'),
+        ),
+      );
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
       return false;
     }
