@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:core';
 import 'dart:async';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
 
-//이수과목 선택 페이지
+// 이수과목 선택 페이지
 
-//학생 모델
+// 학생 모델
 class Student {
   final int studentId;
 
@@ -25,7 +24,7 @@ class Student {
   }
 }
 
-//과목 모델
+// 과목 모델
 class Subject {
   final int subjectId;
   final int proId;
@@ -58,24 +57,26 @@ class Subject {
   }
 }
 
-//이수과목 모델
+// 이수과목 모델
 class CompletedSubjects {
   final int studentId;
   final int subjectId;
   final int proId;
 
-  const CompletedSubjects(
-      {required this.studentId, required this.subjectId, required this.proId});
+  const CompletedSubjects({
+    required this.studentId,
+    required this.subjectId,
+    required this.proId,
+  });
 
   factory CompletedSubjects.fromJson(Map<String, dynamic> json) {
     return CompletedSubjects(
-        studentId: json['student_id'],
-        subjectId: json['subject_id'],
-        proId: json['pro_id']
+      studentId: json['student_id'],
+      subjectId: json['subject_id'],
+      proId: json['pro_id'],
     );
   }
 }
-
 
 class SubjectSelect extends StatefulWidget {
   final int subjectId;
@@ -88,33 +89,30 @@ class SubjectSelect extends StatefulWidget {
 
 class _SubjectSelectState extends State<SubjectSelect> {
   final storage = new FlutterSecureStorage();
-  final TextEditingController _controller = TextEditingController();
-  Future<CompletedSubjects>? _futureCompletedSubjects;
 
   List<Subject> _subjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
   List<MultiSelectItem<Subject>> _electiveItems = [];
   List<Subject> _compulsorySelections = [];
   List<Subject> _electiveSelections = [];
-  List<Subject> compulsorySubjects = [];
-  List<Subject> electiveSubjects = [];
 
-  Student? _student;
+  Student? _student = null; //초기값 null
 
   @override
   void initState() {
     super.initState();
     fetchSubjects();
-    fetchUser();
+    //fetchUser();
+    _compulsorySelections = [];
+    _electiveSelections = [];
   }
 
-//과목정보 불러오기
+  // 과목정보 불러오기
   Future<void> fetchSubjects() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+    final response =
+    await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
-      //print('Response body: ${response.body}');
-
       final List<dynamic> data = json.decode(response.body);
       _subjects = data.map((item) => Subject.fromJson(item)).toList();
 
@@ -137,22 +135,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-  Subject? findSubjectByName(String name) {
-    return _subjects.firstWhere(
-          (subject) => subject.subjectName == name,
-      orElse: () =>
-          Subject(
-            subjectName: '',
-            subjectDivision: 0,
-            subjectId: 0,
-            proId: 0,
-            credit: 0,
-          ),
-    );
-  }
-
-
-  // 유저 정보 불러오기
+  /*// 유저 정보 불러오기
   Future<void> fetchUser() async {
     final storage = FlutterSecureStorage();
     final String? token = await storage.read(key: 'token');
@@ -200,12 +183,16 @@ class _SubjectSelectState extends State<SubjectSelect> {
     } else {
       throw Exception('Failed to load user: ${response.statusCode}');
     }
-  }
-
-
+  }*/
 
   // 이수과목 정보 저장
-  Future<bool> saveCompletedSubjects(int studentId, int subjectId, int proId) async {
+  Future<void> saveCompletedSubjects(
+      int studentId, int subjectId, int proId) async {
+    if (subjectId == null) {
+      print('과목 ID가 null입니다.');
+      return;
+    }
+
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
     final body = json.encode({
@@ -221,23 +208,29 @@ class _SubjectSelectState extends State<SubjectSelect> {
     );
 
     if (response.statusCode == 200) {
-      print('이수과목이 성공적으로 저장되었습니다.');
-      print('서버 응답: ${response.body}'); // 서버의 응답을 출력합니다.
-      return true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이수과목이 성공적으로 저장되었습니다.'),
+        ),
+      );
+      final responseData = json.decode(response.body);
+      print('서버 응답: $responseData'); // 서버의 응답을 출력합니다.
     } else {
-      print('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}');
-      print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
-      return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}'),
+        ),
+      );
+      final responseData = json.decode(response.body);
+      print('서버 응답: $responseData'); // 에러 발생 시 서버의 응답을 출력합니다.
     }
   }
 
-
-
-
-  //이수과목 가져오기
+  // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
-    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required/subject');
-    final Uri uriWithParams = url.replace(queryParameters: {'student_id': studentId.toString()});
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
+    final Uri uriWithParams =
+    url.replace(queryParameters: {'student_id': studentId.toString()});
 
     final http.Response response = await http.get(
       uriWithParams,
@@ -248,19 +241,36 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      final List<Subject> completedSubjects = data.map((item) => Subject.fromJson(item)).toList();
+      final List<Subject> completedSubjects =
+      data.map((item) => Subject.fromJson(item)).toList();
       return completedSubjects;
     } else {
-      throw Exception('Failed to load completed subjects: ${response.statusCode}');
+      throw Exception(
+          'Failed to load completed subjects: ${response.statusCode}');
     }
   }
 
+  // 데이터 다시 가져오기
+  FutureBuilder<List<Subject>> buildFutureBuilder() {
+    return FutureBuilder<List<Subject>>(
+      future: fetchCompletedSubjects(_student?.studentId ?? 0),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          final completedSubjects = snapshot.data!;
+          return Text('Completed subjects retrieved: ${completedSubjects.toString()}');
+        } else {
+          return Text('No data available');
+        }
+      },
+    );
+  }
 
 
-
-
-
-//빌드
+  // 빌드
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -331,7 +341,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           items: _compulsoryItems,
                           onConfirm: (values) {
-                            _compulsorySelections = values.cast<Subject>();
+                            setState(() {
+                              _compulsorySelections = values.isNotEmpty ? values.cast<Subject>() : [];
+                            });
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
@@ -344,12 +356,13 @@ class _SubjectSelectState extends State<SubjectSelect> {
                         _compulsorySelections == null ||
                             _compulsorySelections.isEmpty
                             ? Container(
-                            padding: EdgeInsets.all(10),
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "선택안함",
-                              style: TextStyle(color: Colors.black54),
-                            ))
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "선택안함",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
                             : Container(),
                       ],
                     ),
@@ -391,7 +404,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           items: _electiveItems,
                           onConfirm: (values) {
-                            _electiveSelections = values.cast<Subject>();
+                            setState(() {
+                              _electiveSelections = values.isNotEmpty ? values.cast<Subject>() : [];
+                            });
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
@@ -405,12 +420,13 @@ class _SubjectSelectState extends State<SubjectSelect> {
                         _electiveSelections == null ||
                             _electiveSelections.isEmpty
                             ? Container(
-                            padding: EdgeInsets.all(10),
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "선택안함",
-                              style: TextStyle(color: Colors.black54),
-                            ))
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "선택안함",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
                             : Container(),
                       ],
                     ),
@@ -420,46 +436,39 @@ class _SubjectSelectState extends State<SubjectSelect> {
               SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () async {
-                  if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
+                  if (_compulsorySelections.isEmpty &&
+                      _electiveSelections.isEmpty) {
                     print("선택된 과목이 없습니다.");
                     return;
                   }
 
                   try {
-                    // 선택한 각각의 과목을 서버에 저장
                     for (var subject in _compulsorySelections) {
                       if (subject != null && _student != null) {
-                        bool isSuccess = await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
-                        if (isSuccess) {
-                          print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                        } else {
-                          print('필수 과목 저장 실패: ${subject.subjectName}');
-                        }
+                        await saveCompletedSubjects(_student!.studentId,
+                            subject.subjectId, subject.proId ?? 0);
+                        print(
+                            '저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
                       }
                     }
 
                     for (var subject in _electiveSelections) {
                       if (subject != null && _student != null) {
-                        bool isSuccess = await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
-                        if (isSuccess) {
-                          print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                        } else {
-                          print('선택 과목 저장 실패: ${subject.subjectName}');
-                        }
+                        await saveCompletedSubjects(_student?.studentId ?? 0,
+                            subject.subjectId, subject.proId ?? 0);
+                        print(
+                            '저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
                       }
                     }
 
-                    // 완료된 과목을 다시 가져오기
-                    List<Subject> completedSubjects = await fetchCompletedSubjects(_student?.studentId ?? 0);
+                    List<Subject> completedSubjects =
+                    await fetchCompletedSubjects(_student!.studentId);
                     print('모든 선택한 과목이 저장되었습니다.');
                     print('Completed subjects retrieved: $completedSubjects');
                   } catch (e) {
                     print("과목 저장 중 오류 발생: $e");
                   }
 
-                  print('모든 선택한 과목이 저장되었습니다.');
-
-                  // 저장 후 나의 이수현황 페이지로 이동
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -468,20 +477,19 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xffffff),
-                    ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.0)
-                    ),
-                    backgroundColor: const Color(0xff341F87),
-                    minimumSize: Size(100, 50)
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xffffff),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  backgroundColor: const Color(0xff341F87),
+                  minimumSize: Size(100, 50),
                 ),
                 child: Text('저장'),
-              )
-              ,
+              ),
               SizedBox(height: 20.0),
               buildFutureBuilder(),
             ],
@@ -490,29 +498,4 @@ class _SubjectSelectState extends State<SubjectSelect> {
       ),
     );
   }
-
-
-  //데이터 가져오기
-  FutureBuilder<List<Subject>> buildFutureBuilder() {
-    return FutureBuilder<List<Subject>>(
-      future: fetchCompletedSubjects(_student?.studentId ?? 0),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasData) {
-          final completedSubjects = snapshot.data!;
-          return Text('Completed subjects retrieved: $completedSubjects');
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return Text('No data available');
-        }
-      },
-    );
-  }
-
-
-
 }
-
-
