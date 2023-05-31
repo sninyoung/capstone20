@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:core';
 import 'dart:async';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -90,16 +89,12 @@ class SubjectSelect extends StatefulWidget {
 
 class _SubjectSelectState extends State<SubjectSelect> {
   final storage = new FlutterSecureStorage();
-  //final TextEditingController _controller = TextEditingController();
-  //Future<CompletedSubjects>? _futureCompletedSubjects;
 
   List<Subject> _subjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
   List<MultiSelectItem<Subject>> _electiveItems = [];
   List<Subject> _compulsorySelections = [];
   List<Subject> _electiveSelections = [];
-  List<Subject> compulsorySubjects = [];
-  List<Subject> electiveSubjects = [];
 
   Student? _student;
 
@@ -108,18 +103,14 @@ class _SubjectSelectState extends State<SubjectSelect> {
     super.initState();
     fetchSubjects();
     fetchUser();
-    //_compulsorySelections = [];
-    //_electiveSelections = [];
-    //_compulsorySelections.removeWhere((subject) => subject == null);
-    //_electiveSelections.removeWhere((subject) => subject == null);
+    _compulsorySelections = [];
+    _electiveSelections = [];
   }
-
-
 
   // 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+    await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -129,32 +120,19 @@ class _SubjectSelectState extends State<SubjectSelect> {
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
     } else {
       throw Exception('Failed to load subjects');
     }
-  }
-
-  Subject? findSubjectByName(String name) {
-    return _subjects.firstWhere(
-      (subject) => subject.subjectName == name,
-      orElse: () => Subject(
-        subjectName: '',
-        subjectDivision: 0,
-        subjectId: 0,
-        proId: 0,
-        credit: 0,
-      ),
-    );
   }
 
   // 유저 정보 불러오기
@@ -252,7 +230,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
   Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
     final Uri url = Uri.parse('http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
     final Uri uriWithParams =
-        url.replace(queryParameters: {'student_id': studentId.toString()});
+    url.replace(queryParameters: {'student_id': studentId.toString()});
 
     final http.Response response = await http.get(
       uriWithParams,
@@ -264,7 +242,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final List<Subject> completedSubjects =
-          data.map((item) => Subject.fromJson(item)).toList();
+      data.map((item) => Subject.fromJson(item)).toList();
       return completedSubjects;
     } else {
       throw Exception(
@@ -290,7 +268,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
       },
     );
   }
-
 
   // 빌드
   @override
@@ -376,15 +353,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                         ),
                         _compulsorySelections == null ||
-                                _compulsorySelections.isEmpty
+                            _compulsorySelections.isEmpty
                             ? Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "선택안함",
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              )
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "선택안함",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
                             : Container(),
                       ],
                     ),
@@ -440,15 +417,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           checkColor: Color(0xff8BB4F2),
                         ),
                         _electiveSelections == null ||
-                                _electiveSelections.isEmpty
+                            _electiveSelections.isEmpty
                             ? Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "선택안함",
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              )
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "선택안함",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
                             : Container(),
                       ],
                     ),
@@ -471,8 +448,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
                             subject.subjectId, subject.proId ?? 0);
                         print(
                             '저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                      }else{
-                        _compulsorySelections = [];
                       }
                     }
 
@@ -482,20 +457,16 @@ class _SubjectSelectState extends State<SubjectSelect> {
                             subject.subjectId, subject.proId ?? 0);
                         print(
                             '저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                      }else{
-                        _electiveSelections = [];
                       }
                     }
 
                     List<Subject> completedSubjects =
-                        await fetchCompletedSubjects(_student!.studentId);
+                    await fetchCompletedSubjects(_student!.studentId);
                     print('모든 선택한 과목이 저장되었습니다.');
                     print('Completed subjects retrieved: $completedSubjects');
                   } catch (e) {
                     print("과목 저장 중 오류 발생: $e");
                   }
-
-                  //print('모든 선택한 과목이 저장되었습니다.');
 
                   Navigator.push(
                     context,
