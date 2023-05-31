@@ -96,13 +96,13 @@ class _SubjectSelectState extends State<SubjectSelect> {
   List<Subject> _compulsorySelections = [];
   List<Subject> _electiveSelections = [];
 
-  Student? _student;
+  Student? _student = null; //초기값 null
 
   @override
   void initState() {
     super.initState();
     fetchSubjects();
-    fetchUser();
+    //fetchUser();
     _compulsorySelections = [];
     _electiveSelections = [];
   }
@@ -135,7 +135,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-  // 유저 정보 불러오기
+  /*// 유저 정보 불러오기
   Future<void> fetchUser() async {
     final storage = FlutterSecureStorage();
     final String? token = await storage.read(key: 'token');
@@ -183,7 +183,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     } else {
       throw Exception('Failed to load user: ${response.statusCode}');
     }
-  }
+  }*/
 
   // 이수과목 정보 저장
   Future<void> saveCompletedSubjects(
@@ -268,6 +268,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       },
     );
   }
+
 
   // 빌드
   @override
