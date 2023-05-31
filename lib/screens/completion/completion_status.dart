@@ -38,6 +38,29 @@ class Subject {
   }
 }
 
+//이수과목 모델
+class CompletedSubjects {
+  final int studentId;
+  final int subjectId;
+  final int proId;
+
+  const CompletedSubjects({
+    required this.studentId,
+    required this.subjectId,
+    required this.proId,
+  });
+
+  factory CompletedSubjects.fromJson(Map<String, dynamic> json) {
+    return CompletedSubjects(
+      studentId: json['student_id'],
+      subjectId: json['subject_id'],
+      proId: json['pro_id'],
+    );
+  }
+}
+
+
+
 //나의이수현황 페이지
 class CompletionStatusPage extends StatefulWidget {
   const CompletionStatusPage({Key? key}) : super(key: key);
@@ -79,6 +102,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
       throw Exception('Failed to load saved subjects');
     }
   }
+
 
   //빌드
   @override

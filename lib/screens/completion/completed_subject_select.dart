@@ -120,20 +120,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-  Subject? findSubjectByName(String name) {
-    return _subjects.firstWhere(
-      (subject) => subject.subjectName == name,
-      orElse: () => Subject(
-        subjectName: '',
-        subjectDivision: 0,
-        subjectId: 0,
-        proId: 0,
-        credit: 0,
-        typeMd: 0,
-        typeTr: 0,
-      ),
-    );
-  }
 
   // 이수과목 정보 저장
   Future<void> saveCompletedSubjects(
@@ -156,6 +142,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       body: body,
     );
 
+    //이수과목 저장 성공/실패 알림
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -174,23 +161,55 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
 
-// 이수과목 가져오기
+  // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects() async {
-    final Uri url = Uri.parse(
-        'http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
-    final http.Response response = await http.get(url);
+    final Uri completedSubjectsUrl = Uri.parse('http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
+    final http.Response completedSubjectsResponse = await http.get(completedSubjectsUrl);
 
-    if (response.statusCode == 200) {
-      print('응답 본문: ${response.body}');
-      final List<dynamic> data = json.decode(response.body);
-      final List<Subject> completedSubjects =
-          data.map((item) => CompletedSubjects.fromJson(item)).cast<Subject>().toList();
+    if (completedSubjectsResponse.statusCode == 200) {
+      final List<dynamic> completedSubjectsData = json.decode(completedSubjectsResponse.body);
+      print('Completed subjects response body: ${completedSubjectsResponse.body}');
+
+      List<Future<Subject>> futureSubjects = [];
+      for (var item in completedSubjectsData) {
+        final CompletedSubjects completedSubject = CompletedSubjects.fromJson(item);
+
+        final Uri subjectUrl = Uri.parse('http://3.39.88.187:3000/user/required/subject?subject_id=${completedSubject.subjectId}');
+
+        Future<Subject> futureSubject = http.get(subjectUrl).then((subjectResponse) {
+          if (subjectResponse.statusCode == 200) {
+            final List<dynamic> subjectData = json.decode(subjectResponse.body);
+            print('Subject response body: ${subjectResponse.body}');
+
+            return Subject.fromJson(subjectData[0]);
+          } else {
+            throw Exception('Failed to load subject data: ${subjectResponse.statusCode}');
+          }
+        });
+
+        futureSubjects.add(futureSubject);
+      }
+
+    //모든 Futures가 완료될 때까지 기다렸다가 과목 리스트를 작성
+      List<Subject> completedSubjects = await Future.wait(futureSubjects);
+
+      print('Retrieved Subject objects: $completedSubjects');
       return completedSubjects;
     } else {
-      throw Exception(
-          'Failed to load completed subjects: ${response.statusCode}');
+      throw Exception('Failed to load completed subjects: ${completedSubjectsResponse.statusCode}');
     }
   }
+
+
+  // 총전공학점 계산
+  int calculateTotalMajorCredit() {
+    int totalMajorCredit = 0;
+    for (var subject in _electiveSelections) {
+      totalMajorCredit += subject.credit;
+    }
+    return totalMajorCredit;
+  }
+
 
   // 빌드
   @override
@@ -263,7 +282,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           items: _compulsoryItems,
                           onConfirm: (values) {
-                            _compulsorySelections = values.cast<Subject>();
+                            setState(() {
+                              _compulsorySelections = values.cast<Subject>();
+                            });
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
@@ -324,7 +345,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           items: _electiveItems,
                           onConfirm: (values) {
-                            _electiveSelections = values.cast<Subject>();
+                            setState(() {
+                              _electiveSelections = values.cast<Subject>();
+                            });
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
