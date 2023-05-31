@@ -108,9 +108,13 @@ class _SubjectSelectState extends State<SubjectSelect> {
     super.initState();
     fetchSubjects();
     fetchUser();
-    //List<Subject> _compulsorySelections = [];
-    //List<Subject> _electiveSelections = [];
+    //_compulsorySelections = [];
+    //_electiveSelections = [];
+    //_compulsorySelections.removeWhere((subject) => subject == null);
+    //_electiveSelections.removeWhere((subject) => subject == null);
   }
+
+
 
   // 과목정보 불러오기
   Future<void> fetchSubjects() async {
@@ -206,6 +210,11 @@ class _SubjectSelectState extends State<SubjectSelect> {
   // 이수과목 정보 저장
   Future<void> saveCompletedSubjects(
       int studentId, int subjectId, int proId) async {
+    if (subjectId == null) {
+      print('과목 ID가 null입니다.');
+      return;
+    }
+
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
     final body = json.encode({
@@ -457,7 +466,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
                   try {
                     for (var subject in _compulsorySelections) {
-                      if (subject != null) {
+                      if (subject != null && _student != null) {
                         await saveCompletedSubjects(_student!.studentId,
                             subject.subjectId, subject.proId ?? 0);
                         print(
@@ -468,7 +477,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                     }
 
                     for (var subject in _electiveSelections) {
-                      if (subject != null) {
+                      if (subject != null && _student != null) {
                         await saveCompletedSubjects(_student?.studentId ?? 0,
                             subject.subjectId, subject.proId ?? 0);
                         print(
