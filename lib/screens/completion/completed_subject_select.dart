@@ -90,8 +90,8 @@ class SubjectSelect extends StatefulWidget {
 
 class _SubjectSelectState extends State<SubjectSelect> {
   final storage = new FlutterSecureStorage();
-  final TextEditingController _controller = TextEditingController();
-  Future<CompletedSubjects>? _futureCompletedSubjects;
+  //final TextEditingController _controller = TextEditingController();
+  //Future<CompletedSubjects>? _futureCompletedSubjects;
 
   List<Subject> _subjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
@@ -108,6 +108,8 @@ class _SubjectSelectState extends State<SubjectSelect> {
     super.initState();
     fetchSubjects();
     fetchUser();
+    //List<Subject> _compulsorySelections = [];
+    //List<Subject> _electiveSelections = [];
   }
 
   // 과목정보 불러오기
@@ -224,20 +226,22 @@ class _SubjectSelectState extends State<SubjectSelect> {
           content: Text('이수과목이 성공적으로 저장되었습니다.'),
         ),
       );
-      print('서버 응답: ${response.body}'); // 서버의 응답을 출력합니다.
+      final responseData = json.decode(response.body);
+      print('서버 응답: $responseData'); // 서버의 응답을 출력합니다.
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}'),
         ),
       );
-      print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
+      final responseData = json.decode(response.body);
+      print('서버 응답: $responseData'); // 에러 발생 시 서버의 응답을 출력합니다.
     }
   }
 
   // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
-    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required/subject');
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
     final Uri uriWithParams =
         url.replace(queryParameters: {'student_id': studentId.toString()});
 
@@ -266,17 +270,18 @@ class _SubjectSelectState extends State<SubjectSelect> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
           final completedSubjects = snapshot.data!;
           return Text('Completed subjects retrieved: ${completedSubjects.toString()}');
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
         } else {
           return Text('No data available');
         }
       },
     );
   }
+
 
   // 빌드
   @override
@@ -349,7 +354,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           items: _compulsoryItems,
                           onConfirm: (values) {
-                            _compulsorySelections = values.cast<Subject>();
+                            setState(() {
+                              _compulsorySelections = values.isNotEmpty ? values.cast<Subject>() : [];
+                            });
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
@@ -410,7 +417,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                           ),
                           items: _electiveItems,
                           onConfirm: (values) {
-                            _electiveSelections = values.cast<Subject>();
+                            setState(() {
+                              _electiveSelections = values.isNotEmpty ? values.cast<Subject>() : [];
+                            });
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
@@ -448,25 +457,29 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
                   try {
                     for (var subject in _compulsorySelections) {
-                      if (subject != null && _student != null) {
+                      if (subject != null) {
                         await saveCompletedSubjects(_student!.studentId,
                             subject.subjectId, subject.proId ?? 0);
                         print(
                             '저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                      }else{
+                        _compulsorySelections = [];
                       }
                     }
 
                     for (var subject in _electiveSelections) {
-                      if (subject != null && _student != null) {
-                        await saveCompletedSubjects(_student!.studentId,
+                      if (subject != null) {
+                        await saveCompletedSubjects(_student?.studentId ?? 0,
                             subject.subjectId, subject.proId ?? 0);
                         print(
                             '저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                      }else{
+                        _electiveSelections = [];
                       }
                     }
 
                     List<Subject> completedSubjects =
-                        await fetchCompletedSubjects(_student?.studentId ?? 0);
+                        await fetchCompletedSubjects(_student!.studentId);
                     print('모든 선택한 과목이 저장되었습니다.');
                     print('Completed subjects retrieved: $completedSubjects');
                   } catch (e) {
