@@ -103,7 +103,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
   @override
   void initState() {
-    //_compulsorySelections = _subjects;
     super.initState();
     fetchSubjects();
     fetchUser();
@@ -111,14 +110,15 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
 //과목정보 불러오기
   Future<void> fetchSubjects() async {
-    final response =
-    await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
 
     if (response.statusCode == 200) {
+      //print('Response body: ${response.body}');
+
       final List<dynamic> data = json.decode(response.body);
       _subjects = data.map((item) => Subject.fromJson(item)).toList();
 
-      // Update _items here.
+      // Update _compulsoryItems and _electiveItems here.
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
@@ -153,6 +153,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
 
   // 유저 정보 불러오기
+// 유저 정보 불러오기
   Future<void> fetchUser() async {
     final storage = FlutterSecureStorage();
     final String? token = await storage.read(key: 'token');
@@ -160,21 +161,39 @@ class _SubjectSelectState extends State<SubjectSelect> {
       throw Exception('Authentication token not found');
     }
 
-    final Uri url = Uri.parse('http://3.39.88.187:3000/user/student');
+    // JWT 디코딩을 위한 라이브러리를 사용하여 토큰 파싱
+    final List<String> tokenParts = token.split('.');
+    if (tokenParts.length != 3) {
+      throw Exception('Invalid token format');
+    }
+
+    final String encodedPayload = tokenParts[1];
+    final String payload = utf8.decode(base64Url.decode(encodedPayload));
+    final Map<String, dynamic> claims = json.decode(payload);
+
+    // 토큰의 만료 시간 확인
+    final int? expirationTime = claims['exp'];
+    final int currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    if (expirationTime == null || currentTimestamp >= expirationTime) {
+      throw Exception('Token has expired');
+    }
+
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/infotoken');
     final Uri uriWithParams = url.replace(queryParameters: {'token': token});
 
     final http.Response response = await http.get(
       uriWithParams,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token', // 토큰을 포함한 Authorization 헤더 추가
+        'Authorization': 'Bearer $token',
       },
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      if (data.containsKey('student_id')) {
-        _student = Student.fromJson(data);
+      final List<dynamic> data = json.decode(response.body);
+      if (data.isNotEmpty) {
+        final Map<String, dynamic> user = data[0];
+        _student = Student.fromJson(user);
       } else {
         throw Exception('Failed to parse user data');
       }
@@ -186,21 +205,20 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
 
 
+  // 이수과목 정보 저장
+  Future<void> saveCompletedSubjects(int studentId, int subjectId, int proId) async {
+    final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
-  //이수과목 정보 저장
-  Future<void> saveCompletedSubjects(int student_id, int subject_id, int pro_id) async {
-    var url = Uri.parse('http://3.39.88.187:3000/user/required/add');
-
-    var body = json.encode({
-      "student_id": student_id,
-      "subject_id": subject_id,
-      "pro_id": pro_id
+    final body = json.encode({
+      'student_id': studentId,
+      'subject_id': subjectId,
+      'pro_id': proId,
     });
 
-    var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
     );
 
     if (response.statusCode == 200) {
@@ -209,8 +227,36 @@ class _SubjectSelectState extends State<SubjectSelect> {
     } else {
       print('이수과목 저장에 실패하였습니다. 상태 코드: ${response.statusCode}');
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
+      throw Exception('Failed to save completed subjects');
     }
   }
+
+
+
+  //이수과목 가져오기
+  Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
+    final Uri url = Uri.parse('http://3.39.88.187:3000/user/required');
+    final Uri uriWithParams = url.replace(queryParameters: {'student_id': studentId.toString()});
+
+    final http.Response response = await http.get(
+      uriWithParams,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final List<Subject> completedSubjects = data.map((item) => Subject.fromJson(item)).toList();
+      return completedSubjects;
+    } else {
+      throw Exception('Failed to load completed subjects: ${response.statusCode}');
+    }
+  }
+
+
+
+
 
 
 //빌드
@@ -419,7 +465,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                 ),
                 child: Text('저장'),
               )
-,
+              ,
               SizedBox(height: 20.0),
               buildFutureBuilder(),
             ],
@@ -429,20 +475,40 @@ class _SubjectSelectState extends State<SubjectSelect> {
     );
   }
 
-  FutureBuilder<CompletedSubjects> buildFutureBuilder() {
-    return FutureBuilder<CompletedSubjects>(
-      future: _futureCompletedSubjects,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasData) {
-          return Text('Completed subjects retrieved: ${snapshot.data}');
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return Text('No data available');
-        }
-      },
-    );
+
+  // 데이터 가져오기
+  FutureBuilder<List<Subject>> buildFutureBuilder() {
+    if (_student == null) {
+      return FutureBuilder<List<Subject>>(
+        future: Future.value(null),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return Text('No data available');
+          }
+        },
+      );
+    } else {
+      return FutureBuilder<List<Subject>>(
+        future: fetchCompletedSubjects(_student!.studentId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasData) {
+            final completedSubjects = snapshot.data!;
+            return Text('Completed subjects retrieved: $completedSubjects');
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return Text('No data available');
+          }
+        },
+      );
+    }
   }
+
+
 }
