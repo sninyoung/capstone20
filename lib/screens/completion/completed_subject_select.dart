@@ -202,7 +202,8 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
   // 이수과목 정보 저장
-  Future<void> saveCompletedSubjects(int studentId, int subjectId, int proId) async {
+  Future<void> saveCompletedSubjects(
+      int studentId, int subjectId, int proId) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
     final body = json.encode({
@@ -234,8 +235,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-
-
   // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects(int studentId) async {
     final Uri url = Uri.parse('http://3.39.88.187:3000/user/required/subject');
@@ -260,7 +259,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-
   // 데이터 다시 가져오기
   FutureBuilder<List<Subject>> buildFutureBuilder() {
     return FutureBuilder<List<Subject>>(
@@ -270,7 +268,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
           return CircularProgressIndicator();
         } else if (snapshot.hasData) {
           final completedSubjects = snapshot.data!;
-          return Text('Completed subjects retrieved: $completedSubjects');
+          return Text('Completed subjects retrieved: ${completedSubjects.toString()}');
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -279,7 +277,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
       },
     );
   }
-
 
   // 빌드
   @override
@@ -441,59 +438,64 @@ class _SubjectSelectState extends State<SubjectSelect> {
                 ],
               ),
               SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () async {
-                if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
-                  print("선택된 과목이 없습니다.");
-                  return;
-                }
-
-                try {
-                  for (var subject in _compulsorySelections) {
-                    if (subject != null && _student != null) {
-                      await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
-                      print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
-                    }
+              ElevatedButton(
+                onPressed: () async {
+                  if (_compulsorySelections.isEmpty &&
+                      _electiveSelections.isEmpty) {
+                    print("선택된 과목이 없습니다.");
+                    return;
                   }
 
-                  for (var subject in _electiveSelections) {
-                    if (subject != null && _student != null) {
-                      await saveCompletedSubjects(_student!.studentId, subject.subjectId, subject.proId ?? 0);
-                      print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                  try {
+                    for (var subject in _compulsorySelections) {
+                      if (subject != null && _student != null) {
+                        await saveCompletedSubjects(_student!.studentId,
+                            subject.subjectId, subject.proId ?? 0);
+                        print(
+                            '저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                      }
                     }
+
+                    for (var subject in _electiveSelections) {
+                      if (subject != null && _student != null) {
+                        await saveCompletedSubjects(_student!.studentId,
+                            subject.subjectId, subject.proId ?? 0);
+                        print(
+                            '저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${_student!.studentId}');
+                      }
+                    }
+
+                    List<Subject> completedSubjects =
+                        await fetchCompletedSubjects(_student?.studentId ?? 0);
+                    print('모든 선택한 과목이 저장되었습니다.');
+                    print('Completed subjects retrieved: $completedSubjects');
+                  } catch (e) {
+                    print("과목 저장 중 오류 발생: $e");
                   }
 
-                  List<Subject> completedSubjects = await fetchCompletedSubjects(_student?.studentId ?? 0);
-                  print('모든 선택한 과목이 저장되었습니다.');
-                  print('Completed subjects retrieved: $completedSubjects');
-                } catch (e) {
-                  print("과목 저장 중 오류 발생: $e");
-                }
+                  //print('모든 선택한 과목이 저장되었습니다.');
 
-                //print('모든 선택한 과목이 저장되었습니다.');
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CompletionStatusPage(),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xffffff),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                textStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xffffff),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  backgroundColor: const Color(0xff341F87),
+                  minimumSize: Size(100, 50),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
-                backgroundColor: const Color(0xff341F87),
-                minimumSize: Size(100, 50),
+                child: Text('저장'),
               ),
-              child: Text('저장'),
-            ),
-
               SizedBox(height: 20.0),
               buildFutureBuilder(),
             ],
@@ -502,6 +504,4 @@ class _SubjectSelectState extends State<SubjectSelect> {
       ),
     );
   }
-
-
 }
