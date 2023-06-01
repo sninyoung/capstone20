@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completed_subject_provider.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
-import 'package:capstone/screens/completion/completion_Class_subject.dart';
+import 'package:capstone/screens/completion/subject_model.dart';
 
 //나의 이수현황
 
@@ -300,9 +300,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (csontext) => CompletedSubjectSelectPage(
-                                        subjectId: 0,
-                                      )),
+                                      builder: (context) => CompletedSubjectSelectPage(),),
                                 );
                               },
                               child: const Text('이수과목 편집'),

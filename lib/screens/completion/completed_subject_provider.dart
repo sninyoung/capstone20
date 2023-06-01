@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:capstone/screens/completion/completion_Class_subject.dart';
+import 'package:capstone/screens/completion/subject_model.dart';
 import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
@@ -36,12 +36,17 @@ class CompletedSubjects {
 }
 
 //ChangeNotifier : 앱의 상태를 나타냄
-class CompletedSubjectProvider with ChangeNotifier {
+class CompletedSubject extends ChangeNotifier {
   final storage = new FlutterSecureStorage();
-  List<Subject> _completedSubjects = [];
-  List<Subject> get completedSubjects => _completedSubjects;
 
-  //사용자 인증 jwt 토큰 방식
+  List<Subject> _completedCompulsory = []; //선언과 동시에 초기화해줘야 함.
+  List<Subject> _completedElective = [];
+
+  List<Subject> get completedCompulsory => _completedCompulsory;
+  List<Subject> get completedElective => _completedElective;
+
+
+  //JWT 토큰에서 학생 ID를 가져오는 메서드
   Future<String> getStudentIdFromToken() async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -56,41 +61,75 @@ class CompletedSubjectProvider with ChangeNotifier {
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
 
-  //기존에 저장된 이수과목들을 불러오기
+  // SecureStorage에서 기존에 저장된 이수한 과목을 불러오는 메서드
   Future<void> loadSubjects() async {
     String? data = await storage.read(key: 'completedSubjects');
     if (data != null) {
       var subjectData = jsonDecode(data) as List;
-      _completedSubjects = subjectData.map((item) => Subject.fromJson(item)).toList();
+      _completedCompulsory = subjectData
+          .map((item) => Subject.fromJson(item))
+          .where((subject) => subject.subjectDivision == 1)
+          .toList();
+      _completedElective = subjectData
+          .map((item) => Subject.fromJson(item))
+          .where((subject) => subject.subjectDivision == 2)
+          .toList();
       notifyListeners();
     }
   }
 
-
+  //과목을 추가하는 메서드
   void addSubject(Subject subject) {
-    _completedSubjects.add(subject);
+    if (subject.subjectDivision == 1) {
+      _completedCompulsory.add(subject);
+    } else if (subject.subjectDivision == 2) {
+      _completedElective.add(subject);
+    }
     notifyListeners();
   }
 
+  //과목을 삭제하는 메서드
   void removeSubject(Subject subject) {
-    _completedSubjects.remove(subject);
+    if (subject.subjectDivision == 1) {
+      _completedCompulsory.remove(subject);
+    } else if (subject.subjectDivision == 2) {
+      _completedElective.remove(subject);
+    }
     notifyListeners();
   }
 
+  // SecureStorage에 이수한 과목을 저장하는 메서드
   Future<void> saveSubjects() async {
-    await storage.write(key: 'completedSubjects', value: jsonEncode(_completedSubjects.map((subject) => subject.toJson()).toList()));
+    List<Subject> allSubjects = []
+      ..addAll(_completedCompulsory)
+      ..addAll(_completedElective);
+    await storage.write(
+        key: 'completedSubjects',
+        value: jsonEncode(
+            allSubjects.map((subject) => subject.toJson()).toList()));
   }
 
-  //이수과목 저장하기
+
+  //서버에 이수한 과목 정보를 보내는 메서드 - 이수과목 저장
   Future<void> saveCompletedSubjects() async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
     final studentId = await getStudentIdFromToken();
 
-    final data = _completedSubjects.map((completedSubject) => {
-      'student_id': studentId,
-      'subject_id': completedSubject.subjectId,
-      'pro_id': completedSubject.proId,
-    }).toList();
+    final List<Map<String, dynamic>> data = [];
+    for (final subject in _completedCompulsory) {
+      data.add({
+        'student_id': studentId,
+        'subject_id': subject.subjectId,
+        'pro_id': subject.proId,
+      });
+    }
+    for (final subject in _completedElective) {
+      data.add({
+        'student_id': studentId,
+        'subject_id': subject.subjectId,
+        'pro_id': subject.proId,
+      });
+    }
 
     final body = json.encode(data);
     print('Request body: $body'); // 로깅
@@ -108,7 +147,7 @@ class CompletedSubjectProvider with ChangeNotifier {
   }
 
 
-  //이수과목 가져오기
+  //서버에서 이수한 과목 정보를 가져오는 메서드- 이수과목 정보 가져오기
   Future<void> fetchCompletedSubjects(int studentId) async {
     final Uri completedSubjectsUrl =
     Uri.parse('http://3.39.88.187:3000/user/required?student_id=$studentId');
@@ -140,13 +179,29 @@ class CompletedSubjectProvider with ChangeNotifier {
         }
       }
 
-      _completedSubjects = completedSubjects;
+      _completedCompulsory = completedSubjects.where((subject) => subject.subjectDivision == 1).toList();
+      _completedElective = completedSubjects.where((subject) => subject.subjectDivision == 2).toList();
       notifyListeners();
     } else {
       throw Exception(
           'Failed to load completed subjects: ${completedSubjectsResponse.statusCode}');
     }
   }
+
+  //전기과목 업데이트
+  void updateCompulsory(List<Subject> newSubjects) {
+    _completedCompulsory = newSubjects;
+    notifyListeners();
+  }
+
+  //전선과목 업데이트
+  void updateElective(List<Subject> newSubjects) {
+    _completedElective = newSubjects;
+    notifyListeners();
+  }
+
+
+
 }
 
 
