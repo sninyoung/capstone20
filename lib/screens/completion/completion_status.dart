@@ -99,7 +99,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final List<Subject> subjects =
-          data.map((item) => Subject.fromJson(item)).toList();
+      data.map((item) => Subject.fromJson(item)).toList();
 
       print('Completed subjects retrieved: $subjects');
 
@@ -270,9 +270,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                   decoration: BoxDecoration(
                     border: Border(
                         top: BorderSide(
-                      color: Color(0xff858585),
-                      width: 0.8,
-                    )),
+                          color: Color(0xff858585),
+                          width: 0.8,
+                        )),
                     color: Color(0xffffffff),
                   ),
                   child: Row(
@@ -329,8 +329,8 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (csontext) => SubjectSelectPage(
-                                            subjectId: 1111111,
-                                          )),
+                                        subjectId: 0,
+                                      )),
                                 );
                               },
                               child: const Text('이수과목 편집'),
@@ -429,7 +429,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               itemBuilder: (context, index) {
                                 return ListTile(
                                   title:
-                                      Text(electiveSubjects[index].subjectName),
+                                  Text(electiveSubjects[index].subjectName),
                                   subtitle: Text(
                                       '${electiveSubjects[index].credit}학점'),
                                 );
@@ -523,7 +523,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               itemBuilder: (context, index) {
                                 return ListTile(
                                   title:
-                                      Text(electiveSubjects[index].subjectName),
+                                  Text(electiveSubjects[index].subjectName),
                                   subtitle: Text(
                                       '${electiveSubjects[index].credit}학점'),
                                 );
