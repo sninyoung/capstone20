@@ -10,44 +10,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/completion/completed_subject_provider.dart';
+import 'package:capstone/screens/completion/completion_Class_subject.dart';
 
-// 과목 모델
-class Subject {
-  final int subjectId;
-  final int proId;
-  final String subjectName;
-  final int credit;
-  final int subjectDivision;
-  final int? typeMd;
-  final int? typeTr;
 
-  Subject({
-    required this.subjectId,
-    required this.proId,
-    required this.subjectName,
-    required this.credit,
-    required this.subjectDivision,
-    this.typeMd,
-    this.typeTr,
-  });
-
-  factory Subject.fromJson(Map<String, dynamic> json) {
-    return Subject(
-      subjectId: json['subject_id'],
-      proId: json['pro_id'],
-      subjectName: json['subject_name'],
-      credit: json['credit'],
-      subjectDivision: json['subject_division'],
-      typeMd: json['type_md'],
-      typeTr: json['type_tr'],
-    );
-  }
-
-  @override
-  String toString() {
-    return 'Subject{subjectId: $subjectId, proId: $proId, subjectName: $subjectName, credit: $credit, subjectDivision: $subjectDivision, typeMd: $typeMd, typeTr: $typeTr}';
-  }
-}
 
 // 이수과목 모델
 class CompletedSubjects {
@@ -71,22 +36,18 @@ class CompletedSubjects {
 }
 
 
-
-
 // 이수과목 선택 페이지
-class SubjectSelectPage extends StatefulWidget {
+class CompletedSubjectSelectPage extends StatefulWidget {
   final int subjectId;
 
-  SubjectSelectPage({Key? key, required this.subjectId}) : super(key: key);
+  CompletedSubjectSelectPage({required this.subjectId});
 
   @override
-  _SubjectSelectPageState createState() => _SubjectSelectPageState();
+  _CompletedSubjectSelectPageState createState() => _CompletedSubjectSelectPageState();
 }
 
-class _SubjectSelectPageState extends State<SubjectSelectPage> {
-  final storage = new FlutterSecureStorage();
-  final TextEditingController _controller = TextEditingController();
-  Future<CompletedSubjects>? _futureCompletedSubjects;
+
+class _CompletedSubjectSelectPageState extends State<CompletedSubjectSelectPage> {
 
   List<Subject> _subjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
@@ -99,10 +60,11 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
   @override
   void initState() {
     super.initState();
-    fetchSubjects();
-    fetchCompletedSubjects();
+    var completedSubjectProvider =
+    Provider.of<CompletedSubjectProvider>(context, listen: false);
+    completedSubjectProvider.loadSubjects();
+    //completedSubjectProvider.fetchCompletedSubjects(widget.subjectId); //studentId가 아니라?
   }
-
 
   //사용자 인증 jwt 토큰 방식
   Future<String> getStudentIdFromToken() async {
@@ -149,7 +111,7 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
   }
 
 
-  //이수과목 저장하기
+  /*//이수과목 저장하기
   Future<void> saveCompletedSubjects(
       List<CompletedSubjects> completedSubjects) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
@@ -189,9 +151,9 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
     }
   }
+*/
 
-
-  // 이수과목 불러오기
+  /*// 이수과목 불러오기
   Future<List<Subject>> fetchCompletedSubjects() async {
     final Uri completedSubjectsUrl = Uri.parse(
         'http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
@@ -239,7 +201,7 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
       throw Exception(
           'Failed to load completed subjects: ${completedSubjectsResponse.statusCode}');
     }
-  }
+  }*/
 
 
 
@@ -280,6 +242,7 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
           child: Column(
             children: <Widget>[
               SizedBox(height: 20),
+              //이수한 과목을 선택하세요 문구
               Container(
                 child: const Text(
                   '이수한 과목을 선택하세요!',
@@ -290,8 +253,11 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
                 ),
               ),
               SizedBox(height: 30),
+
+              //전기 전선 MultiSelectBottomSheetField
               Column(
                 children: [
+                  //전공기초과목 field
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
@@ -352,9 +318,9 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 40,
-                  ),
+                  SizedBox(height: 40),
+
+                  //전공선택과목 field
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
@@ -419,62 +385,55 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
                 ],
               ),
               SizedBox(height: 80),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_compulsorySelections.isEmpty &&
-                      _electiveSelections.isEmpty) {
-                    print("선택된 과목이 없습니다.");
-                    return;
-                  }
 
-                  try {
-                    List<CompletedSubjects> compulsorySubjects =
-                        _compulsorySelections
-                            .map((subject) => CompletedSubjects(
-                                studentId: widget.subjectId,
-                                subjectId: subject.subjectId,
-                                proId: subject.proId))
-                            .toList();
+              //저장버튼
+            ElevatedButton(
+              onPressed: () async {
+                if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
+                  print("선택된 과목이 없습니다.");
+                  return;
+                }
 
-                    List<CompletedSubjects> electiveSubjects =
-                        _electiveSelections
-                            .map((subject) => CompletedSubjects(
-                                studentId: widget.subjectId,
-                                subjectId: subject.subjectId,
-                                proId: subject.proId))
-                            .toList();
+                try {
+                  final completedSubjectProvider = Provider.of<CompletedSubjectProvider>(context, listen: false);
 
-                    await saveCompletedSubjects(
-                        [...compulsorySubjects, ...electiveSubjects]);
+                  _compulsorySelections.forEach((subject) {
+                    completedSubjectProvider.addSubject(subject);
+                  });
 
-                    List<Subject> completedSubjects =
-                        await fetchCompletedSubjects();
-                    print('모든 선택한 과목이 저장되었습니다.');
-                    print('Completed subjects retrieved: $completedSubjects');
-                  } catch (e) {
-                    print("과목 저장 중 오류 발생: $e");
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CompletionStatusPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  textStyle: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xffffff),
+                  _electiveSelections.forEach((subject) {
+                    completedSubjectProvider.addSubject(subject);
+                  });
+
+                  await completedSubjectProvider.saveCompletedSubjects();
+
+                  print('모든 선택한 과목이 저장되었습니다.');
+                } catch (e) {
+                  print("과목 저장 중 오류 발생: $e");
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CompletionStatusPage(),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                  ),
-                  backgroundColor: const Color(0xff341F87),
-                  minimumSize: Size(100, 50),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                textStyle: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xffffff),
                 ),
-                child: Text('저장'),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+                backgroundColor: const Color(0xff341F87),
+                minimumSize: Size(100, 50),
               ),
+              child: Text('저장'),
+            ),
+
               SizedBox(height: 50.0),
             ],
           ),

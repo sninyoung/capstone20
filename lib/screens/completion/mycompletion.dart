@@ -4,41 +4,13 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:capstone/screens/completion/completed_subject_select.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completed_subject_provider.dart';
+import 'package:capstone/screens/completion/completed_subject_select.dart';
+import 'package:capstone/screens/completion/completion_Class_subject.dart';
 
 //나의 이수현황
 
-//과목 모델
-class Subject {
-  final int subjectId;
-  final String subjectName;
-  final int credit;
-  final int subjectDivision;
-  final int? typeMd;
-  final int? typeTr;
-
-  Subject({
-    required this.subjectId,
-    required this.subjectName,
-    required this.credit,
-    required this.subjectDivision,
-    this.typeMd,
-    this.typeTr,
-  });
-
-  factory Subject.fromJson(Map<String, dynamic> json) {
-    return Subject(
-      subjectId: json['subject_id'],
-      subjectName: json['subject_name'],
-      credit: json['credit'],
-      subjectDivision: json['subject_division'],
-      typeMd: json['type_md'],
-      typeTr: json['type_tr'],
-    );
-  }
-}
 
 //이수과목 모델
 class CompletedSubjects {
@@ -328,7 +300,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (csontext) => SubjectSelectPage(
+                                      builder: (csontext) => CompletedSubjectSelectPage(
                                         subjectId: 0,
                                       )),
                                 );

@@ -345,7 +345,7 @@ class _MyDrawerState extends State<MyDrawer> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) =>
-                              SubjectSelectPage(subjectId: 0),
+                              CompletedSubjectSelectPage(subjectId: 0),
                         ));
                       },
                     )
