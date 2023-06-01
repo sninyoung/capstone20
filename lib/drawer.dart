@@ -331,12 +331,9 @@ class _MyDrawerState extends State<MyDrawer> {
                         title: Text('나의 이수현황'),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) {
-                              return ChangeNotifierProvider(
-                                create: (context) => CompletedSubject(),
-                                child: CompletionStatusPage(),
-                              );
-                            },),
+                            MaterialPageRoute(
+                              builder: (context) => CompletionStatusPage(),
+                            ),
                           );
                         }
                     ),
@@ -348,12 +345,9 @@ class _MyDrawerState extends State<MyDrawer> {
                       ),
                       onTap: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) {
-                            return Provider(
-                              create: (context) => CompletedSubject(),
-                              child: CompletedSubjectSelectPage(),
-                            );
-                          },),
+                          MaterialPageRoute(
+                            builder: (context) => CompletedSubjectSelectPage(),
+                          ),
                         );
                       },
                     )
