@@ -64,13 +64,20 @@ class CompletedSubjects {
 //나의이수현황 페이지
 class CompletionStatusPage extends StatefulWidget {
   const CompletionStatusPage({Key? key}) : super(key: key);
-
   @override
   State<CompletionStatusPage> createState() => _CompletionStatusPageState();
 }
 
 class _CompletionStatusPageState extends State<CompletionStatusPage> {
   final storage = FlutterSecureStorage();
+  late Future<List<Subject>> futureCompletedSubjects;
+
+
+  @override
+  void initState() {
+    super.initState();
+    futureCompletedSubjects = fetchCompletedSubjects();
+  }
 
 
   //이수과목 정보 불러오기
@@ -102,6 +109,8 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
       throw Exception('Failed to load saved subjects');
     }
   }
+
+
 
 
   //빌드
@@ -394,7 +403,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                   ),
                   //전공선택과목 이수과목 리스트
                   FutureBuilder<List<Subject>>(
-                    future: fetchCompletedSubjects(),  // 이전에 정의한 fetchCompletedSubjects 메소드 사용
+                    future: futureCompletedSubjects,  // 이전에 정의한 fetchCompletedSubjects 메소드 사용
                     builder: (BuildContext context, AsyncSnapshot<List<Subject>> snapshot) {
                       print('FutureBuilder snapshot: $snapshot');
                       if (snapshot.hasData) {  // 데이터가 있을 경우
@@ -411,7 +420,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                           itemBuilder: (context, index) {
                             return ListTile(
                               title: Text(electiveSubjects[index].subjectName),
-                              subtitle: Text('학점: ${electiveSubjects[index].credit}'),
+                              subtitle: Text('${electiveSubjects[index].credit}학점'),
                             );
                           },
                         );
@@ -476,8 +485,38 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                   SizedBox(
                     height: 15.0,
                   ),
+
                   //전공선택과목 이수과목 리스트
-                  Text('subjectName'),
+                  FutureBuilder<List<Subject>>(
+                    future: futureCompletedSubjects,  // 이전에 정의한 fetchCompletedSubjects 메소드 사용
+                    builder: (BuildContext context, AsyncSnapshot<List<Subject>> snapshot) {
+                      print('FutureBuilder snapshot: $snapshot');
+                      if (snapshot.hasData) {  // 데이터가 있을 경우
+                        List<Subject> subjects = snapshot.data!;
+
+                        // subjectDivision이 2인 과목들을 전공선택과목으로 간주하고 리스트 생성
+                        List<Subject> electiveSubjects =
+                        subjects.where((subject) => subject.subjectDivision == 2).toList();
+
+                        return ListView.builder(
+                          shrinkWrap: true,  // 부모 크기에 맞게 자신의 크기를 줄임
+                          physics: NeverScrollableScrollPhysics(),  // ListView 스크롤 비활성화
+                          itemCount: electiveSubjects.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(electiveSubjects[index].subjectName),
+                              subtitle: Text('${electiveSubjects[index].credit}학점'),
+                            );
+                          },
+                        );
+                      } else if (snapshot.hasError) {  // 에러가 발생한 경우
+                        return Text('${snapshot.error}');
+                      }
+
+                      // 기본적으로 로딩 Spinner를 표시
+                      return CircularProgressIndicator();
+                    },
+                  ),
                 ],
               ),
             ),

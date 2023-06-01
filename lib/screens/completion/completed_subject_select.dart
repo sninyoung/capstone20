@@ -136,6 +136,8 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
     final body = json.encode(data);
 
+    print('Request body: $body');  // 로깅
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -374,7 +376,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   ),
                 ],
               ),
-              SizedBox(height: 40),
+              SizedBox(height: 80),
               ElevatedButton(
                 onPressed: () async {
                   if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
@@ -424,7 +426,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                 ),
                 child: Text('저장'),
               ),
-              SizedBox(height: 20.0),
+              SizedBox(height: 50.0),
             ],
           ),
         ),
