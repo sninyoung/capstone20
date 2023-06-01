@@ -71,17 +71,19 @@ class CompletedSubjects {
 }
 
 
+
+
 // 이수과목 선택 페이지
-class SubjectSelect extends StatefulWidget {
+class SubjectSelectPage extends StatefulWidget {
   final int subjectId;
 
-  SubjectSelect({Key? key, required this.subjectId}) : super(key: key);
+  SubjectSelectPage({Key? key, required this.subjectId}) : super(key: key);
 
   @override
-  _SubjectSelectState createState() => _SubjectSelectState();
+  _SubjectSelectPageState createState() => _SubjectSelectPageState();
 }
 
-class _SubjectSelectState extends State<SubjectSelect> {
+class _SubjectSelectPageState extends State<SubjectSelectPage> {
   final storage = new FlutterSecureStorage();
   final TextEditingController _controller = TextEditingController();
   Future<CompletedSubjects>? _futureCompletedSubjects;
@@ -100,6 +102,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     fetchSubjects();
     fetchCompletedSubjects();
   }
+
 
   //사용자 인증 jwt 토큰 방식
   Future<String> getStudentIdFromToken() async {

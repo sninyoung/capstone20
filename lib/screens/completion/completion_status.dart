@@ -328,7 +328,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (csontext) => SubjectSelect(
+                                      builder: (csontext) => SubjectSelectPage(
                                             subjectId: 1111111,
                                           )),
                                 );
