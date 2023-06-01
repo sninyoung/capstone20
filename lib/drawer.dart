@@ -16,16 +16,14 @@ import 'package:capstone/screens/login/login_form.dart';
 import 'package:capstone/screens/post/QnA_board.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:capstone/screens/post/notice.dart';
+import 'package:capstone/screens/post/notice_1st.dart';
 import 'package:capstone/screens/prof/prof_profile.dart';
 import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:capstone/screens/subject/MSmain.dart';
 import 'package:capstone/screens/subject/MSmain_ASS.dart';
 
-
 class MyDrawer extends StatefulWidget {
-
   const MyDrawer({Key? key}) : super(key: key);
 
 
@@ -35,8 +33,8 @@ class MyDrawer extends StatefulWidget {
 
 
 class _MyDrawerState extends State<MyDrawer> {
-  int? _userPermission; //추가
-
+  int? _userPermission;
+  bool _isNotified = false;
   String _errorMessage = '';
   bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -45,8 +43,57 @@ class _MyDrawerState extends State<MyDrawer> {
   void initState() {
     super.initState();
     _studentinfo();
+    _getNotificationStatus(); // Call _getNotificationStatus() here
   }
 
+  Future<bool> _getNotificationStatus() async {
+    setState(() => _isLoading = true);
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      return false;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/post/getnotification'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _isNotified = responseData[0]['is_notified'] == 1 ? true : false;
+      });
+    }
+
+    return false;
+  }
+
+  void _updateNotificationStatus() async {
+    final storage = FlutterSecureStorage();
+    setState(() => _isLoading = true);
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/post/updatenotification'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _isNotified = false;
+      });
+    }
+  }
 
   void logout(BuildContext context) async {
     final storage = new FlutterSecureStorage();
@@ -64,7 +111,6 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void sendFeedback(String feedbackText) async {
     setState(() => _isLoading = true);
-
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -108,7 +154,6 @@ class _MyDrawerState extends State<MyDrawer> {
 
 
   void _studentinfo() async {
-
     setState(() => _isLoading = true);
 
     final storage = FlutterSecureStorage();
@@ -117,12 +162,12 @@ class _MyDrawerState extends State<MyDrawer> {
       setState(() {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('정보를 받아올 수 없습니다. (로그인 만료)'), backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('정보를 받아올 수 없습니다. (로그인 만료)'), backgroundColor: Colors.red,),
+        );
       });
       return;
     }
-
 
     final response = await http.get(
       Uri.parse('http://3.39.88.187:3000/user/student'),
@@ -142,17 +187,16 @@ class _MyDrawerState extends State<MyDrawer> {
         _userPermission = responseData[0]['permission']; // 추가
         _accountPermission = responseData[0]['permission'].toString();
       });
+      _getNotificationStatus();
     } else {
       // Failure
       setState(() {
         final responseData = jsonDecode(response.body);
-
         _isLoading = false;
         _errorMessage = responseData['message'];
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +306,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   leading: Icon(Icons.home, color: Colors.grey[800]),
                   title: Text('홈'),
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => MyHomePage()),
                     );
@@ -270,15 +314,18 @@ class _MyDrawerState extends State<MyDrawer> {
                 ),
                 ExpansionTile(
                   title: Text('게시판'),
+                  trailing: _isNotified ? Icon(Icons.fiber_new_outlined, color: Colors.red) : null,
                   leading: Icon(Icons.article, color: Colors.grey[800]),
                   children: <Widget>[
                     ListTile(
                       leading: Icon(Icons.announcement, color: Colors.grey[800]),
                       title: Text('공지사항'),
+                      trailing: _isNotified ? Icon(Icons.fiber_new_outlined, color: Colors.red) : null,
                       onTap: () {
-                        Navigator.push(
+                        _updateNotificationStatus();
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => Notice()),
+                          MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 3)),
                         );
                       },
                     ),
@@ -286,7 +333,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       leading: Icon(Icons.chat, color: Colors.grey[800]),
                       title: Text('구인구직 게시판'),
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => PartyBoardScreen()),
@@ -297,7 +344,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       leading: Icon(Icons.article, color: Colors.grey[800]),
                       title: Text('자유게시판'),
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => FreeBoardScreen()),
@@ -308,7 +355,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       leading: Icon(Icons.article, color: Colors.grey[800]),
                       title: Text('Q&A게시판'),
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => QnABoardScreen()),
@@ -347,10 +394,10 @@ class _MyDrawerState extends State<MyDrawer> {
                       ),
                       onTap: () {
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>
-                              SubjectSelect(subjectId: 0),
-                        ));
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                SubjectSelect(subjectId: 0),
+                            ));
                       },
                     )
                   ],),

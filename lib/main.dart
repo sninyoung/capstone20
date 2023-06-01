@@ -1,4 +1,3 @@
-import 'package:capstone/screens/post/notice.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone/screens/login/login_form.dart';
 import 'package:capstone/screens/login/profile.dart';
@@ -10,10 +9,6 @@ import 'dart:convert';
 import 'dart:ui';
 import 'dart:math';
 import 'package:capstone/screens/post/notice_1st.dart' as Notice1st;
-import 'package:capstone/screens/post/notice_2nd.dart' as Notice2nd;
-import 'package:capstone/screens/post/notice_3rd.dart' as Notice3rd;
-import 'package:capstone/screens/post/notice_4th.dart' as Notice4th;
-import 'package:capstone/screens/post/notice_all.dart' as NoticeAll;
 import 'package:capstone/screens/subject/MSmain.dart';
 import 'package:capstone/screens/post/party_board.dart' as PartyBoard;
 import 'package:capstone/screens/post/free_board.dart' as FreeBoard;
@@ -532,54 +527,54 @@ class _NoticeWidgetState extends State<NoticeWidget> {
     String noticeTitleAll = '';
 
     // 각 파일에서 최근 공지사항 가져오기
-    List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState()
-        .fetchNotices();
-    List<dynamic> fetchedNotices2nd = await Notice2nd.NoticeTalkScreenState()
-        .fetchNotices();
-    List<dynamic> fetchedNotices3rd = await Notice3rd.NoticeTalkScreenState()
-        .fetchNotices();
-    List<dynamic> fetchedNotices4th = await Notice4th.NoticeTalkScreenState()
-        .fetchNotices();
-    List<dynamic> fetchedNoticesAll = await NoticeAll.NoticeTalkScreenState()
-        .fetchNotices();
-
-    // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
-    if (fetchedNotices1st.isNotEmpty) {
-      String title = fetchedNotices1st[0]['post_title'].toString();
-      noticeTitle1st =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    }
-    if (fetchedNotices2nd.isNotEmpty) {
-      String title = fetchedNotices2nd[0]['post_title'].toString();
-      noticeTitle2nd =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    }
-    if (fetchedNotices3rd.isNotEmpty) {
-      String title = fetchedNotices3rd[0]['post_title'].toString();
-      noticeTitle3rd =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    }
-    if (fetchedNotices4th.isNotEmpty) {
-      String title = fetchedNotices4th[0]['post_title'].toString();
-      noticeTitle4th =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    }
-    if (fetchedNoticesAll.isNotEmpty) {
-      String title = fetchedNoticesAll[0]['post_title'].toString();
-      noticeTitleAll =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    }
-
-    setState(() {
-      // noticeTitles 리스트에 저장된 최근 공지사항들을 할당
-      noticeTitles = [
-        '$noticeTitle1st',
-        '$noticeTitle2nd',
-        '$noticeTitle3rd',
-        '$noticeTitle4th',
-        '$noticeTitleAll',
-      ];
-    });
+    // List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState()
+    //     .fetchNotices1();
+    // List<dynamic> fetchedNotices2nd = await Notice2nd.NoticeTalkScreenState()
+    //     .fetchNotices();
+    // List<dynamic> fetchedNotices3rd = await Notice3rd.NoticeTalkScreenState()
+    //     .fetchNotices();
+    // List<dynamic> fetchedNotices4th = await Notice4th.NoticeTalkScreenState()
+    //     .fetchNotices();
+    // List<dynamic> fetchedNoticesAll = await NoticeAll.NoticeTalkScreenState()
+    //     .fetchNotices();
+    //
+    // // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
+    // if (fetchedNotices1st.isNotEmpty) {
+    //   String title = fetchedNotices1st[0]['post_title'].toString();
+    //   noticeTitle1st =
+    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    // }
+    // if (fetchedNotices2nd.isNotEmpty) {
+    //   String title = fetchedNotices2nd[0]['post_title'].toString();
+    //   noticeTitle2nd =
+    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    // }
+    // if (fetchedNotices3rd.isNotEmpty) {
+    //   String title = fetchedNotices3rd[0]['post_title'].toString();
+    //   noticeTitle3rd =
+    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    // }
+    // if (fetchedNotices4th.isNotEmpty) {
+    //   String title = fetchedNotices4th[0]['post_title'].toString();
+    //   noticeTitle4th =
+    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    // }
+    // if (fetchedNoticesAll.isNotEmpty) {
+    //   String title = fetchedNoticesAll[0]['post_title'].toString();
+    //   noticeTitleAll =
+    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
+    // }
+    //
+    // setState(() {
+    //   // noticeTitles 리스트에 저장된 최근 공지사항들을 할당
+    //   noticeTitles = [
+    //     '$noticeTitle1st',
+    //     '$noticeTitle2nd',
+    //     '$noticeTitle3rd',
+    //     '$noticeTitle4th',
+    //     '$noticeTitleAll',
+    //   ];
+    // });
   }
 
   @override
@@ -627,24 +622,24 @@ class _NoticeWidgetState extends State<NoticeWidget> {
                 ),
               ),
               Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Notice()),
-                  );
-                },
-                child: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black45,
-                  size: 16,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  elevation: 0,
-                ),
-              ),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => Notice()),
+              //     );
+              //   },
+              //   child: Icon(
+              //     Icons.arrow_forward_ios,
+              //     color: Colors.black45,
+              //     size: 16,
+              //   ),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.white,
+              //     foregroundColor: Colors.black,
+              //     elevation: 0,
+              //   ),
+              // ),
             ],
           ),
           SizedBox(height: 20),
