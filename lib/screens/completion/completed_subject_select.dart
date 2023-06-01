@@ -101,6 +101,21 @@ class _SubjectSelectState extends State<SubjectSelect> {
     fetchCompletedSubjects();
   }
 
+  //사용자 인증 jwt 토큰 방식
+  Future<String> getStudentIdFromToken() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('Token is not found');
+    }
+
+    final jwtToken =
+    JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+
+    return jwtToken['student_id']; // ensure the token includes 'student_id'
+  }
+
 
   // 과목정보 불러오기
   Future<void> fetchSubjects() async {
@@ -131,24 +146,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
 
-  //사용자 인증 jwt 토큰 방식
-  Future<String> getStudentIdFromToken() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-
-    if (token == null) {
-      throw Exception('Token is not found');
-    }
-
-    final jwtToken =
-        JwtDecoder.decode(token); // use jwt_decoder package to decode the token
-
-    return jwtToken['student_id']; // ensure the token includes 'student_id'
-  }
-
-
-
-  //이수과목 저장
+  //이수과목 저장하기
   Future<void> saveCompletedSubjects(
       List<CompletedSubjects> completedSubjects) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
@@ -190,7 +188,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
 
-  // 이수과목 가져오기
+  // 이수과목 불러오기
   Future<List<Subject>> fetchCompletedSubjects() async {
     final Uri completedSubjectsUrl = Uri.parse(
         'http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
