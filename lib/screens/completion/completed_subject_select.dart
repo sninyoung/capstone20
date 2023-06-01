@@ -195,29 +195,30 @@ class _SubjectSelectState extends State<SubjectSelect> {
     final Uri completedSubjectsUrl = Uri.parse(
         'http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
     final http.Response completedSubjectsResponse =
-        await http.get(completedSubjectsUrl);
+    await http.get(completedSubjectsUrl);
 
     if (completedSubjectsResponse.statusCode == 200) {
       final List<dynamic> completedSubjectsData =
-          json.decode(completedSubjectsResponse.body);
+      json.decode(completedSubjectsResponse.body);
       print(
           'Completed subjects response body: ${completedSubjectsResponse.body}');
 
       List<Future<Subject>> futureSubjects = [];
       for (var item in completedSubjectsData) {
         final CompletedSubjects completedSubject =
-            CompletedSubjects.fromJson(item);
+        CompletedSubjects.fromJson(item);
 
         final Uri subjectUrl = Uri.parse(
             'http://3.39.88.187:3000/user/required/subject?subject_id=${completedSubject.subjectId}');
 
         Future<Subject> futureSubject =
-            http.get(subjectUrl).then((subjectResponse) {
+        http.get(subjectUrl).then((subjectResponse) {
           if (subjectResponse.statusCode == 200) {
             final List<dynamic> subjectData = json.decode(subjectResponse.body);
             print('Subject response body: ${subjectResponse.body}');
-
-            return Subject.fromJson(subjectData[0]);
+            Subject subject = Subject.fromJson(subjectData[0]);
+            print('Retrieved Subject: $subject');
+            return subject;
           } else {
             throw Exception(
                 'Failed to load subject data: ${subjectResponse.statusCode}');
@@ -229,6 +230,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
       //모든 Futures가 완료될 때까지 기다렸다가 과목 리스트를 작성
       List<Subject> completedSubjects = await Future.wait(futureSubjects);
+      print('Completed Subjects: $completedSubjects');
 
       print('Retrieved Subject objects: $completedSubjects');
       return completedSubjects;
