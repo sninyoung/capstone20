@@ -168,7 +168,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
   // 글 작성
   void _submitForm() async {
     if (_formKey.currentState?.validate() == false) return;
-
     setState(() => _isLoading = true);
 
     final storage = FlutterSecureStorage();
@@ -186,15 +185,15 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
 
     int board_id;
     if (_selectedMenu == 1) {
-      board_id = 5; // Set board_id as 5 for notices1
+      board_id = 3; // Set board_id as 5 for noticesAll
     } else if (_selectedMenu == 2) {
-      board_id = 6; // Set board_id as 6 for notices2
+      board_id = 5; // Set board_id as 6 for notices1
     } else if (_selectedMenu == 3) {
-      board_id = 7; // Set board_id as 7 for notices3
+      board_id = 6; // Set board_id as 7 for notices2
     } else if (_selectedMenu == 4) {
-      board_id = 8; // Set board_id as 8 for notices4
+      board_id = 7; // Set board_id as 8 for notices3
     } else {
-      board_id = 3; // Set board_id as 3 for noticesAll
+      board_id = 8; // Set board_id as 3 for notices4
     }
 
     final Map<String, dynamic> postData = {
@@ -320,14 +319,14 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
             Expanded(
               child: FutureBuilder<List<dynamic>>(
                 future: _selectedMenu == 1
-                    ? notices1
+                    ? noticesAll
                     : _selectedMenu == 2
-                    ? notices2
+                    ? notices1
                     : _selectedMenu == 3
-                    ? notices3
+                    ? notices2
                     : _selectedMenu == 4
-                    ? notices4
-                    : noticesAll,
+                    ? notices3
+                    : notices4,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final notices = snapshot.data!;
@@ -361,7 +360,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Align buttons with equal spacing
                 children: [
                   TextButton(
                     child: Text('전체'),
@@ -374,7 +373,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('1학년'),
                     style: TextButton.styleFrom(
@@ -386,7 +384,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('2학년'),
                     style: TextButton.styleFrom(
@@ -398,7 +395,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('3학년'),
                     style: TextButton.styleFrom(
@@ -410,7 +406,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('4학년'),
                     style: TextButton.styleFrom(
@@ -425,7 +420,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                 ],
               ),
             ),
-
             Container(
               child: buildTextComposer(),
             ),

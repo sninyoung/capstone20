@@ -312,6 +312,16 @@ class _MyDrawerState extends State<MyDrawer> {
                     );
                   },
                 ),
+                ListTile(
+                    leading: Icon(Icons.person, color: Colors.grey[800]),
+                    title: Text('프로필'),
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Profile()),
+                      );
+                    }
+                ),
                 ExpansionTile(
                   title: Text('게시판'),
                   trailing: _isNotified ? Icon(Icons.fiber_new_outlined, color: Colors.red) : null,
@@ -457,18 +467,6 @@ class _MyDrawerState extends State<MyDrawer> {
                         },
                       ),
                     ]),
-
-                ListTile(
-                    leading: Icon(Icons.person, color: Colors.grey[800]),
-                    title: Text('프로필'),
-                    onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Profile()),
-                      );
-                    }
-                ),
-
                 _accountPermission == "2" || _accountPermission == "3" ?
                 ExpansionTile(
                     title: Text('관리자 페이지'),
