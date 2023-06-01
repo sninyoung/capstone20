@@ -8,8 +8,8 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
-import 'package:capstone/screens/completion/completion_status.dart';
-import 'package:capstone/screens/completion/completed_credit.dart';
+import 'package:capstone/screens/completion/mycompletion.dart';
+import 'package:capstone/screens/completion/completed_subject_provider.dart';
 
 // 과목 모델
 class Subject {
@@ -243,18 +243,16 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
 
 
 
-  /*//총 전공학점
+  //총 전공학점
   void calculateTotalMajorCredit() {
     int totalMajorCredit = 0;
     for (var subject in _electiveSelections) {
       totalMajorCredit += subject.credit;
     }
 
-
     // 이수과목 선택 페이지에서 계산한 학점을 설정
     Provider.of<TotalCredit>(context, listen: false).setTotalCredit(totalMajorCredit);
   }
-*/
 
 
   // 빌드

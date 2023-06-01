@@ -1,5 +1,5 @@
 import 'package:capstone/screens/completion/completed_subject_select.dart';
-import 'package:capstone/screens/completion/completion_status.dart';
+import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';

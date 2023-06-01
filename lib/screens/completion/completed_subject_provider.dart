@@ -6,11 +6,11 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:capstone/screens/completion/completion_status.dart';
+import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 
 
-//전공학점 관리 페이지
+//이수과목과 전공학점 - Provider을 이용한 상태 관리
 
 
 //총 전공학점
