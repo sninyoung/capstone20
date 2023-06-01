@@ -9,8 +9,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
 
-
-
 // 과목 모델
 class Subject {
   final int subjectId;
@@ -41,6 +39,11 @@ class Subject {
       typeMd: json['type_md'],
       typeTr: json['type_tr'],
     );
+  }
+
+  @override
+  String toString() {
+    return 'Subject{subjectId: $subjectId, proId: $proId, subjectName: $subjectName, credit: $credit, subjectDivision: $subjectDivision, typeMd: $typeMd, typeTr: $typeTr}';
   }
 }
 
@@ -123,7 +126,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-
   //사용자 인증 jwt 토큰 방식
   Future<String> getStudentIdFromToken() async {
     final storage = FlutterSecureStorage();
@@ -133,29 +135,29 @@ class _SubjectSelectState extends State<SubjectSelect> {
       throw Exception('Token is not found');
     }
 
-    final jwtToken = JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+    final jwtToken =
+        JwtDecoder.decode(token); // use jwt_decoder package to decode the token
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
 
-
-
   //이수과목 저장
-  Future<void> saveCompletedSubjects(List<CompletedSubjects> completedSubjects) async {
+  Future<void> saveCompletedSubjects(
+      List<CompletedSubjects> completedSubjects) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
     final studentId = await getStudentIdFromToken();
 
     final data = completedSubjects
         .map((completedSubject) => {
-      'student_id': studentId,
-      'subject_id': completedSubject.subjectId,
-      'pro_id': completedSubject.proId,
-    })
+              'student_id': studentId,
+              'subject_id': completedSubject.subjectId,
+              'pro_id': completedSubject.proId,
+            })
         .toList();
 
     final body = json.encode(data);
-    print('Request body: $body');  // 로깅
+    print('Request body: $body'); // 로깅
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -180,47 +182,53 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-
-
   // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects() async {
-    final Uri completedSubjectsUrl = Uri.parse('http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
-    final http.Response completedSubjectsResponse = await http.get(completedSubjectsUrl);
+    final Uri completedSubjectsUrl = Uri.parse(
+        'http://3.39.88.187:3000/user/required?student_id=${widget.subjectId}');
+    final http.Response completedSubjectsResponse =
+        await http.get(completedSubjectsUrl);
 
     if (completedSubjectsResponse.statusCode == 200) {
-      final List<dynamic> completedSubjectsData = json.decode(completedSubjectsResponse.body);
-      print('Completed subjects response body: ${completedSubjectsResponse.body}');
+      final List<dynamic> completedSubjectsData =
+          json.decode(completedSubjectsResponse.body);
+      print(
+          'Completed subjects response body: ${completedSubjectsResponse.body}');
 
       List<Future<Subject>> futureSubjects = [];
       for (var item in completedSubjectsData) {
-        final CompletedSubjects completedSubject = CompletedSubjects.fromJson(item);
+        final CompletedSubjects completedSubject =
+            CompletedSubjects.fromJson(item);
 
-        final Uri subjectUrl = Uri.parse('http://3.39.88.187:3000/user/required/subject?subject_id=${completedSubject.subjectId}');
+        final Uri subjectUrl = Uri.parse(
+            'http://3.39.88.187:3000/user/required/subject?subject_id=${completedSubject.subjectId}');
 
-        Future<Subject> futureSubject = http.get(subjectUrl).then((subjectResponse) {
+        Future<Subject> futureSubject =
+            http.get(subjectUrl).then((subjectResponse) {
           if (subjectResponse.statusCode == 200) {
             final List<dynamic> subjectData = json.decode(subjectResponse.body);
             print('Subject response body: ${subjectResponse.body}');
 
             return Subject.fromJson(subjectData[0]);
           } else {
-            throw Exception('Failed to load subject data: ${subjectResponse.statusCode}');
+            throw Exception(
+                'Failed to load subject data: ${subjectResponse.statusCode}');
           }
         });
 
         futureSubjects.add(futureSubject);
       }
 
-    //모든 Futures가 완료될 때까지 기다렸다가 과목 리스트를 작성
+      //모든 Futures가 완료될 때까지 기다렸다가 과목 리스트를 작성
       List<Subject> completedSubjects = await Future.wait(futureSubjects);
 
       print('Retrieved Subject objects: $completedSubjects');
       return completedSubjects;
     } else {
-      throw Exception('Failed to load completed subjects: ${completedSubjectsResponse.statusCode}');
+      throw Exception(
+          'Failed to load completed subjects: ${completedSubjectsResponse.statusCode}');
     }
   }
-
 
   // 총전공학점 계산
   int calculateTotalMajorCredit() {
@@ -230,7 +238,6 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
     return totalMajorCredit;
   }
-
 
   // 빌드
   @override
@@ -398,25 +405,34 @@ class _SubjectSelectState extends State<SubjectSelect> {
               SizedBox(height: 80),
               ElevatedButton(
                 onPressed: () async {
-                  if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
+                  if (_compulsorySelections.isEmpty &&
+                      _electiveSelections.isEmpty) {
                     print("선택된 과목이 없습니다.");
                     return;
                   }
 
                   try {
-                    List<CompletedSubjects> compulsorySubjects = _compulsorySelections.map((subject) => CompletedSubjects(
-                        studentId: widget.subjectId,
-                        subjectId: subject.subjectId,
-                        proId: subject.proId)).toList();
+                    List<CompletedSubjects> compulsorySubjects =
+                        _compulsorySelections
+                            .map((subject) => CompletedSubjects(
+                                studentId: widget.subjectId,
+                                subjectId: subject.subjectId,
+                                proId: subject.proId))
+                            .toList();
 
-                    List<CompletedSubjects> electiveSubjects = _electiveSelections.map((subject) => CompletedSubjects(
-                        studentId: widget.subjectId,
-                        subjectId: subject.subjectId,
-                        proId: subject.proId)).toList();
+                    List<CompletedSubjects> electiveSubjects =
+                        _electiveSelections
+                            .map((subject) => CompletedSubjects(
+                                studentId: widget.subjectId,
+                                subjectId: subject.subjectId,
+                                proId: subject.proId))
+                            .toList();
 
-                    await saveCompletedSubjects([...compulsorySubjects, ...electiveSubjects]);
+                    await saveCompletedSubjects(
+                        [...compulsorySubjects, ...electiveSubjects]);
 
-                    List<Subject> completedSubjects = await fetchCompletedSubjects();
+                    List<Subject> completedSubjects =
+                        await fetchCompletedSubjects();
                     print('모든 선택한 과목이 저장되었습니다.');
                     print('Completed subjects retrieved: $completedSubjects');
                   } catch (e) {
@@ -442,8 +458,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   minimumSize: Size(100, 50),
                 ),
                 child: Text('저장'),
-              )
-,
+              ),
               SizedBox(height: 50.0),
             ],
           ),

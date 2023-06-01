@@ -488,7 +488,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
 
                   //전공선택과목 이수과목 리스트
                   FutureBuilder<List<Subject>>(
-                    future: futureCompletedSubjects,  // 이전에 정의한 fetchCompletedSubjects 메소드 사용
+                    future: fetchCompletedSubjects(),  // fetchCompletedSubjects 메소드 직접 호출
                     builder: (BuildContext context, AsyncSnapshot<List<Subject>> snapshot) {
                       print('FutureBuilder snapshot: $snapshot');
                       if (snapshot.hasData) {  // 데이터가 있을 경우
@@ -517,6 +517,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       return CircularProgressIndicator();
                     },
                   ),
+
                 ],
               ),
             ),
