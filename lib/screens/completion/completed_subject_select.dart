@@ -13,12 +13,14 @@ import 'package:capstone/screens/completion/completed_subject_provider.dart';
 import 'package:capstone/screens/completion/subject_model.dart';
 
 
+/*
 void main() {
   runApp(ChangeNotifierProvider(
       create: (context) => CompletedSubject(),
       child: CompletedSubjectSelectPage()
   ));
 }
+*/
 
 
 // 이수과목 모델
@@ -118,7 +120,7 @@ class _CompletedSubjectSelectPageState
     }
   }
 
-  //총 전공학점
+  /*//총 전공학점
   void calculateTotalMajorCredit() {
     int totalMajorCredit = 0;
     for (var subject in _electiveSelections) {
@@ -128,7 +130,7 @@ class _CompletedSubjectSelectPageState
     // 이수과목 선택 페이지에서 계산한 학점을 설정
     Provider.of<TotalCredit>(context, listen: false)
         .setTotalCredit(totalMajorCredit);
-  }
+  }*/
 
   // 빌드
   @override
@@ -210,10 +212,7 @@ class _CompletedSubjectSelectPageState
                                 ),
                               ),
                             ),
-                            items: _compulsoryItems
-                                .map((subject) => MultiSelectItem<Subject>(
-                                subject as Subject, subject.value.subjectName))
-                                .toList(),
+                            items: _compulsoryItems,
                             initialValue: _compulsorySelections,
                             onConfirm: (values) {
                               var completedSubjectProvider =
@@ -261,7 +260,6 @@ class _CompletedSubjectSelectPageState
                       child: Column(
                         children: <Widget>[
                           MultiSelectBottomSheetField(
-                            items: _electiveItems,
                             initialChildSize: 0.6,
                             listType: MultiSelectListType.CHIP,
                             searchable: true,
@@ -282,6 +280,7 @@ class _CompletedSubjectSelectPageState
                                 ),
                               ),
                             ),
+                            items: _electiveItems,
                             initialValue: _electiveSelections,
                             onConfirm: (values) {
                               var completedSubjectProvider =
@@ -305,7 +304,7 @@ class _CompletedSubjectSelectPageState
                                   _electiveSelections.isEmpty
                               ? Container(
                                   padding: EdgeInsets.all(10),
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.center,
                                   child: Text(
                                     "선택안함",
                                     style: TextStyle(color: Colors.black54),

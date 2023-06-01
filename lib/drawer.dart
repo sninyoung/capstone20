@@ -1,3 +1,4 @@
+import 'package:capstone/screens/completion/completed_subject_provider.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
@@ -22,6 +23,7 @@ import 'package:capstone/screens/gScore/gscore_admin_editor.dart';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:capstone/screens/subject/MSmain.dart';
 import 'package:capstone/screens/subject/MSmain_ASS.dart';
+import 'package:provider/provider.dart';
 
 
 class MyDrawer extends StatefulWidget {
@@ -328,10 +330,13 @@ class _MyDrawerState extends State<MyDrawer> {
                             Icons.add_task_rounded, color: Colors.grey[800]),
                         title: Text('나의 이수현황'),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>
-                                CompletionStatusPage()),
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) {
+                              return ChangeNotifierProvider(
+                                create: (context) => CompletedSubject(),
+                                child: CompletionStatusPage(),
+                              );
+                            },),
                           );
                         }
                     ),
@@ -342,11 +347,14 @@ class _MyDrawerState extends State<MyDrawer> {
                           color: Colors.grey[800]
                       ),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>
-                              CompletedSubjectSelectPage(),
-                        ));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) {
+                            return Provider(
+                              create: (context) => CompletedSubject(),
+                              child: CompletedSubjectSelectPage(),
+                            );
+                          },),
+                        );
                       },
                     )
                   ],),

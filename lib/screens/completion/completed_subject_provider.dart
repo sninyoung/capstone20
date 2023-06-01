@@ -205,7 +205,7 @@ class CompletedSubject extends ChangeNotifier {
 }
 
 
-//총 전공학점
+/*//총 전공학점
 class TotalCredit extends ChangeNotifier {
   int _totalCredit = 0;
 
@@ -215,7 +215,7 @@ class TotalCredit extends ChangeNotifier {
     _totalCredit = value;
     notifyListeners();  // 학점이 변경되었으므로 관련된 위젯들에게 알립니다.
   }
-}
+}*/
 
 
 

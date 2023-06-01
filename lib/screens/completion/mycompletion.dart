@@ -11,12 +11,12 @@ import 'package:capstone/screens/completion/subject_model.dart';
 
 //나의 이수현황
 
-void main() {
+/*void main() {
   runApp(ChangeNotifierProvider(
     create: (context) => CompletedSubject(),
     child: CompletionStatusPage()
   ));
-}
+}*/
 
 //이수과목 모델
 class CompletedSubjects {
@@ -212,7 +212,8 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Consumer<TotalCredit>(
+                  //총전공학점
+                  /*Consumer<TotalCredit>(
                     builder: (context, totalCredit, child) {
                       return Text(
                         '${Provider.of<TotalCredit>(context).totalCredit}',
@@ -223,7 +224,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                         ),
                       );
                     },
-                  ),
+                  ),*/
                   Text(
                     ' /66학점',
                     style: TextStyle(
@@ -301,12 +302,13 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                         width: 120,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CompletedSubjectSelectPage(),
-                              ),
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) {
+                                return ChangeNotifierProvider<CompletedSubject>.value(
+                                  value: Provider.of<CompletedSubject>(context, listen: false),
+                                  child: CompletedSubjectSelectPage(),
+                                );
+                              }),
                             );
                           },
                           child: const Text('이수과목 편집'),
