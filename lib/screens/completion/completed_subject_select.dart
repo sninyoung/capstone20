@@ -3,10 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:core';
 import 'dart:async';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
+
+
 
 // 과목 모델
 class Subject {
@@ -121,21 +124,38 @@ class _SubjectSelectState extends State<SubjectSelect> {
   }
 
 
-  // 이수과목 정보 저장
-  Future<void> saveCompletedSubjects(
-      int studentId, int subjectId, int proId) async {
+  //사용자 인증 jwt 토큰 방식
+  Future<String> getStudentIdFromToken() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('Token is not found');
+    }
+
+    final jwtToken = JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+
+    return jwtToken['student_id']; // ensure the token includes 'student_id'
+  }
+
+
+
+  //이수과목 저장
+  Future<void> saveCompletedSubjects(List<CompletedSubjects> completedSubjects) async {
     final url = Uri.parse('http://3.39.88.187:3000/user/required/add');
 
-    final data = [
-      {
-        'student_id': studentId,
-        'subject_id': subjectId,
-        'pro_id': proId,
-      },
-    ];
+    final studentId = await getStudentIdFromToken();
+
+    final data = completedSubjects
+        .map((completedSubject) => {
+      'student_id': studentId,
+      'subject_id': completedSubject.subjectId,
+      'pro_id': completedSubject.proId,
+    })
+        .toList();
 
     final body = json.encode(data);
-
+    print('Request body: $body');  // 로깅
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -159,6 +179,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
     }
   }
+
 
 
   // 이수과목 가져오기
@@ -374,7 +395,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   ),
                 ],
               ),
-              SizedBox(height: 40),
+              SizedBox(height: 80),
               ElevatedButton(
                 onPressed: () async {
                   if (_compulsorySelections.isEmpty && _electiveSelections.isEmpty) {
@@ -383,19 +404,17 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   }
 
                   try {
-                    for (var subject in _compulsorySelections) {
-                      if (subject != null) {
-                        await saveCompletedSubjects(widget.subjectId, subject.subjectId, subject.proId ?? 0);
-                        print('저장된 필수 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${widget.subjectId}');
-                      }
-                    }
+                    List<CompletedSubjects> compulsorySubjects = _compulsorySelections.map((subject) => CompletedSubjects(
+                        studentId: widget.subjectId,
+                        subjectId: subject.subjectId,
+                        proId: subject.proId)).toList();
 
-                    for (var subject in _electiveSelections) {
-                      if (subject != null) {
-                        await saveCompletedSubjects(widget.subjectId, subject.subjectId, subject.proId ?? 0);
-                        print('저장된 선택 과목: ${subject.subjectName} - 과목 ID: ${subject.subjectId} - 학번: ${widget.subjectId}');
-                      }
-                    }
+                    List<CompletedSubjects> electiveSubjects = _electiveSelections.map((subject) => CompletedSubjects(
+                        studentId: widget.subjectId,
+                        subjectId: subject.subjectId,
+                        proId: subject.proId)).toList();
+
+                    await saveCompletedSubjects([...compulsorySubjects, ...electiveSubjects]);
 
                     List<Subject> completedSubjects = await fetchCompletedSubjects();
                     print('모든 선택한 과목이 저장되었습니다.');
@@ -423,8 +442,9 @@ class _SubjectSelectState extends State<SubjectSelect> {
                   minimumSize: Size(100, 50),
                 ),
                 child: Text('저장'),
-              ),
-              SizedBox(height: 20.0),
+              )
+,
+              SizedBox(height: 50.0),
             ],
           ),
         ),
