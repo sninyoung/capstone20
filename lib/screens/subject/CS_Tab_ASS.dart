@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/subject/subjectinfo.dart';
-//import 'package:capstone/screens/subject/editsubject.dart';
-//import 'package:capstone/screens/subject/addsubject.dart';
+import 'package:capstone/screens/subject/editsubject.dart';
+import 'package:capstone/screens/subject/addsubject.dart';
 
 // [전공기초 Tab]-조교
 
@@ -84,8 +84,8 @@ class _CStabASS extends State<CStabASS> {
                       ),
                     ),
                   ),
-                  /*
-                  //조교페이지 추가탭
+
+                  //추가탭
                   SizedBox(
                     width: 110.0, // 원하는 너비로 설정
                     height: 30.0, // 원하는 높이로 설정
@@ -110,7 +110,7 @@ class _CStabASS extends State<CStabASS> {
                       ),
                     ),
                   ),
-                   */
+
                 ],
               ),
             ),
@@ -301,7 +301,7 @@ class _CStabASS extends State<CStabASS> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => SubjectInfo(
+                                        builder: (context) => EditSubjectPage(
                                           subjectId: subject['subject_id'],
                                         ),
                                       ),
