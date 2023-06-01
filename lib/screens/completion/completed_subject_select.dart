@@ -3,11 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:core';
 import 'dart:async';
+import 'package:provider/provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
+import 'package:capstone/screens/completion/completed_credit.dart';
 
 // 과목 모델
 class Subject {
@@ -68,6 +70,7 @@ class CompletedSubjects {
   }
 }
 
+
 // 이수과목 선택 페이지
 class SubjectSelect extends StatefulWidget {
   final int subjectId;
@@ -98,6 +101,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     fetchCompletedSubjects();
   }
 
+
   // 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
@@ -126,6 +130,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
+
   //사용자 인증 jwt 토큰 방식
   Future<String> getStudentIdFromToken() async {
     final storage = FlutterSecureStorage();
@@ -140,6 +145,8 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
+
+
 
   //이수과목 저장
   Future<void> saveCompletedSubjects(
@@ -181,6 +188,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
       print('서버 응답: ${response.body}'); // 에러 발생 시 서버의 응답을 출력합니다.
     }
   }
+
 
   // 이수과목 가져오기
   Future<List<Subject>> fetchCompletedSubjects() async {
@@ -230,14 +238,21 @@ class _SubjectSelectState extends State<SubjectSelect> {
     }
   }
 
-  // 총전공학점 계산
-  int calculateTotalMajorCredit() {
+
+
+  //총 전공학점
+  void calculateTotalMajorCredit() {
     int totalMajorCredit = 0;
     for (var subject in _electiveSelections) {
       totalMajorCredit += subject.credit;
     }
-    return totalMajorCredit;
+
+
+    // 이수과목 선택 페이지에서 계산한 학점을 설정
+    Provider.of<TotalCredit>(context, listen: false).setTotalCredit(totalMajorCredit);
   }
+
+
 
   // 빌드
   @override
