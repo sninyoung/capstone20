@@ -188,13 +188,13 @@ class CompletedSubject extends ChangeNotifier {
     }
   }
 
-  //전기과목 업데이트
+  //전공기초과목 업데이트
   void updateCompulsory(List<Subject> newSubjects) {
     _completedCompulsory = newSubjects;
     notifyListeners();
   }
 
-  //전선과목 업데이트
+  //전공선택과목 업데이트
   void updateElective(List<Subject> newSubjects) {
     _completedElective = newSubjects;
     notifyListeners();

@@ -12,6 +12,15 @@ import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/completion/completed_subject_provider.dart';
 import 'package:capstone/screens/completion/subject_model.dart';
 
+
+void main() {
+  runApp(ChangeNotifierProvider(
+      create: (context) => CompletedSubject(),
+      child: CompletedSubjectSelectPage()
+  ));
+}
+
+
 // 이수과목 모델
 class CompletedSubjects {
   final int studentId;
