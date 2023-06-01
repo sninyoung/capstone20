@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 import 'package:capstone/drawer.dart';
-import 'package:capstone/screens/completion/completed_credit.dart';
+import 'package:capstone/screens/completion/completed_subject_provider.dart';
 
 //나의 이수현황
 
