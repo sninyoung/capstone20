@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+
 
 //신청글 목록 창
 final client = HttpClient();
@@ -15,7 +17,7 @@ final client = HttpClient();
 
 void main() {
   runApp(MaterialApp(
-    title: '졸업점수 신청 목록',
+    title: '졸업점수 신청 현황',
     home: GScoreForm(),
   ));
 }
@@ -282,7 +284,7 @@ class _GScoreForm extends State<GScoreForm> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            '  졸업인증점수 신청/관리  ',
+            '  졸업인증제 신청/관리  ',
             style: TextStyle(
               color: Colors.white,
               fontSize: 20.0,
@@ -428,7 +430,7 @@ class _GScoreForm extends State<GScoreForm> {
               Expanded(
                 flex: 7,
                 child: Visibility(
-                  visible: userPermission == 2 || userPermission == 3, // permission 값이 2또는 3인 경우에만 보이도록 설정
+                  visible: userPermission == 2 || userPermission == 3,
                   child: Container(
                     margin: EdgeInsets.only(right: 8.0),
                     child: TextField(
@@ -437,13 +439,15 @@ class _GScoreForm extends State<GScoreForm> {
                           searchText = value;
                         });
                       },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      ],
                       decoration: InputDecoration(
                         labelText: '학번 검색',
                         hintText: '검색',
                         border: OutlineInputBorder(),
                         suffixIcon: IconButton(
                           onPressed: () {
-                            // 검색 버튼 동작
                             _filterWriter(searchText);
                           },
                           icon: Icon(Icons.search),

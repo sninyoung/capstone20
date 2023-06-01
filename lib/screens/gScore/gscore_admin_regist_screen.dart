@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/screens/gScore/gscore_admin_list.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/services.dart';
 
 //신청창
 void main() {
@@ -26,7 +27,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
   }
 
   Future<void> _writePostAndFile() async {
-    if (_activityName == null || _score == null || int.parse(_score ?? '0') <= 0) {
+    if (_activityName == null || _score == null || int.parse(_score ?? '0') < 0) {
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -92,14 +93,23 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
       print(response.statusCode);
       print('에러');
     }
-
+    final Map<String, dynamic> postData2 = {
+      'gspost_student': stuId,
+      'gspost_category': _activityType,
+      'gspost_item': _activityNamecontroller.text,
+      'gspost_score': _score,
+      'gspost_content': _contentController.text,
+      'gspost_pass': '대기',
+      'gspost_reason': '',
+      'gspost_file': '0',
+    };
     final assWriteResponse = await http.post(
       Uri.parse('http://3.39.88.187:3000/gScore/asswrite'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
       },
-      body: jsonEncode(postData),
+      body: jsonEncode(postData2),
     );
 
     print(assWriteResponse.statusCode);
@@ -260,6 +270,10 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                           onChanged: (value) {
                             setState(() {
                               _score = value;

@@ -1,7 +1,5 @@
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 import 'package:capstone/screens/completion/completion_status.dart';
-import 'package:capstone/screens/gScore/gscore_list_screen.dart';
-import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
 import 'package:capstone/screens/gScore/gscore_admin_check.dart';
 import 'package:capstone/screens/login/adminsingup.dart';
@@ -412,43 +410,16 @@ class _MyDrawerState extends State<MyDrawer> {
                     )
                   ],),
 
-                ExpansionTile(
-                    title: Text('졸업인증'),
+                ListTile(
                     leading: Icon(Icons.school, color: Colors.grey[800]),
-                    children: <Widget>[
-                      ListTile(
-                        leading: Icon(Icons.list, color: Colors.grey[800]),
-                        title: Text('졸업점수 신청 및 내역'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GScoreForm()),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.calculate, color: Colors.grey[800]),
-                        title: Text('졸업 점수 셀프 계산기'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SelfCalcScreen()),
-                          );
-                        },
-                      ),
-                      ListTile(
-                          leading: Icon(Icons.person, color: Colors.grey[800]),
-                          title: Text('나의 졸업인증 점수'),
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => MyScorePage()),
-                            );
-                          }
-                      ),
-                    ]),
+                    title: Text('나의 졸업인증제'),
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyScorePage()),
+                      );
+                    }
+                ),
 
                 ExpansionTile(
                     title: Text('과목정보'),
