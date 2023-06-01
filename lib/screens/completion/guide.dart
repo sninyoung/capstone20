@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../drawer.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -90,13 +92,6 @@ class GuideHomePage extends StatelessWidget {
     '23학번 전공선택과목',
   ];
 
-  final List<IconData> icons = <IconData>[
-    Icons.music_note,
-    Icons.music_video,
-    Icons.library_music,
-    Icons.videocam,
-    Icons.video_library
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +105,6 @@ class GuideHomePage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                leading: Icon(
-                  icons[index],
-                  color: Colors.redAccent,
-                ),
                 title: Text('${comments[index]}'),
               ),
               ButtonBar(
@@ -122,7 +113,7 @@ class GuideHomePage extends StatelessWidget {
                     style: TextButton.styleFrom(
                       primary: Colors.black87,
                     ),
-                    child: Text('보러가기'),
+                    child: Text('상세정보'),
                     onPressed: () {},
                   )
                 ],
@@ -135,35 +126,4 @@ class GuideHomePage extends StatelessWidget {
   }
 }
 
-class MyDrawer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Text(
-              'Drawer Header',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
-          ),
-          ListTile(
-            title: Text('Item 1'),
-            onTap: () {},
-          ),
-          ListTile(
-            title: Text('Item 2'),
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-}
+

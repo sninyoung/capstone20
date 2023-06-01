@@ -1,4 +1,6 @@
 import 'package:capstone/screens/completion/completed_subject_select.dart';
+import 'package:capstone/screens/completion/completion_status.dart';
+import 'package:capstone/screens/completion/guide.dart';
 import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
@@ -331,7 +333,11 @@ class _MyDrawerState extends State<MyDrawer> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                CompletionStatusPage()),
+                                CompletionStatusPage(
+                                  student_id: '',
+                                  grade: '',
+                                  major_type: '',
+                                )),
                           );
                         }
                     ),
@@ -343,13 +349,31 @@ class _MyDrawerState extends State<MyDrawer> {
                       ),
                       onTap: () {
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>
-                              SubjectSelectPage(subjectId: 0),
-                        ));
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                SubjectSelect(subjectId: 0),
+                            ));
+                      },
+                    ),
+                    ListTile(
+                      title: Text('졸업가이드'),
+                      leading: Icon(
+                          Icons.task_alt,
+                          color: Colors.grey[800]
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return Guide();
+                              },
+                            ));
                       },
                     )
+
                   ],),
+
 
                 ExpansionTile(
                     title: Text('졸업인증'),
@@ -575,4 +599,6 @@ class _MyDrawerState extends State<MyDrawer> {
       ),
     );
   }
+
+  SubjectSelect({required int subjectId}) {}
 }
