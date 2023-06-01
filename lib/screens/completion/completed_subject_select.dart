@@ -243,7 +243,7 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
 
 
 
-  //총 전공학점
+  /*//총 전공학점
   void calculateTotalMajorCredit() {
     int totalMajorCredit = 0;
     for (var subject in _electiveSelections) {
@@ -254,7 +254,7 @@ class _SubjectSelectPageState extends State<SubjectSelectPage> {
     // 이수과목 선택 페이지에서 계산한 학점을 설정
     Provider.of<TotalCredit>(context, listen: false).setTotalCredit(totalMajorCredit);
   }
-
+*/
 
 
   // 빌드
