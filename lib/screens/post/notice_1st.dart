@@ -374,7 +374,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('1학년'),
                     style: TextButton.styleFrom(
@@ -386,7 +385,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('2학년'),
                     style: TextButton.styleFrom(
@@ -398,7 +396,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('3학년'),
                     style: TextButton.styleFrom(
@@ -410,7 +407,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
                       });
                     },
                   ),
-                  SizedBox(width: 8.0),
                   TextButton(
                     child: Text('4학년'),
                     style: TextButton.styleFrom(
