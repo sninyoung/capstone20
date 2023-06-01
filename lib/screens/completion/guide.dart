@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: Guide(),
+    );
+  }
+}
 
 class Guide extends StatelessWidget {
   @override
@@ -56,169 +73,62 @@ class Guide extends StatelessWidget {
                 ],
               ),
             ),
-
-            // 학생정보 (수정필요)
-            SizedBox(
-              height: 60,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(30, 16, 16, 16),
-                decoration: BoxDecoration(
-                  color: Color(0xffC1D3FF),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      '20학번 | ',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      '4학년 | ',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      '단일전공',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 40.0),
-
-            // 전공학점
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _showInformation(context, '19_21_standard.txt'),
-                    child: Container(
-                      height: 80,
-                      padding: EdgeInsets.fromLTRB(22, 16, 16, 16),
-                      margin: EdgeInsets.only(left: 30.0, right: 15.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Color(0xffF5F5F5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xff858585),
-                            offset: Offset(0, 5),
-                            blurRadius: 5.0,
-                            spreadRadius: 0.0,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '19~21학번 기준',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: 8.0),
-                          const Text(
-                            '클릭하여 정보 확인',
-                            style: TextStyle(
-                              color: Color(0xff858585),
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _showInformation(context, '23_standard.txt'),
-                    child: Container(
-                      height: 80,
-                      padding: EdgeInsets.fromLTRB(22, 16, 16, 16),
-                      margin: EdgeInsets.only(left: 15.0, right: 30.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Color(0xffF5F5F5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xff858585),
-                            offset: Offset(0, 5),
-                            blurRadius: 5.0,
-                            spreadRadius: 0.0,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '23학번 기준',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: 8.0),
-                          const Text(
-                            '클릭하여 정보 확인',
-                            style: TextStyle(
-                              color: Color(0xff858585),
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 40.0,
-            ),
+            GuideHomePage(),
           ],
         ),
       ),
     );
   }
+}
 
-  void _showInformation(BuildContext context, String filename) async {
-    String information = await rootBundle.loadString('assets/$filename');
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('추가 정보'),
-          content: Text(information),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('닫기'),
-            ),
-          ],
+class GuideHomePage extends StatelessWidget {
+  final List<String> comments = <String>[
+    '19~22학번 전공기초과목',
+    '19~22학번 전공선택과목',
+    '23학번 융합과정',
+    '23학번 전공기초과목',
+    '23학번 전공선택과목',
+  ];
+
+  final List<IconData> icons = <IconData>[
+    Icons.music_note,
+    Icons.music_video,
+    Icons.library_music,
+    Icons.videocam,
+    Icons.video_library
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: comments.length,
+      itemBuilder: (context, index) {
+        return Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(
+                  icons[index],
+                  color: Colors.redAccent,
+                ),
+                title: Text('${comments[index]}'),
+              ),
+              ButtonBar(
+                children: <Widget>[
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      primary: Colors.black87,
+                    ),
+                    child: Text('보러가기'),
+                    onPressed: () {},
+                  )
+                ],
+              )
+            ],
+          ),
         );
       },
     );
@@ -228,7 +138,32 @@ class Guide extends StatelessWidget {
 class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: Implement drawer contents
-    return Drawer();
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              'Drawer Header',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Item 1'),
+            onTap: () {},
+          ),
+          ListTile(
+            title: Text('Item 2'),
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
   }
 }
