@@ -92,7 +92,6 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black54,
                 ),
               ),
               SizedBox(height: 8.0),
