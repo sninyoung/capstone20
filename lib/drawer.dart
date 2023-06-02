@@ -337,7 +337,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           );
                         }
                     ),
-                    ListTile(
+                    /*ListTile(
                       title: Text('이수과목 선택'),
                       leading: Icon(
                           Icons.assignment_turned_in_outlined,
@@ -350,7 +350,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           ),
                         );
                       },
-                    )
+                    )*/
                   ],),
 
                 ExpansionTile(

@@ -1,3 +1,4 @@
+import 'package:capstone/screens/completion/completed_subject_provider.dart';
 import 'package:capstone/screens/post/notice.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone/screens/login/login_form.dart';
@@ -18,6 +19,7 @@ import 'package:capstone/screens/subject/MSmain.dart';
 import 'package:capstone/screens/post/party_board.dart' as PartyBoard;
 import 'package:capstone/screens/post/free_board.dart' as FreeBoard;
 import 'package:capstone/screens/post/QnA_board.dart' as QABoard;
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -69,7 +71,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      home: ChangeNotifierProvider(
+          create: (context) => CompletedSubject(),
+          child: LoginPage()
+      ),
     );
   }
 }
