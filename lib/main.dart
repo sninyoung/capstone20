@@ -71,13 +71,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ChangeNotifierProvider(
-          create: (context) => CompletedSubject(),
-          child: LoginPage()
-      ),
+      home: LoginPage(),
     );
   }
 }
+
 
 class MyHomePage extends StatefulWidget {
   @override
