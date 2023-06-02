@@ -714,92 +714,95 @@ class _PercentDonutState extends State<PercentDonut> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 300,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(0)), // 직각 모서리 설정
-        border: Border.all(
+    return ChangeNotifierProvider(
+      create: (context) => CompletedSubject(),
+      child: Container(
+        height: 300,
+        width: double.infinity,
+        decoration: BoxDecoration(
           color: Colors.white,
-          width: 2,
+          borderRadius: BorderRadius.all(Radius.circular(0)), // 직각 모서리 설정
+          border: Border.all(
+            color: Colors.white,
+            width: 2,
+          ),
         ),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [ Padding(
-                padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '졸업인증점수',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [ Padding(
+                  padding: const EdgeInsets.only(left: 16.0), // 왼쪽에 여백 추가
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '졸업인증점수',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'graduation',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black45,
+                      Text(
+                        'graduation',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black45,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                  Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyScorePage()),
+                      );
+                    },
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.black45,
+                      size: 16,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0,
+                    ),
+                  ),
+                ],
               ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyScorePage()),
-                    );
-                  },
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.black45,
-                    size: 16,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 25),
-            Container(
-              width: 200,
-              height: 200,
-              color: Colors.white,
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: _maxScoreFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else {
-                    Map<String, dynamic> maxScore = snapshot.data!;
+              SizedBox(height: 25),
+              Container(
+                width: 200,
+                height: 200,
+                color: Colors.white,
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: _maxScoreFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      Map<String, dynamic> maxScore = snapshot.data!;
 
-                    return CustomPaint(
-                      painter: PercentDonutPaint(
-                        percentage: widget.percent,
-                        activeColor: widget.color,
-                        maxScore: maxScore,
-                      ),
-                    );
-                  }
-                },
-              ), //색
-            ),
-          ],
+                      return CustomPaint(
+                        painter: PercentDonutPaint(
+                          percentage: widget.percent,
+                          activeColor: widget.color,
+                          maxScore: maxScore,
+                        ),
+                      );
+                    }
+                  },
+                ), //색
+              ),
+            ],
+          ),
         ),
       ),
     );
