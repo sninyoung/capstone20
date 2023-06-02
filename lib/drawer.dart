@@ -1,3 +1,4 @@
+import 'package:capstone/screens/completion/graduation_guide.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
 import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
@@ -24,11 +25,9 @@ import 'package:capstone/screens/subject/MSmain_ASS.dart';
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
 
-
   @override
   _MyDrawerState createState() => _MyDrawerState();
 }
-
 
 class _MyDrawerState extends State<MyDrawer> {
   int? _userPermission;
@@ -99,7 +98,7 @@ class _MyDrawerState extends State<MyDrawer> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -116,7 +115,10 @@ class _MyDrawerState extends State<MyDrawer> {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('정보를 받아올 수 없습니다. (로그인 만료)'), backgroundColor: Colors.red,),
+          SnackBar(
+            content: Text('정보를 받아올 수 없습니다. (로그인 만료)'),
+            backgroundColor: Colors.red,
+          ),
         );
       });
       return;
@@ -150,7 +152,6 @@ class _MyDrawerState extends State<MyDrawer> {
     }
   }
 
-
   void _studentinfo() async {
     setState(() => _isLoading = true);
 
@@ -161,7 +162,10 @@ class _MyDrawerState extends State<MyDrawer> {
         _isLoading = false;
         _errorMessage = '토큰이 없습니다.';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('정보를 받아올 수 없습니다. (로그인 만료)'), backgroundColor: Colors.red,),
+          SnackBar(
+            content: Text('정보를 받아올 수 없습니다. (로그인 만료)'),
+            backgroundColor: Colors.red,
+          ),
         );
       });
       return;
@@ -214,7 +218,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   onTap: () {
                     a++;
                     print(a);
-                    if(a == 1){
+                    if (a == 1) {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -233,7 +237,8 @@ class _MyDrawerState extends State<MyDrawer> {
                         },
                       );
                     }
-                    if (a == 5) { // a 값이 1인 경우에만 AlertDialog 반환
+                    if (a == 5) {
+                      // a 값이 1인 경우에만 AlertDialog 반환
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -252,7 +257,8 @@ class _MyDrawerState extends State<MyDrawer> {
                         },
                       );
                     }
-                    if (a == 21) { // a 값이 1인 경우에만 AlertDialog 반환
+                    if (a == 21) {
+                      // a 값이 1인 경우에만 AlertDialog 반환
                       a = 0;
                       showDialog(
                         context: context,
@@ -280,14 +286,16 @@ class _MyDrawerState extends State<MyDrawer> {
                     currentAccountPicture: ClipOval(
                       child: Image.network(
                         'http://3.39.88.187:3000/user/loding?image=$fileName',
-                        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent? loadingProgress) {
                           if (loadingProgress == null) {
                             return child;
                           } else {
                             return CircularProgressIndicator();
                           }
                         },
-                        errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
                           return Image.asset(
                             'assets/profile.png',
                             fit: BoxFit.cover,
@@ -298,7 +306,6 @@ class _MyDrawerState extends State<MyDrawer> {
                     accountName: Text(_accountName ?? ''),
                     accountEmail: Text(_accountEmail ?? ''),
                   ),
-
                 ),
                 ListTile(
                   leading: Icon(Icons.home, color: Colors.grey[800]),
@@ -313,27 +320,33 @@ class _MyDrawerState extends State<MyDrawer> {
                 ListTile(
                     leading: Icon(Icons.person, color: Colors.grey[800]),
                     title: Text('프로필'),
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => Profile()),
                       );
-                    }
-                ),
+                    }),
                 ExpansionTile(
                   title: Text('게시판'),
-                  trailing: _isNotified ? Icon(Icons.fiber_new_outlined, color: Colors.red) : null,
+                  trailing: _isNotified
+                      ? Icon(Icons.fiber_new_outlined, color: Colors.red)
+                      : null,
                   leading: Icon(Icons.article, color: Colors.grey[800]),
                   children: <Widget>[
                     ListTile(
-                      leading: Icon(Icons.announcement, color: Colors.grey[800]),
+                      leading:
+                          Icon(Icons.announcement, color: Colors.grey[800]),
                       title: Text('공지사항'),
-                      trailing: _isNotified ? Icon(Icons.fiber_new_outlined, color: Colors.red) : null,
+                      trailing: _isNotified
+                          ? Icon(Icons.fiber_new_outlined, color: Colors.red)
+                          : null,
                       onTap: () {
                         _updateNotificationStatus();
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 3)),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  NoticeTalkScreen_1(boardId: 3)),
                         );
                       },
                     ),
@@ -375,145 +388,164 @@ class _MyDrawerState extends State<MyDrawer> {
                 //이수현황 - 나의 이수현황, 이수과목선택
                 ExpansionTile(
                   title: Text('이수현황'),
-                  leading: Icon(
-                      Icons.add_task_rounded, color: Colors.grey[800]),
+                  leading:
+                      Icon(Icons.add_task_rounded, color: Colors.grey[800]),
                   children: <Widget>[
                     ListTile(
-                        leading: Icon(
-                            Icons.add_task_rounded, color: Colors.grey[800]),
+                        leading: Icon(Icons.add_task_rounded,
+                            color: Colors.grey[800]),
                         title: Text('나의 이수현황'),
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>
-                                CompletionStatusPage()),
+                            MaterialPageRoute(
+                                builder: (context) => CompletionStatusPage()),
                           );
-                        }
-                    ),
+                        }),
                     ListTile(
                       title: Text('이수과목 선택'),
-                      leading: Icon(
-                          Icons.assignment_turned_in_outlined,
-                          color: Colors.grey[800]
-                      ),
+                      leading: Icon(Icons.assignment_turned_in_outlined,
+                          color: Colors.grey[800]),
                       onTap: () {
                         Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>
-                                CompletedSubjectSelectPage(),
+                            MaterialPageRoute(
+                              builder: (context) => CompletedSubjectSelectPage(),)
+                        );
+                      },
+                    ),
+                    /*ListTile(
+                      title: Text('졸업가이드'),
+                      leading: Icon(Icons.assignment_turned_in_outlined,
+                          color: Colors.grey[800]),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  Guide(),
                             ));
                       },
-                    )
-                  ],),
+                    )*/
+                  ],
+                ),
 
                 ListTile(
                     leading: Icon(Icons.school, color: Colors.grey[800]),
                     title: Text('나의 졸업인증제'),
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MyScorePage()),
                       );
-                    }
-                ),
+                    }),
 
                 ExpansionTile(
                     title: Text('과목정보'),
-                    leading: Icon(Icons.menu_book_rounded, color: Colors.grey[800]),
+                    leading:
+                        Icon(Icons.menu_book_rounded, color: Colors.grey[800]),
                     children: <Widget>[
                       ListTile(
                         leading: Icon(Icons.search, color: Colors.grey[800]),
                         title: Text('전공과목 정보'),
-
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => MSmain()),
+                            MaterialPageRoute(builder: (context) => MSmain()),
                           );
                         },
                       ),
                     ]),
-                _accountPermission == "2" || _accountPermission == "3" ?
-                ExpansionTile(
-                    title: Text('관리자 페이지'),
-                    leading: Icon(Icons.subdirectory_arrow_left, color: Colors.grey[800]),
-                    children: <Widget>[
-                      ListTile(
-                          leading: Icon(Icons.person_add, color: Colors.grey[800]),
-                          title: Text('교수 계정 생성'),
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignUpPage()),
-                            );
-                          }
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.person, color: Colors.grey[800]),
-                        title: Text('교수 정보 관리'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ProfProfile()),
-                          );
-                        },
-                      ),
-                      ListTile(
-                          leading: Icon(Icons.note_alt, color: Colors.grey[800]),
-                          title: Text('과목 정보 수정'),
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => MSmainASS()),
-                            );
-                          }
-                      ),
-                      ListTile(
-                          leading: Icon(Icons.edit_note, color: Colors.grey[800]),
-                          title: Text('졸업인증제 항목 관리'),
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => GScoreEditor()),
-                            );
-                          }
-                      ),
-                      ListTile(
-                          leading: Icon(Icons.playlist_add_check, color: Colors.grey[800]),
-                          title: Text('졸업인증제 일괄 승인'),
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => AdminGScoreForm()),
-                            );
-                          }
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.search, color: Colors.grey[800]),
-                        title: Text('졸업인증점수 검색'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AdminCheckPage()),
-                          );
-                        },
-                      ),
-                      ListTile(
-                          leading: Icon(Icons.dynamic_feed, color: Colors.grey[800]),
-                          title: Text('피드백 및 신고글'),
-                          onTap: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => FeedBackScreen()),
-                            );
-                          }
-                      ),
-                    ])
+                _accountPermission == "2" || _accountPermission == "3"
+                    ? ExpansionTile(
+                        title: Text('관리자 페이지'),
+                        leading: Icon(Icons.subdirectory_arrow_left,
+                            color: Colors.grey[800]),
+                        children: <Widget>[
+                            ListTile(
+                                leading: Icon(Icons.person_add,
+                                    color: Colors.grey[800]),
+                                title: Text('교수 계정 생성'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SignUpPage()),
+                                  );
+                                }),
+                            ListTile(
+                              leading:
+                                  Icon(Icons.person, color: Colors.grey[800]),
+                              title: Text('교수 정보 관리'),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProfProfile()),
+                                );
+                              },
+                            ),
+                            ListTile(
+                                leading: Icon(Icons.note_alt,
+                                    color: Colors.grey[800]),
+                                title: Text('과목 정보 수정'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => MSmainASS()),
+                                  );
+                                }),
+                            ListTile(
+                                leading: Icon(Icons.edit_note,
+                                    color: Colors.grey[800]),
+                                title: Text('졸업인증제 항목 관리'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GScoreEditor()),
+                                  );
+                                }),
+                            ListTile(
+                                leading: Icon(Icons.playlist_add_check,
+                                    color: Colors.grey[800]),
+                                title: Text('졸업인증제 일괄 승인'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AdminGScoreForm()),
+                                  );
+                                }),
+                            ListTile(
+                              leading:
+                                  Icon(Icons.search, color: Colors.grey[800]),
+                              title: Text('졸업인증점수 검색'),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AdminCheckPage()),
+                                );
+                              },
+                            ),
+                            ListTile(
+                                leading: Icon(Icons.dynamic_feed,
+                                    color: Colors.grey[800]),
+                                title: Text('피드백 및 신고글'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FeedBackScreen()),
+                                  );
+                                }),
+                          ])
                     : Container(),
               ],
             ),
-
           ),
           ListTile(
             leading: Icon(Icons.feedback, color: Colors.grey[800]),
@@ -533,7 +565,8 @@ class _MyDrawerState extends State<MyDrawer> {
                           decoration: InputDecoration(
                             hintText: '피드백 작성',
                           ),
-                          textInputAction: TextInputAction.newline, // 엔터를 눌렀을 때 다음 줄로 이동
+                          textInputAction: TextInputAction.newline,
+                          // 엔터를 눌렀을 때 다음 줄로 이동
                           maxLines: null,
                           onChanged: (value) {
                             feedbackText = value; // 텍스트 필드 값이 변경될 때마다 변수에 저장
@@ -569,7 +602,6 @@ class _MyDrawerState extends State<MyDrawer> {
                               ),
                               backgroundColor: Colors.green, // 배경색 설정
                               duration: Duration(seconds: 3), // 표시 시간 설정
-
                             ),
                           );
                         },

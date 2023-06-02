@@ -1,4 +1,4 @@
-
+//과목 모델
 class Subject {
   final int subjectId;
   final int proId;

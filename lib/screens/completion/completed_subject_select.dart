@@ -12,7 +12,6 @@ import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/completion/completion_provider.dart';
 import 'package:capstone/screens/completion/subject_model.dart';
 
-
 // 이수과목 선택 페이지
 class CompletedSubjectSelectPage extends StatefulWidget {
   /*final int? studentId;
@@ -35,7 +34,6 @@ class _CompletedSubjectSelectPageState
   List<Subject> compulsorySubjects = [];
   List<Subject> electiveSubjects = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -44,7 +42,6 @@ class _CompletedSubjectSelectPageState
       fetchSubjects();
     });
   }
-
 
   //사용자 인증 jwt 토큰 방식
   Future<String> getStudentIdFromToken() async {
@@ -56,7 +53,7 @@ class _CompletedSubjectSelectPageState
     }
 
     final jwtToken =
-    JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+        JwtDecoder.decode(token); // use jwt_decoder package to decode the token
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
@@ -64,23 +61,23 @@ class _CompletedSubjectSelectPageState
   // 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-    await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+        await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       _subjects = data.map((item) => Subject.fromJson(item)).toList();
 
-      // Update _compulsoryItems and _electiveItems here.
+      //여기서 _compulsoryItems 과 _electiveItems 업데이트
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
-          MultiSelectItem<Subject>(subject, subject.subjectName))
+              MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
           .map((subject) =>
-          MultiSelectItem<Subject>(subject, subject.subjectName))
+              MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
@@ -167,33 +164,27 @@ class _CompletedSubjectSelectPageState
                           onConfirm: (values) {
                             _compulsorySelections = values.cast<Subject>();
 
-                            var completedSubjectProvider = context.read<CompletionProvid>();
-
-                            // Update the completed subjects in the provider
-                            completedSubjectProvider.updateCompulsory(_compulsorySelections);
+                            // 로깅
+                            print('선택한 전공기초과목: $_compulsorySelections');
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
-                                var completedSubjectProvider = context.read<CompletionProvid>();
-                                completedSubjectProvider.removeSubject(value as Subject);
                               });
                             },
-
                           ),
-                        )
-,
+                        ),
                         _compulsorySelections == null ||
-                            _compulsorySelections.isEmpty
+                                _compulsorySelections.isEmpty
                             ? Container(
-                          padding: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: Text(
-                            "선택안함",
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        )
+                                padding: EdgeInsets.all(10),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "선택안함",
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                              )
                             : Container(),
                       ],
                     ),
@@ -236,35 +227,28 @@ class _CompletedSubjectSelectPageState
                           items: _electiveItems,
                           initialValue: _electiveSelections,
                           onConfirm: (values) {
-                            var completedSubjectProvider =
-                            context.read<CompletionProvid>();
                             _electiveSelections = values.cast<Subject>();
 
-                            // Update the completed subjects in the provider
-                            completedSubjectProvider.updateElective(_electiveSelections);
+                            print('선택한 전공선택과목: $_electiveSelections'); //로깅
                           },
                           chipDisplay: MultiSelectChipDisplay(
                             onTap: (value) {
                               setState(() {
                                 _electiveSelections.remove(value as Subject);
-                                var completedSubjectProvider = context.read<CompletionProvid>();
-                                completedSubjectProvider.removeSubject(value as Subject);
                               });
                             },
                           ),
-                          checkColor: Color(0xff8BB4F2),
-                        )
-,
+                        ),
                         _electiveSelections == null ||
-                            _electiveSelections.isEmpty
+                                _electiveSelections.isEmpty
                             ? Container(
-                          padding: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: Text(
-                            "선택안함",
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        )
+                                padding: EdgeInsets.all(10),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "선택안함",
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                              )
                             : Container(),
                       ],
                     ),
@@ -282,35 +266,28 @@ class _CompletedSubjectSelectPageState
                     return;
                   }
 
-                  try {
-                    final completedSubject =
-                    Provider.of<CompletionProvid>(context, listen: false);
+                  var completedSubjectProvider =
+                  context.read<CompletionProvid>();
 
-                    //선택한 과목들은 각각 compulsoryCopy와 electiveCopy 리스트에 저장됨
-                    var compulsoryCopy = List<Subject>.from(_compulsorySelections);
-                    var electiveCopy = List<Subject>.from(_electiveSelections);
-
-                    compulsoryCopy.forEach((subject) {
-                      completedSubject.addSubject(subject);
-                    });
-
-                    electiveCopy.forEach((subject) {
-                      completedSubject.addSubject(subject);
-                    });
-
-                    /*그 후에 각각의 리스트에 포함된 과목들은
-                    completedSubject.addSubject(subject); 코드를 통해
-                    CompletionProvid의
-                    _completedCompulsory와 _completedElective 리스트에 추가됨*/
-
-                    await completedSubject.saveCompletedSubjects();
-
-                    print('모든 선택한 과목이 저장되었습니다.');
-
-                  } catch (e) {
-                    print("과목 저장 중 오류 발생: $e");
+                  // 사용자가 선택한 모든 과목을 서버에 저장합니다.
+                  for (var subject in _compulsorySelections) {
+                    var result = await completedSubjectProvider.addSubjectToServer(subject);
+                    if (result) {
+                      completedSubjectProvider.addSubject(subject);
+                    }
                   }
 
+                  // 사용자가 삭제한 모든 과목을 서버에서 삭제합니다.
+                  for (var subject in completedSubjectProvider.getAllSubjects()) {
+                    if (!_compulsorySelections.contains(subject)) {
+                      var result = await completedSubjectProvider.removeSubjectFromServer(subject);
+                      if (result) {
+                        completedSubjectProvider.removeSubject(subject);
+                      }
+                    }
+                  }
+
+                  // 다음 페이지로 이동합니다.
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -341,4 +318,3 @@ class _CompletedSubjectSelectPageState
     );
   }
 }
-
