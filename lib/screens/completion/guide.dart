@@ -1,23 +1,9 @@
 import 'package:flutter/material.dart';
-
 import '../../drawer.dart';
+import '../../main.dart';
 
 void main() {
   runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: Guide(),
-    );
-  }
 }
 
 class Guide extends StatelessWidget {
@@ -114,12 +100,31 @@ class GuideHomePage extends StatelessWidget {
                       primary: Colors.black87,
                     ),
                     child: Text('상세정보'),
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('상세 정보'),
+                            content: Text(comments[index]),
+                            actions: [
+                              TextButton(
+                                child: Text('닫기'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   )
                 ],
               )
             ],
           ),
+
         );
       },
     );

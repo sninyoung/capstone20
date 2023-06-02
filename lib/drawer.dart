@@ -1,5 +1,6 @@
 import 'package:capstone/screens/completion/completed_subject_provider.dart';
 import 'package:capstone/screens/completion/completed_subject_select.dart';
+import 'package:capstone/screens/completion/guide.dart';
 import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_list_screen.dart';
 import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
@@ -350,8 +351,26 @@ class _MyDrawerState extends State<MyDrawer> {
                           ),
                         );
                       },
+                    ),
+                    ListTile(
+                      title: Text('졸업가이드'),
+                      leading: Icon(
+                          Icons.task_alt,
+                          color: Colors.grey[800]
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                              return Guide();
+                            },
+                            ));
+                      },
                     )
+
                   ],),
+
 
                 ExpansionTile(
                     title: Text('졸업인증'),
