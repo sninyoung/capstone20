@@ -66,7 +66,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   }
 
   Future<void> _getProfessorNames() async {
-    final url = Uri.parse('http://3.39.88.187:3000/prof/');
+    final url = Uri.parse('http://203.247.42.144:443/prof/');
 
     final response = await http.get(url);
 
@@ -82,7 +82,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   }
 
   Future<void> addSubject() async {
-    final url = Uri.parse('http://3.39.88.187:3000/subject/add');
+    final url = Uri.parse('http://203.247.42.144:443/subject/add');
     Map<String, dynamic> body = {
       'subject_id': subjectIdController.text.isNotEmpty
           ? subjectIdController.text

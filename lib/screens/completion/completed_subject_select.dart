@@ -81,7 +81,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 //과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+        await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -120,7 +120,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
 
   //유저 정보 불러오기
   Future<void> fetchUser() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/user'));
+    final response = await http.get(Uri.parse('http://203.247.42.144:443/user'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -146,7 +146,7 @@ class _SubjectSelectState extends State<SubjectSelect> {
     };
 
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/user/required/add'),
+      Uri.parse('http://203.247.42.144:443/user/required/add'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

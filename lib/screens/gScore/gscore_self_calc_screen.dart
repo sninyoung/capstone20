@@ -98,7 +98,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
 
   Future<void> _fetchLists() async {
-    final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+    final typeResponse = await http.get(Uri.parse('http://203.247.42.144:443/gScore/getType'));
     if (typeResponse.statusCode == 200) {
       final typeResult = jsonDecode(typeResponse.body);
       for (var typeItem in typeResult) {
@@ -118,7 +118,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
   Future<void> _fetchNamesAndScores(String selectedType) async {
     if (!loadedTypes.containsKey(selectedType)) {
       final encodedType = Uri.encodeComponent(selectedType);
-      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      final infoResponse = await http.get(Uri.parse('http://203.247.42.144:443/gScore/getInfoByType/$encodedType'));
       if (infoResponse.statusCode == 200) {
         final infoResult = jsonDecode(infoResponse.body);
         activityNames[selectedType] = {};
@@ -151,7 +151,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   Future<void> _getMaxScore() async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      Uri.parse('http://203.247.42.144:443/gScore/maxScore'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

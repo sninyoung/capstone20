@@ -21,7 +21,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
   }
 
   Future<void> fetchSubjectById() async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/info?subject_id=${widget.subjectId}'));
+    final response = await http.get(Uri.parse('http://203.247.42.144:443/subject/info?subject_id=${widget.subjectId}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -39,7 +39,7 @@ class _SubjectInfoState extends State<SubjectInfo> {
   }
 
   Future<void> fetchProfessorById(int proId) async {
-    final response = await http.get(Uri.parse('http://3.39.88.187:3000/prof/info?pro_id=$proId'));
+    final response = await http.get(Uri.parse('http://203.247.42.144:443/prof/info?pro_id=$proId'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

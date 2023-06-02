@@ -88,9 +88,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   late AnimationController percentageAnimationController;
 
+  String userName = ''; // userName 변수를 클래스 레벨로 선언
+  String studentId = ''; // userName 변수를 클래스 레벨로 선언
+  String grade = ''; // userName 변수를 클래스 레벨로 선언
+
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
-        Uri.parse('http://3.39.88.187:3000/gScore/maxScore'));
+        Uri.parse('http://203.247.42.144:443/gScore/maxScore'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
@@ -127,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
     final maxScores = await _getMaxScores();
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/user'),
+      Uri.parse('http://203.247.42.144:443/gScore/user'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -138,6 +142,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       final user = jsonDecode(response.body);
       final allScoreTemp = user['graduation_score'];
       final allScore = jsonDecode(allScoreTemp);
+
+      setState(() {
+      userName = user['name'] as String;
+      grade = user['grade'] as String;
+      studentId = user['student_id'] as String;
+      });
+
+      print('$userName');
 
       allScore.forEach((key, value) {
         if (maxScores.any((score) => score.containsKey(key))) {
@@ -164,6 +176,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    userName = '';
+    studentId = '';
+    grade = '';
     _getUserInfo();
 
     percentageAnimationController = AnimationController(
@@ -218,16 +233,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                //ProfWidget(),
-                //SizedBox(height: 16), // Add SizedBox for spacing
-                //NoticeWidget(),
-                //SizedBox(height: 16), // Add SizedBox for spacing
-                //SubWidget(),
-                //SizedBox(height: 16), // Add SizedBox for spacing
-                //PostWidget(),
-                //SizedBox(height: 16), // Add SizedBox for spacing
-                //PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
-                //SizedBox(height: 16), // Add SizedBox for spacing
+                Text('Name: $userName StudentID: $studentId, Grade: $grade'),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                NoticeWidget(),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                SubWidget(),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                PostWidget(),
+                SizedBox(height: 16), // Add SizedBox for spacing
+                PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
+                SizedBox(height: 16), // Add SizedBox for spacing
               ],
             ),
           ),
@@ -236,99 +251,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 }
-
-class ProfWidget extends StatefulWidget {
-  @override
-  _ProfWidgetState createState() => _ProfWidgetState();
-}
-
-class _ProfWidgetState extends State<ProfWidget> {
-  String? _accountId;
-  String? _imageUrl;
-  String _errorMessage = '';
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchStudentInfo();
-  }
-
-  void fetchStudentInfo() async {
-    setState(() => _isLoading = true);
-
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    if (token == null) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = '토큰이 없습니다.';
-      });
-      return;
-    }
-
-    final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/student'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token,
-      },
-    );
-
-    if (response.statusCode == 201) {
-      // Success
-      final responseData = jsonDecode(response.body);
-      setState(() {
-        _accountId = responseData[0]['student_id'].toString();
-        _imageUrl = responseData[0]['image_url'];
-      });
-    } else {
-      // Failure
-      setState(() {
-        final responseData = jsonDecode(response.body);
-        _isLoading = false;
-        _errorMessage = responseData['message'];
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          if (_isLoading)
-            CircularProgressIndicator()
-          else if (_errorMessage.isNotEmpty)
-            Text(_errorMessage)
-          else if (_accountId != null)
-              Column(
-                children: [
-                  Image.network(
-                    _imageUrl ?? '',
-                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    },
-                    errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                      return Image.asset(
-                        'assets/profile.png',
-                        fit: BoxFit.cover,
-                      );
-                    },
-                  ),
-                  Text(_accountId!),
-                ],
-              ),
-        ],
-      ),
-    );
-  }
-}
-
 
 class SubWidget extends StatelessWidget {
   final TextEditingController searchController = TextEditingController();
@@ -400,7 +322,7 @@ class SubWidget extends StatelessWidget {
 
 
 
-  class PostWidget extends StatefulWidget {
+class PostWidget extends StatefulWidget {
   @override
   _PostWidgetState createState() => _PostWidgetState();
 }
@@ -442,16 +364,16 @@ class _PostWidgetState extends State<PostWidget> {
     if (fetchedPostParty.isNotEmpty) {
       String title = fetchedPostParty[0]['post_title'].toString();
       PartyTitlePost =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      title.length > 20 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedPostFree.isNotEmpty) {
       String title = fetchedPostFree[0]['post_title'].toString();
       FreeTitlePost =
-      title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      title.length > 20 ? '${title.substring(0, 10)}...' : title;
     }
     if (fetchedPostQA.isNotEmpty) {
       String title = fetchedPostQA[0]['post_title'].toString();
-      QATitlePost = title.length > 10 ? '${title.substring(0, 10)}...' : title;
+      QATitlePost = title.length > 20 ? '${title.substring(0, 10)}...' : title;
     }
 
     setState(() {
@@ -479,7 +401,7 @@ class _PostWidgetState extends State<PostWidget> {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.only(top:16, left:16, bottom: 16),
+            padding: const EdgeInsets.only(top:16, left:10, bottom: 16),
             child: Column(
               children: [
                 Row(
@@ -549,22 +471,49 @@ class _PostWidgetState extends State<PostWidget> {
                       child: Container(
                         margin: EdgeInsets.only(
                             left: 16, right: 16, top: index == 0 ? 8 : 0, bottom: 8),
-                        child: Text.rich(
-                          TextSpan(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              TextSpan(
-                                text: grade,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    grade,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4), // 원하는 공백 크기
+                                  Text(
+                                    postTitles[index],
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Color(0xFF616161),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              TextSpan(
-                                text: postTitles[index],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Color(0xFF616161),
-                                ),
+                              Spacer(),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 18,
+                                color: Colors.grey[600],
                               ),
                             ],
                           ),
@@ -580,6 +529,7 @@ class _PostWidgetState extends State<PostWidget> {
       ],
     );
   }
+
 }
 
 
@@ -615,54 +565,53 @@ class _NoticeWidgetState extends State<NoticeWidget> {
     String noticeTitleAll = '';
 
     // 각 파일에서 최근 공지사항 가져오기
-    // List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState()
-    //     .fetchNotices1();
-    // List<dynamic> fetchedNotices2nd = await Notice2nd.NoticeTalkScreenState()
-    //     .fetchNotices();
-    // List<dynamic> fetchedNotices3rd = await Notice3rd.NoticeTalkScreenState()
-    //     .fetchNotices();
-    // List<dynamic> fetchedNotices4th = await Notice4th.NoticeTalkScreenState()
-    //     .fetchNotices();
-    // List<dynamic> fetchedNoticesAll = await NoticeAll.NoticeTalkScreenState()
-    //     .fetchNotices();
-    //
-    // // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
-    // if (fetchedNotices1st.isNotEmpty) {
-    //   String title = fetchedNotices1st[0]['post_title'].toString();
-    //   noticeTitle1st =
-    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    // }
-    // if (fetchedNotices2nd.isNotEmpty) {
-    //   String title = fetchedNotices2nd[0]['post_title'].toString();
-    //   noticeTitle2nd =
-    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    // }
-    // if (fetchedNotices3rd.isNotEmpty) {
-    //   String title = fetchedNotices3rd[0]['post_title'].toString();
-    //   noticeTitle3rd =
-    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    // }
-    // if (fetchedNotices4th.isNotEmpty) {
-    //   String title = fetchedNotices4th[0]['post_title'].toString();
-    //   noticeTitle4th =
-    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    // }
-    // if (fetchedNoticesAll.isNotEmpty) {
-    //   String title = fetchedNoticesAll[0]['post_title'].toString();
-    //   noticeTitleAll =
-    //   title.length > 10 ? '${title.substring(0, 10)}...' : title;
-    // }
-    //
-    // setState(() {
-    //   // noticeTitles 리스트에 저장된 최근 공지사항들을 할당
-    //   noticeTitles = [
-    //     '$noticeTitle1st',
-    //     '$noticeTitle2nd',
-    //     '$noticeTitle3rd',
-    //     '$noticeTitle4th',
-    //     '$noticeTitleAll',
-    //   ];
-    // });
+    List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState().fetchNotices1();
+    List<dynamic> fetchedNotices2nd = await Notice1st.NoticeTalkScreenState().fetchNotices2();
+    List<dynamic> fetchedNotices3rd = await Notice1st.NoticeTalkScreenState().fetchNotices3();
+    List<dynamic> fetchedNotices4th = await Notice1st.NoticeTalkScreenState().fetchNotices4();
+    List<dynamic> fetchedNoticesAll = await Notice1st.NoticeTalkScreenState().fetchNoticesAll();
+
+    // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
+    if (fetchedNotices1st.isNotEmpty) {
+      String title = fetchedNotices1st[0]['post_title'].toString();
+      title = title.replaceAll('\n', ' ');  // Remove newline characters
+      noticeTitle1st = title.length > 20 ? '${title.substring(0, 10)}...' : title;
+    }
+
+    if (fetchedNotices2nd.isNotEmpty) {
+      String title = fetchedNotices2nd[0]['post_title'].toString();
+      title = title.replaceAll('\n', ' ');  // Remove newline characters
+      noticeTitle2nd = title.length > 20 ? '${title.substring(0, 10)}...' : title;
+    }
+
+    if (fetchedNotices3rd.isNotEmpty) {
+      String title = fetchedNotices3rd[0]['post_title'].toString();
+      title = title.replaceAll('\n', ' ');  // Remove newline characters
+      noticeTitle3rd = title.length > 20 ? '${title.substring(0, 10)}...' : title;
+    }
+
+    if (fetchedNotices4th.isNotEmpty) {
+      String title = fetchedNotices4th[0]['post_title'].toString();
+      title = title.replaceAll('\n', ' ');  // Remove newline characters
+      noticeTitle4th = title.length > 20 ? '${title.substring(0, 10)}...' : title;
+    }
+
+    if (fetchedNoticesAll.isNotEmpty) {
+      String title = fetchedNoticesAll[0]['post_title'].toString();
+      title = title.replaceAll('\n', ' ');  // Remove newline characters
+      noticeTitleAll = title.length > 20 ? '${title.substring(0, 10)}...' : title;
+    }
+
+    setState(() {
+       // noticeTitles 리스트에 저장된 최근 공지사항들을 할당
+       noticeTitles = [
+         '$noticeTitle1st',
+         '$noticeTitle2nd',
+         '$noticeTitle3rd',
+         '$noticeTitle4th',
+         '$noticeTitleAll',
+       ];
+     });
   }
 
   @override
@@ -681,6 +630,7 @@ class _NoticeWidgetState extends State<NoticeWidget> {
           color: Color(0xFF515151),
           width: 1,
         ),
+
       ),
       child: Column(
         children: [
@@ -710,27 +660,9 @@ class _NoticeWidgetState extends State<NoticeWidget> {
                 ),
               ),
               Spacer(),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => Notice()),
-              //     );
-              //   },
-              //   child: Icon(
-              //     Icons.arrow_forward_ios,
-              //     color: Colors.black45,
-              //     size: 16,
-              //   ),
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.white,
-              //     foregroundColor: Colors.black,
-              //     elevation: 0,
-              //   ),
-              // ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           ListView.builder(
             padding: EdgeInsets.zero,
             shrinkWrap: true,
@@ -751,37 +683,90 @@ class _NoticeWidgetState extends State<NoticeWidget> {
                 grade = '전체 공지     ';
               }
 
-              return Container(
-                margin: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: index == 0 ? 8 : 0,
-                  bottom: 8,
-                ),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: grade,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                      TextSpan(
-                        text: noticeTitles[index],
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF616161),
-                        ),
+              return InkWell(
+                onTap: () {
+                  if (index == 0) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 5)));
+                  } else if (index == 1) {
+                    Navigator.push(
+                      context,
+                        MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 6)));
+                  } else if (index == 2) {
+                    Navigator.push(
+                      context,
+                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 7)));
+
+                  } else if (index == 3) {
+                    Navigator.push(
+                      context,
+                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 8)));
+
+                  } else if (index == 4) {
+                    Navigator.push(
+                      context,
+                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 3)));
+
+                  }
+                },
+                child: Container(
+                  margin: EdgeInsets.only(
+                      left: 20, right: 20, top: index == 0 ? 8 : 0, bottom: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
                       ),
                     ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              grade,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(height: 4), // 원하는 공백 크기
+                            Text(
+                              noticeTitles[index],
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFF616161),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Spacer(),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 18,
+                          color: Colors.grey[600],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
             },
           ),
+          SizedBox(height: 15), // 원하는 간격 지정
         ],
+
       ),
     );
   }
@@ -808,7 +793,7 @@ class _PercentDonutState extends State<PercentDonut> {
 
   Future<Map<String, dynamic>> _getMaxScore() async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      Uri.parse('http://203.247.42.144:443/gScore/maxScore'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -831,25 +816,15 @@ class _PercentDonutState extends State<PercentDonut> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Color(0xFF515151),
-          width: 1,
-        ),
-      ),
-      child: Container(
-        height: 300,
-        width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(0)),
-          border: Border.all(
-            color: Colors.white,
-            width: 2,
-          ),
+        borderRadius: BorderRadius.circular(10),
+    border: Border.all(
+    color: Color(0xFF515151),
+    width: 1,
+    ),
         ),
+
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -900,8 +875,9 @@ class _PercentDonutState extends State<PercentDonut> {
                 ],
               ),
               Container(
-                width: 190,
-                height: 190,
+                width: 170,
+                height: 170,
+                margin:  EdgeInsets.fromLTRB(0,0,0,15),
                 color: Colors.white,
                 child: FutureBuilder<Map<String, dynamic>>(
                   future: _maxScoreFuture,
@@ -927,7 +903,6 @@ class _PercentDonutState extends State<PercentDonut> {
             ],
           ),
         ),
-      ),
     );
   }
 }

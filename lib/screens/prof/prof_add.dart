@@ -15,7 +15,7 @@ class _AddProfessorPageState extends State<AddProfessorPage> {
   TextEditingController majorController = TextEditingController();
 
   Future<void> addProfessor() async {
-    final url = Uri.parse('http://3.39.88.187:3000/prof/add');
+    final url = Uri.parse('http://203.247.42.144:443/prof/add');
     final body = jsonEncode({
       'pro_id': proIdController.text,
       'name': nameController.text,

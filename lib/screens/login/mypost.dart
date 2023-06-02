@@ -39,7 +39,7 @@ class _MyPostState extends State<MyPost> {
     }
 
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/post/mypost'),
+      Uri.parse('http://203.247.42.144:443/post/mypost'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -57,7 +57,7 @@ class _MyPostState extends State<MyPost> {
   //댓글 갯수 표시 기능 구현중
   Future _fetchCommentsCount() async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/post/commentsAll'),
+      Uri.parse('http://203.247.42.144:443/post/commentsAll'),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);

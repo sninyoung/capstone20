@@ -45,7 +45,7 @@ class _ProfileState extends State<Profile> {
     }
 
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/student'),
+      Uri.parse('http://203.247.42.144:443/user/student'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -90,7 +90,7 @@ class _ProfileState extends State<Profile> {
 
     // Send grade update request
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/user/grade'),
+      Uri.parse('http://203.247.42.144:443/user/grade'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token
@@ -122,7 +122,7 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> _editIntroduction(String introduction) async {
-    final url = Uri.parse('http://3.39.88.187:3000/post/introduction');
+    final url = Uri.parse('http://203.247.42.144:443/post/introduction');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -485,7 +485,7 @@ class _TopPortionState extends State<_TopPortion> {
     }
 
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/student'),
+      Uri.parse('http://203.247.42.144:443/user/student'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -521,7 +521,7 @@ class _TopPortionState extends State<_TopPortion> {
     final bytes = await image.readAsBytes();
 
     final request = http.MultipartRequest(
-        'POST', Uri.parse('http://3.39.88.187:3000/user/upload'));
+        'POST', Uri.parse('http://203.247.42.144:443/user/upload'));
     request.files
         .add(http.MultipartFile.fromBytes('image', bytes, filename: fileName));
     final response = await request.send();
@@ -568,7 +568,7 @@ class _TopPortionState extends State<_TopPortion> {
               children: [
                 ClipOval(
                   child: Image.network(
-                    'http://3.39.88.187:3000/user/loding?image=$fileName',
+                    'http://203.247.42.144:443/user/loding?image=$fileName',
                     fit: BoxFit.cover,
                     errorBuilder: (BuildContext context, Object exception,
                         StackTrace? stackTrace) {
@@ -644,7 +644,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     }
 
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/student'),
+      Uri.parse('http://203.247.42.144:443/user/student'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -749,7 +749,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
               // Send password change request
               final response = await http.put(
-                Uri.parse('http://3.39.88.187:3000/user/password'),
+                Uri.parse('http://203.247.42.144:443/user/password'),
                 headers: <String, String>{
                   'Content-Type': 'application/json; charset=UTF-8',
                   'Authorization': token

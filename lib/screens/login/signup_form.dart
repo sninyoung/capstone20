@@ -62,7 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> sendVerificationEmail(String email) async {
-    final String apiUrl = 'http://3.39.88.187:3000/user/sendverificationemail';
+    final String apiUrl = 'http://203.247.42.144:443/user/sendverificationemail';
 
     if (!email.endsWith("@gm.hannam.ac.kr")) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,7 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> signup(String email, String verificationCode, String name, String password, int grade) async {
-    final String apiUrl = 'http://3.39.88.187:3000/user/signup';
+    final String apiUrl = 'http://203.247.42.144:443/user/signup';
     final String studentId = email.split('@')[0];
     final String nameValue = name.trim();
     final String emailValue = email.trim();
