@@ -124,7 +124,6 @@ class GuideHomePage extends StatelessWidget {
               )
             ],
           ),
-
         );
       },
     );
