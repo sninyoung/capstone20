@@ -1,10 +1,12 @@
-import 'package:capstone/screens/login/mypost.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
+
+import 'mypost.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -119,8 +121,6 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-
-
   Future<void> _editIntroduction(String introduction) async {
     final url = Uri.parse('http://3.39.88.187:3000/post/introduction');
     final storage = FlutterSecureStorage();
@@ -128,11 +128,16 @@ class _ProfileState extends State<Profile> {
     if (token == null) {
       setState(() {
         _errorMessage = '토큰이 없습니다.';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('자기소개 수정에 실패했습니다.(로그인 만료)')));
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('자기소개 수정에 실패했습니다. (로그인 만료)'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
+
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -143,18 +148,31 @@ class _ProfileState extends State<Profile> {
         'introduction': introduction,
       }),
     );
+
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('자기소개 수정이 수정되었습니다.')));
       setState(() {
         _accountIntroduction = introduction;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('정보가 수정되었습니다.'),
+          backgroundColor: Colors.green,
+        ),
+      );
     } else if (response.statusCode == 300) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('수정 권한이 없습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('수정 권한이 없습니다.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('자기소개 수정에 실패했습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('정보 수정에 실패했습니다.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -251,8 +269,6 @@ class _ProfileState extends State<Profile> {
                                 }
                                 else if (selectedValue == 'changeGrade') {
                                   String selectedGrade = '1학년'; // 선택된 학년을 저장할 변수
-
-// 학년 선택 다이얼로그 호출
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -315,45 +331,46 @@ class _ProfileState extends State<Profile> {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
+                                      String? introductionText;
+
+                                      TextEditingController _introductionController = TextEditingController();
+                                      if (_accountIntroduction != null) {
+                                        introductionText = _accountIntroduction;
+                                        _introductionController.text = _accountIntroduction!;
+                                      } else {
+                                        introductionText = '연락처\n-\n\n선호언어\n-\n\n개발기술\n-\n\n개인 홈페이지 링크(깃허브, 블로그 등)\n-\n\n한줄 소개\n-\n\n';
+                                        _introductionController.text = introductionText;
+                                      }
+
                                       return AlertDialog(
-                                        title: Text("자기소개 수정"),
+                                        title: Text("정보 수정"),
                                         content: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            ConstrainedBox(
-                                              constraints: BoxConstraints(
-                                                  maxHeight: 200),
-                                              // 최대 높이를 설정하여 텍스트 필드 크기를 제한
-                                              child: TextField(
-                                                controller: _controller,
-                                                onChanged: (value) {
-                                                  introductionText =
-                                                      value; // 텍스트 필드의 값을 변수에 저장
-                                                },
-                                                decoration: InputDecoration(
-                                                  labelText: "자기소개",
-                                                  hintText: "자기소개를 입력해주세요",
-                                                ),
-                                                textInputAction:
-                                                TextInputAction.newline,
-                                                // 엔터를 눌렀을 때 다음 줄로 이동
-                                                maxLines: null, // 여러 줄 입력 가능
+                                            TextFormField(
+                                              controller: _introductionController,
+                                              onChanged: (value) {
+                                                introductionText = value;
+                                              },
+                                              decoration: InputDecoration(
+                                                labelText: "자기소개",
+                                                hintText: "자기소개를 입력해주세요",
                                               ),
+                                              maxLines: 15,
                                             ),
                                           ],
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
-                                              Navigator.pop(context); // 팝업 창 닫기
+                                              Navigator.pop(context);
                                             },
                                             child: Text("취소"),
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              _editIntroduction(
-                                                  introductionText); // 자기소개 수정 API 호출
-                                              Navigator.pop(context); // 팝업 창 닫기
+                                              _editIntroduction(introductionText!);
+                                              Navigator.pop(context);
                                             },
                                             child: Text("저장"),
                                           ),
@@ -361,6 +378,7 @@ class _ProfileState extends State<Profile> {
                                       );
                                     },
                                   );
+
                                 } else if (selectedValue == 'myPosts') {
                                   Navigator.push(
                                     context,
@@ -668,23 +686,6 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // TextFormField(
-            //   controller: _currentPasswordController,
-            //   obscureText: true,
-            //   decoration: InputDecoration(
-            //     labelText: '현재 비밀번호',
-            //   ),
-            //   validator: (value) {
-            //     if (value!.isEmpty) {
-            //       return '현재 비밀번호를 입력하세요.';
-            //     }
-            //     if(value != _accountPassword){
-            //       print(_accountPassword);
-            //       return '비밀번호가 일치하지 않습니다';
-            //     }
-            //
-            //   },
-            // ),
             TextFormField(
               controller: _newPasswordController,
               obscureText: true,
@@ -697,8 +698,8 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 } else if (value.length < 8) {
                   return "비밀번호는 8자 이상이어야 합니다";
                 } else if (!RegExp(
-                    r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
-                    .hasMatch(value) ||
+                            r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
+                        .hasMatch(value) ||
                     value.contains('?')) {
                   return "비밀번호는 대문자, 소문자, 숫자, 특수문자를\n포함하며 '?' 문자를 사용할 수 없습니다";
                 }
@@ -785,4 +786,3 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     );
   }
 }
-

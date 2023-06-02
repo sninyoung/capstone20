@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:capstone/screens/gScore/gscore_search_score.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 class AdminCheckPage extends StatefulWidget {
   @override
@@ -164,6 +165,9 @@ class _AdminCheckPageState extends State<AdminCheckPage> {
                           child: TextField(
                             controller: searchController,
                             onChanged: (_) => _searchData(),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            ],
                             decoration: InputDecoration(
                               labelText: '학번검색',
                               border: InputBorder.none,

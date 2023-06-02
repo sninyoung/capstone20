@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/services.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -28,7 +30,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
   Future<void> _fetchGsInfo() async {
     if (activityTypes.isEmpty) {
       final typeResponse =
-          await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
       if (typeResponse.statusCode == 200) {
         final typeResult = jsonDecode(typeResponse.body);
         for (var typeItem in typeResult) {
@@ -324,7 +326,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
                               ? Color(0xffbabfcc)
                               : Color(0xffC1D3FF),
                           elevation:
-                              _activityTypeController.text == type ? 2.0 : 0.0,
+                          _activityTypeController.text == type ? 2.0 : 0.0,
                         ),
                         child: Text(type),
                       );
@@ -361,49 +363,49 @@ class _GScoreEditorState extends State<GScoreEditor> {
                           spacing: 8.0,
                           runSpacing: 8.0,
                           children: activityNames[_activityTypeController.text]
-                                  ?.entries
-                                  .map((entry) {
-                                String name = entry.key;
-                                int score = entry.value;
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color:
-                                          _activityNameController.text == name ?
-                                          Colors.blue : Colors.transparent,
-                                      width: 2.0,
-                                    ),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      if(_selectedActivityName == name){
-                                        setState(() {
-                                        _selectedActivityName = null;
-                                        _selectedActivityScore = null;
-                                        _activityNameController.clear();
-                                        _activityScoreController.clear();
-                                        });
-                                      }
-                                      else {
-                                        setState(() {
-                                          _selectedActivityName = name;
-                                          _selectedActivityScore =
-                                              score.toString();
-                                          _activityNameController.text = name;
-                                          _activityScoreController.text =
-                                              score.toString();
-                                        });
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: _selectedActivityName == name
-                                              ? Color(0xffbabfcc) : Color(0xffC1D3FF),
-                                      elevation: _selectedActivityName == name ? 2.0 : 0.0,
-                                    ),
-                                    child: Text('$name ($score)'),
-                                  ),
-                                );
-                              }).toList() ??
+                              ?.entries
+                              .map((entry) {
+                            String name = entry.key;
+                            int score = entry.value;
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                  _activityNameController.text == name ?
+                                  Colors.blue : Colors.transparent,
+                                  width: 2.0,
+                                ),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if(_selectedActivityName == name){
+                                    setState(() {
+                                      _selectedActivityName = null;
+                                      _selectedActivityScore = null;
+                                      _activityNameController.clear();
+                                      _activityScoreController.clear();
+                                    });
+                                  }
+                                  else {
+                                    setState(() {
+                                      _selectedActivityName = name;
+                                      _selectedActivityScore =
+                                          score.toString();
+                                      _activityNameController.text = name;
+                                      _activityScoreController.text =
+                                          score.toString();
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedActivityName == name
+                                      ? Color(0xffbabfcc) : Color(0xffC1D3FF),
+                                  elevation: _selectedActivityName == name ? 2.0 : 0.0,
+                                ),
+                                child: Text('$name ($score)'),
+                              ),
+                            );
+                          }).toList() ??
                               <Widget>[],
                         ),
                       ),
@@ -434,6 +436,10 @@ class _GScoreEditorState extends State<GScoreEditor> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                         ),
                       ),
                     ],
@@ -580,6 +586,10 @@ class _GScoreEditorState extends State<GScoreEditor> {
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                         ),
                       ),
                       SizedBox(width: 8.0),

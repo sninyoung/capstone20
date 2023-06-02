@@ -73,18 +73,60 @@ class _GScoreApcState extends State<GScoreApc> {
 
 
   void _selectFile() async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles();
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+    );
     if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        selectedFile = result.files.first;
-        fileCheck = 1;
+      final PlatformFile file = result.files.first;
+      final File selected = File(file.path!);
+      final int maxSize = 10 * 1024 * 1024; // 10MB를 바이트로 표현한 값
+      final int fileSize = await selected.length();
 
-      });
+      if (fileSize <= maxSize) {
+        if (['jpg', 'jpeg', 'png', 'pdf'].contains(file.extension)) {
+          setState(() {
+            selectedFile = file;
+            fileCheck = 1;
+          });
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('파일 확장자 오류'),
+              content: Text('JPG, PNG, PDF 형식의 파일만 지원합니다.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('확인'),
+                ),
+              ],
+            ),
+          );
+        }
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('파일 크기 초과'),
+            content: Text('10MB 미만의 파일만 업로드 가능합니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('확인'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
   Future<void> _writePostAndFile() async {
-    setState(() => _isLoading = true);
     if (_activityType == null || _activityName == null) {
       showDialog(
         context: context,
@@ -105,6 +147,8 @@ class _GScoreApcState extends State<GScoreApc> {
         },
       );
       return; // 함수 종료
+    }else{
+      setState(() => _isLoading = true);
     }
 
 
@@ -115,6 +159,7 @@ class _GScoreApcState extends State<GScoreApc> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('실패: 로그인 정보 없음')));
       });
+      setState(() => _isLoading = false);
       return;
     }
 
@@ -681,7 +726,10 @@ class _GScoreApcState extends State<GScoreApc> {
                           });
 
                         }else{
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
+                          if(_activityName != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('게시글 작성 실패: 서버 오류')));
+                          }
                         }
 
                       } : null,

@@ -119,19 +119,6 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
     });
   }
 
-  void _filterWriter(String value) async {
-    allPosts = await _posts;
-    filteredPosts = allPosts
-        .where((post) => post['gsuser_id'].toString().contains(value))
-        .toList();
-    postFilter = '전체';
-
-
-    setState(() {
-      filteredPosts;
-      postFilter;
-    });
-  }
 
 
   Future<void> _getUserInfo() async {
@@ -265,39 +252,10 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
             children: [
               SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
                     width: 10,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Visibility(
-                        visible: userPermission == 2,
-                        child: Container(
-                          width: 600, // 원하는 가로 크기로 지정
-                          child: TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                searchText = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: '학번 검색',
-                              hintText: '등록',
-                              border: OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  _filterWriter(searchText);
-                                },
-                                icon: Icon(Icons.search),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -338,7 +296,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                       child: Row(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.15,
+                            width: MediaQuery.of(context).size.width * 0.13,
                             alignment: Alignment.center,
                             child: Text(
                               "No.",
@@ -350,7 +308,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                           ),
                           SizedBox(width: 10),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.08,
+                            width: MediaQuery.of(context).size.width * 0.12,
                             alignment: Alignment.center,
                             child: Text(
                               "추가일",
@@ -361,7 +319,7 @@ class _AdminGScoreForm extends State<AdminGScoreForm> {
                             ),
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.42,
+                            width: MediaQuery.of(context).size.width * 0.4,
                             alignment: Alignment.center,
                             child: Text(
                               "활동명",

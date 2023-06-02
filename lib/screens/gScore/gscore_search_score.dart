@@ -4,9 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
-import 'package:capstone/screens/gScore/gscore_list_screen.dart';
-import 'package:capstone/screens/gScore/gscore_self_calc_screen.dart';
-
 
 
 class searchScorePage extends StatefulWidget {
@@ -27,11 +24,14 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
   int a = 0;
   int i = 0;
   List<Map<String, dynamic>> maxScores = [];
-  Map<String,int> Maxscore = {};
+  Map<String, int> Maxscore = {};
   String studentid = '';
   Map<String, dynamic> allScore = {};
   int? score = 0;
   Map<String, Map<String, int>>? details;
+  bool capstone = true;
+  String? username = "";
+
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
@@ -70,7 +70,9 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
       }
     }
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/getselUserInfo?student_id=${widget.student_id}'),
+      Uri.parse(
+          'http://3.39.88.187:3000/gScore/getselUserInfo?student_id=${widget
+              .student_id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -82,7 +84,9 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
       final allScoreTemp = user['graduation_score'];
       final decodedAllScore = jsonDecode(allScoreTemp);
       studentid = widget.student_id;
-      print(studentid);
+      setState(() {
+        username = user['name'];
+      });
       allScore.clear(); // 이전 값들을 제거하고 새로운 값을 저장
       allScore.addAll(decodedAllScore);
       allScore.forEach((key, value) {
@@ -94,24 +98,28 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
           }
         }
       });
+      print(allScore);
       allScore.forEach((key, value) {
         sumScore += value as int;
       });
       _getdetails();
     }
-
     a = (Maxscore ["총점"] ?? 0) - sumScore;
 
     if (a < 0) {
-      leftScore = '졸업이 가능해요 축하해요';
+      leftScore = '졸업인증점수 완료';
     } else {
       leftScore = '${a}점 남았어요 화이팅';
     }
+
+
     setState(() {
       sumScore;
       leftScore;
+      studentid;
     });
   }
+
   Future<void> _getdetails() async {
     details = null;
     final token = await storage.read(key: 'token');
@@ -137,7 +145,6 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
 
       if (detailsResponse.statusCode == 200) {
         final detailsList = jsonDecode(detailsResponse.body);
-        print(detailsList);
         details = {};
         for (final detail in detailsList) {
           final category = detail['gspost_category'];
@@ -149,20 +156,30 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
           }
 
           details![category]![item] = score;
-
         }
       }
-      print("디테일 출력");
-      print(details);
-
     }
-
+    capstone = isCapstoneDesignExists();
 
     if (mounted) {
       setState(() {
         details;
+        capstone;
       });
     }
+  }
+
+  bool isCapstoneDesignExists() {
+    if (details != null) {
+      for (final category in details!.keys) {
+        final items = details![category];
+        if (items != null &&
+            (items.containsKey("캡스톤디자인") || items.containsKey("캡스톤 필수 이수"))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @override
@@ -198,62 +215,55 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
               children: [
                 Padding(
                   padding: EdgeInsets.only(
-                    top: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.013,
-                    right: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.035,
-                    bottom: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.01,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SelfCalcScreen()),
-                          );
-                        },
-                        child: Text(
-                          '셀프 계산기',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          backgroundColor: Color(0xffC1D3FF),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      // Add a space between the two buttons
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GScoreForm()),
-                          );
-                        },
-                        child: Text(
-                          '신청 목록',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          backgroundColor: Color(0xffC1D3FF),
-                        ),
-                      ),
-                    ],
+                    top: MediaQuery.of(context).size.height * 0.013,
+                    right: MediaQuery.of(context).size.width * 0.035,
+                    bottom: MediaQuery.of(context).size.height * 0.01,
                   ),
                 ),
-                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start, // 좌측 정렬
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('학번: $studentid'),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('이름: $username'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
                 Container(
                   constraints: BoxConstraints(maxWidth: 370),
                   decoration: BoxDecoration(
@@ -267,18 +277,19 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(1),
                         child: Column(
                           children: [
+                            SizedBox(height: 10,),
                             Text(
-                              "총점수",
+                              "나의 졸업인증점수",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(height: 3,),
                             Text(
                               "${sumScore} / ${totalScore}",
                               style: TextStyle(
@@ -288,11 +299,46 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                               ),
                             ),
                             SizedBox(height: 10,),
+                            if (capstone)
+                              Text(
+                                leftScore,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            if (capstone)
+                              Text(
+                                "캡스톤 이수: O",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            if (!capstone)
+                              Text(
+                                leftScore,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            if (!capstone)
+                              Text(
+                                "캡스톤 이수: X",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
                           ],
                         ),
                       ),
-                      Divider(),
-                      SizedBox(height: 10),
+
                       Column(
                         children: [
                           for (int i = 0; i < maxScores.length; i += 3)
@@ -301,7 +347,8 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                               children: [
                                 for (int j = i; j < i + 3 &&
                                     j < maxScores.length; j++)
-                                  if (maxScores[j].keys.first != '총점' && maxScores[j].keys.first != '캡스톤디자인')
+                                  if (maxScores[j].keys.first != '총점' &&
+                                      maxScores[j].keys.first != '캡스톤디자인')
                                     Expanded(
                                       child: Padding(
                                         padding: EdgeInsets.all(8),
@@ -312,7 +359,6 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                                           allScore: allScore,
                                           score: score,
                                           details: details,
-
                                         ),
                                       ),
                                     ),
@@ -320,16 +366,26 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
                             ),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        "${leftScore}",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "항목별 터치하여 자세히보기",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(width: 5), // 텍스트와 아이콘 사이의 간격
+                          Icon(
+                            Icons.touch_app, // 터치 앱 아이콘
+                            color: Colors.grey[600], // 짙은 회색
+                            size: 18, // 아이콘 크기 조정
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 16),
+
                     ],
                   ),
                 ),
@@ -340,6 +396,7 @@ class _searchScorePage extends State<searchScorePage> with TickerProviderStateMi
       ),
     );
   }
+
 }
 //floating border
 
@@ -368,58 +425,115 @@ class gScore_check extends StatefulWidget {
 class _gScoreCheckState extends State<gScore_check> {
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
+  dynamic myscore;
+  dynamic maxscore;
   @override
   void initState() {
     super.initState();
+    myscore = widget.allScore[widget.name];
+    maxscore = widget.maxScore;
   }
-
-
 
 
   void _showScoreDetails() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('졸업점수 상세보기'),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 130,
-            child: Scrollbar(
-              child: ListView.builder(
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  final category = widget.details!.keys.firstWhere(
-                        (key) => key == widget.name,
-                    orElse: () => '',
-                  );
-                  final items = widget.details![category] ?? {};
-                  if (category.isNotEmpty && items.isNotEmpty) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('카테고리 : $category'),
-                        const SizedBox(height: 10),
-                        for (final item in items.keys)
-                          if (items[item] != null)
-                            Text('$item : ${items[item]}'),
-                      ],
-                    );
-                  } else {
-                    return Center(child: Text('해당하는 졸업점수가 없습니다.'));
-                  }
-                },
-              ),
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 0.0,
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '졸업점수 상세보기',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                SizedBox(
+                  width: double.maxFinite,
+                  height: 130,
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      itemCount: 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        final category = widget.details!.keys.firstWhere(
+                              (key) => key == widget.name,
+                          orElse: () => '',
+                        );
+                        final items = widget.details![category] ?? {};
+
+                        if (category.isNotEmpty && items.isNotEmpty) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '카테고리: $category',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 10),
+                              for (final item in items.keys)
+                                if (items[item] != null)
+                                  Text(
+                                    '$item: ${items[item]}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                            ],
+                          );
+                        } else {
+                          return Center(
+                            child: Text(
+                              '해당하는 졸업점수가 없습니다.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  child: Text(
+                    '닫기',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF1E90FF), // #1E90FF (Dodger Blue) 색상
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
           ),
-          actions: [
-            TextButton(
-              child: const Text('닫기'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
         );
       },
     );
@@ -433,7 +547,6 @@ class _gScoreCheckState extends State<gScore_check> {
         padding: const EdgeInsets.all(8),
         width: 100,
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -443,6 +556,11 @@ class _gScoreCheckState extends State<gScore_check> {
               offset: const Offset(0, 3),
             ),
           ],
+          color: Colors.white, // 단색 배경
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.5),
+            width: 1.5,
+          ),
         ),
         alignment: Alignment.center,
         child: Column(
@@ -461,9 +579,9 @@ class _gScoreCheckState extends State<gScore_check> {
             ),
             const SizedBox(height: 10),
             Container(
-              color: Colors.white,
+              color: Colors.transparent,
               child: Text(
-                '${widget.allScore[widget.name]} / ${widget.maxScore}',
+                '$myscore / $maxscore',
                 style: const TextStyle(
                   fontSize: 15,
                   color: Colors.black,

@@ -4,7 +4,7 @@ import 'dart:convert';
 
 void main() {
   runApp(MaterialApp(
-    title: '졸업점수 셀프 계산기',
+    title: '졸업점수 계산기',
     home: SelfCalcScreen(),
   ));
 }
@@ -69,7 +69,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
 
   int _total = 0;
 
-  int _remainingScore = 800;
+  int _remainingScore = 0;
 
   List<String> activityTypes = [];
   Map<String, bool> loadedTypes = {};
@@ -94,6 +94,8 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     '해외연수': {'참여 일수': 0},
     '인턴십': {'참여 일수': 0},
   };
+
+
 
   Future<void> _fetchLists() async {
     final typeResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
@@ -165,6 +167,9 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
     } else {
       throw Exception('예외 발생');
     }
+    setState(() {
+      _remainingScore=MaxScore["총점"];
+    });
   }
 
 
@@ -194,7 +199,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
             {'Type': _activityType!, 'Name': _activityName!, 'score': _score});
         setMaxscore();
         if (_remainingScore > 0) {
-          _remainingScore = 800 - _total;
+          _remainingScore = MaxScore["총점"] - _total;
           if (_remainingScore < 0) {
             _remainingScore = 0;
           }
@@ -212,7 +217,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
         setMaxscore();
 
         if (_remainingScore > 0) {
-          _remainingScore = 800 - _total;
+          _remainingScore = MaxScore["총점"] - _total;
           if (_remainingScore < 0) {
             _remainingScore = 0;
           }
@@ -253,7 +258,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
-          '졸업점수 셀프 계산기',
+          '졸업점수 자가점검',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -441,7 +446,7 @@ class SelfCalcScreenState extends State<SelfCalcScreen> {
                                   _total += value;
                                 });
                                 if (_remainingScore >= 0) {
-                                  _remainingScore = 800 - _total;
+                                  _remainingScore = MaxScore["총점"] - _total;
                                   if (_remainingScore <= 0) {
                                     _remainingScore = 0;
                                   }
