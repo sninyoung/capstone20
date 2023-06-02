@@ -203,9 +203,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-
                 logout(context);
-
             },
           ),
         ],
@@ -225,19 +223,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                SizedBox(height: 16), // Add SizedBox for spacing
-                NoticeWidget(),
-                SizedBox(height: 16), // Add SizedBox for spacing
-                SubWidget(),
-                SizedBox(height: 16), // Add SizedBox for spacing
-                PostWidget(),
-                SizedBox(height: 16), // Add SizedBox for spacing
-                PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
-                SizedBox(height: 16), // Add SizedBox for spacing
-                Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
+                //ProfWidget(),
+                //SizedBox(height: 16), // Add SizedBox for spacing
+                //NoticeWidget(),
+                //SizedBox(height: 16), // Add SizedBox for spacing
+                //SubWidget(),
+                //SizedBox(height: 16), // Add SizedBox for spacing
+                //PostWidget(),
+                //SizedBox(height: 16), // Add SizedBox for spacing
+                //PercentDonut(percent: percentage, color: Color(0xffC1D3FF)),
+                //SizedBox(height: 16), // Add SizedBox for spacing
               ],
             ),
           ),
@@ -246,6 +241,99 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 }
+
+class ProfWidget extends StatefulWidget {
+  @override
+  _ProfWidgetState createState() => _ProfWidgetState();
+}
+
+class _ProfWidgetState extends State<ProfWidget> {
+  String? _accountId;
+  String? _imageUrl;
+  String _errorMessage = '';
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStudentInfo();
+  }
+
+  void fetchStudentInfo() async {
+    setState(() => _isLoading = true);
+
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = '토큰이 없습니다.';
+      });
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://3.39.88.187:3000/user/student'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token,
+      },
+    );
+
+    if (response.statusCode == 201) {
+      // Success
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _accountId = responseData[0]['student_id'].toString();
+        _imageUrl = responseData[0]['image_url'];
+      });
+    } else {
+      // Failure
+      setState(() {
+        final responseData = jsonDecode(response.body);
+        _isLoading = false;
+        _errorMessage = responseData['message'];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          if (_isLoading)
+            CircularProgressIndicator()
+          else if (_errorMessage.isNotEmpty)
+            Text(_errorMessage)
+          else if (_accountId != null)
+              Column(
+                children: [
+                  Image.network(
+                    _imageUrl ?? '',
+                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    },
+                    errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                      return Image.asset(
+                        'assets/profile.png',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
+                  Text(_accountId!),
+                ],
+              ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class SubWidget extends StatelessWidget {
   final TextEditingController searchController = TextEditingController();

@@ -45,9 +45,6 @@ dependencies:
   url_launcher: ^6.0.10
   open_file: ^3.2.1
 
-
-  #jwt_decoder: ^3.0.0
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
