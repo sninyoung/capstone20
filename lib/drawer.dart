@@ -1,5 +1,5 @@
 import 'package:capstone/screens/completion/completed_subject_select.dart';
-import 'package:capstone/screens/completion/completion_status.dart';
+import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
 import 'package:capstone/screens/gScore/gscore_admin_check.dart';
 import 'package:capstone/screens/login/adminsingup.dart';
@@ -386,11 +386,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                CompletionStatusPage(
-                                  student_id: '',
-                                  grade: '',
-                                  major_type: '',
-                                )),
+                                CompletionStatusPage()),
                           );
                         }
                     ),
@@ -404,7 +400,7 @@ class _MyDrawerState extends State<MyDrawer> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                SubjectSelect(subjectId: 0),
+                                CompletedSubjectSelectPage(),
                             ));
                       },
                     )
