@@ -1,5 +1,18 @@
 //과목 모델
 class Subject {
+
+  //과목의 동일성을 판단 -중복으로 추가되는 것 방지
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Subject && other.subjectId == subjectId;
+  }
+
+  @override
+  int get hashCode => subjectId.hashCode;
+
+
   final int subjectId;
   final int proId;
   final String subjectName;

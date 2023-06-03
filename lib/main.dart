@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => CompletionProvid(),
+      create: (context) => CompletionProvider(),
       child: MaterialApp(
         title: 'Capstone',
         theme: ThemeData(
