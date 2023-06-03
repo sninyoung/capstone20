@@ -34,7 +34,7 @@ class _PostScreenState extends State<PostScreen> {
   void _fetchboard() async {
     int board_id = widget.post['board_id'];
     final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/post/board?board_id=$board_id'));
+        .get(Uri.parse('http://203.247.42.144:443/post/board?board_id=$board_id'));
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
 
@@ -50,7 +50,7 @@ class _PostScreenState extends State<PostScreen> {
   void _fetchintroduction() async {
     int student_id = widget.post['student_id'];
     final response = await http
-        .get(Uri.parse('http://3.39.88.187:3000/user/info?student_id=$student_id'));
+        .get(Uri.parse('http://203.247.42.144:443/user/info?student_id=$student_id'));
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
 
@@ -65,7 +65,7 @@ class _PostScreenState extends State<PostScreen> {
   //댓글 가져오기
   Future<List<dynamic>> fetchComments() async {
     final response = await http.get(Uri.parse(
-        'http://3.39.88.187:3000/post/comment:?post_id=${widget.post['post_id']}'));
+        'http://203.247.42.144:443/post/comment:?post_id=${widget.post['post_id']}'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -75,7 +75,7 @@ class _PostScreenState extends State<PostScreen> {
 
   //댓글 입력
   Future<void> postComment(int postId, String content) async {
-    final url = Uri.parse('http://3.39.88.187:3000/post/commentwrite/${widget.post['post_id']}');
+    final url = Uri.parse('http://203.247.42.144:443/post/commentwrite/${widget.post['post_id']}');
     setState(() => _isLoading = true);
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -114,7 +114,7 @@ class _PostScreenState extends State<PostScreen> {
 
   //댓글 삭제
   Future<void> _deleteComment(int commentId) async {
-    final url = Uri.parse('http://3.39.88.187:3000/post/deletecomment/$commentId');
+    final url = Uri.parse('http://203.247.42.144:443/post/deletecomment/$commentId');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
@@ -148,7 +148,7 @@ class _PostScreenState extends State<PostScreen> {
 
   //댓글 수정
   Future<void> _editComment(int commentId, String content) async {
-    final url = Uri.parse('http://3.39.88.187:3000/post/updatecomment/$commentId');
+    final url = Uri.parse('http://203.247.42.144:443/post/updatecomment/$commentId');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {
@@ -280,7 +280,7 @@ class _PostScreenState extends State<PostScreen> {
     }
 
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/post/deletepost/${widget.post['post_id']}'),
+      Uri.parse('http://203.247.42.144:443/post/deletepost/${widget.post['post_id']}'),
       headers: <String, String>{ //헤더파일 추가
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -295,7 +295,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> reportPost() async{
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/post/reportPost/${widget.post['post_id']}'),
+      Uri.parse('http://203.247.42.144:443/post/reportPost/${widget.post['post_id']}'),
     );
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -313,7 +313,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> _fetchProfile(String studentId) async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/info?student_id=$studentId'),
+      Uri.parse('http://203.247.42.144:443/user/info?student_id=$studentId'),
     );
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
@@ -344,7 +344,7 @@ class _PostScreenState extends State<PostScreen> {
       return;
     }
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/student'),
+      Uri.parse('http://203.247.42.144:443/user/student'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,

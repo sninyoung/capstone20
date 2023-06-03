@@ -19,7 +19,7 @@ class _EditProfessorPageState extends State<EditProfessorPage> {
 
   Future<void> fetchProfessorInfo() async {
     final url = Uri.parse(
-      'http://3.39.88.187:3000/prof/info?pro_id=${widget.professorId}',
+      'http://203.247.42.144:443/prof/info?pro_id=${widget.professorId}',
     );
     final response = await http.get(url);
 
@@ -52,7 +52,7 @@ class _EditProfessorPageState extends State<EditProfessorPage> {
   }
 
   Future<void> modifyProfessorInfo() async {
-    final url = Uri.parse('http://3.39.88.187:3000/prof/modify');
+    final url = Uri.parse('http://203.247.42.144:443/prof/modify');
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -81,7 +81,7 @@ class _EditProfessorPageState extends State<EditProfessorPage> {
   }
 
   Future<void> deleteProfessorInfo() async {
-    final url = Uri.parse('http://3.39.88.187:3000/prof/delete');
+    final url = Uri.parse('http://203.247.42.144:443/prof/delete');
     final response = await http.delete(
       url,
       headers: {'Content-Type': 'application/json'},

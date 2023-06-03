@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Future<String?> loginUser(String studentId, String password) async {
-    final String apiUrl = 'http://3.39.88.187:3000/user/login';
+    final String apiUrl = 'http://203.247.42.144:443/user/login';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: <String, String>{
@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> sendVerificationEmail(String email) async {
-    final String apiUrl = 'http://3.39.88.187:3000/user/sendverificationpassword';
+    final String apiUrl = 'http://203.247.42.144:443/user/sendverificationpassword';
 
     if (!email.endsWith("@gm.hannam.ac.kr")) {
       ScaffoldMessenger.of(context).showSnackBar(

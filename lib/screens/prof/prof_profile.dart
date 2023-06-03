@@ -13,7 +13,7 @@ void main() {
 }
 
 Future<List<Map<String, dynamic>>> fetchProfessors() async {
-  final response = await http.get(Uri.parse('http://3.39.88.187:3000/prof/'));
+  final response = await http.get(Uri.parse('http://203.247.42.144:443/prof/'));
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
     return List<Map<String, dynamic>>.from(data);

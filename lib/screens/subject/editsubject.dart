@@ -31,7 +31,7 @@ class _EditSubjectPageState extends State<EditSubjectPage> {
 
   Future<void> fetchSubjectInfo() async {
     final url = Uri.parse(
-      'http://3.39.88.187:3000/subject/info?subject_id=${widget.subjectId}',
+      'http://203.247.42.144:443/subject/info?subject_id=${widget.subjectId}',
     );
     final response = await http.get(url);
 
@@ -99,7 +99,7 @@ class _EditSubjectPageState extends State<EditSubjectPage> {
 
   Future<void> fetchProfessorName() async {
     final url = Uri.parse(
-      'http://3.39.88.187:3000/prof/info?pro_id=$_proId',
+      'http://203.247.42.144:443/prof/info?pro_id=$_proId',
     );
     final response = await http.get(url);
 
@@ -116,7 +116,7 @@ class _EditSubjectPageState extends State<EditSubjectPage> {
   }
 
   Future<void> modifySubjectInfo() async {
-    final url = Uri.parse('http://3.39.88.187:3000/subject/modify');
+    final url = Uri.parse('http://203.247.42.144:443/subject/modify');
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -152,7 +152,7 @@ class _EditSubjectPageState extends State<EditSubjectPage> {
   }
 
   Future<void> deleteSubjectInfo() async {
-    final url = Uri.parse('http://3.39.88.187:3000/subject/delete');
+    final url = Uri.parse('http://203.247.42.144:443/subject/delete');
     final response = await http.delete(
       url,
       headers: {'Content-Type': 'application/json'},

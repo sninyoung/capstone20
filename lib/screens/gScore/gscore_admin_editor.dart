@@ -30,7 +30,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
   Future<void> _fetchGsInfo() async {
     if (activityTypes.isEmpty) {
       final typeResponse =
-      await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      await http.get(Uri.parse('http://203.247.42.144:443/gScore/getType'));
       if (typeResponse.statusCode == 200) {
         final typeResult = jsonDecode(typeResponse.body);
         for (var typeItem in typeResult) {
@@ -53,7 +53,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
     if (!activityNames.containsKey(selectedType)) {
       final encodedType = Uri.encodeComponent(selectedType);
       final infoResponse = await http.get(Uri.parse(
-          'http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+          'http://203.247.42.144:443/gScore/getInfoByType/$encodedType'));
       if (infoResponse.statusCode == 200) {
         final infoResult = jsonDecode(infoResponse.body);
         activityNames[selectedType] = {};
@@ -83,7 +83,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
 
   Future<void> _getMaxScore() async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/maxScore'),
+      Uri.parse('http://203.247.42.144:443/gScore/maxScore'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -125,7 +125,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
 
 
         final response = await http.post(
-          Uri.parse('http://3.39.88.187:3000/gScore/insertInfo'),
+          Uri.parse('http://203.247.42.144:443/gScore/insertInfo'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -171,7 +171,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
 
 
       final response = await http.post(
-        Uri.parse('http://3.39.88.187:3000/gScore/updateInfo'),
+        Uri.parse('http://203.247.42.144:443/gScore/updateInfo'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -207,7 +207,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
 
 
     final response = await http.delete(
-      Uri.parse('http://3.39.88.187:3000/gScore/deleteInfo'),
+      Uri.parse('http://203.247.42.144:443/gScore/deleteInfo'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -246,7 +246,7 @@ class _GScoreEditorState extends State<GScoreEditor> {
       };
 
       final response = await http.post(
-        Uri.parse('http://3.39.88.187:3000/gScore/updateMaxScore'),
+        Uri.parse('http://203.247.42.144:443/gScore/updateMaxScore'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

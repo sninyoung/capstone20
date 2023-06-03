@@ -15,7 +15,7 @@ void main() {
 }
 
 Future<List<List<Map<String, dynamic>>>> fetchSubjects() async {
-  final response = await http.get(Uri.parse('http://3.39.88.187:3000/subject/'));
+  final response = await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body) as List<dynamic>;
