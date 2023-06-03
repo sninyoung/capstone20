@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:core';
 import 'package:provider/provider.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone/drawer.dart';
 import 'package:capstone/screens/completion/completion_provider.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => CompletionProvider(),
       child: MaterialApp(
-        title: 'Capstone',
+        title: '나의 이수현황',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -48,6 +49,20 @@ class CompletedSubjects {
       proId: json['pro_id'],
     );
   }
+}
+
+// JWT 토큰에서 학생 ID를 가져오는 메서드
+Future<String> getStudentIdFromToken() async {
+  final storage = FlutterSecureStorage();
+  final token = await storage.read(key: 'token');
+
+  if (token == null) {
+    throw Exception('Token is not found');
+  }
+
+  final jwtToken = JwtDecoder.decode(token);
+
+  return jwtToken['student_id'];
 }
 
 //나의이수현황 페이지
@@ -100,11 +115,54 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     }
   }
 
+/*
+  //입학년도 가져오기
+  Future<int> getAdmissionYear() async {
+    String studentId = await getStudentIdFromToken();
+    String yearStr = studentId.substring(2, 4);
+    int year = int.parse(yearStr);
+
+    // 학번이 2000년 이후의 경우 대비
+    if(year < 30) year += 2000;
+    else year += 1900;
+
+    return year;
+  }
+
+  // 학번을 나타내는 위젯
+  Widget buildStudentIdWidget(BuildContext context) {
+    return FutureBuilder<int>(
+        future: getAdmissionYear(),
+        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('오류가 발생했습니다. ${snapshot.error}');
+          } else {
+            int? admissionYear = snapshot.data;
+            return Text(
+              '${admissionYear}학번 | ',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 15.0,
+                fontWeight: FontWeight.w600,
+              ),
+            );
+          }
+        }
+    );
+  }
+
+
+*/
+
   //빌드
   @override
   Widget build(BuildContext context) {
-    CompletionProvider completionProvider = Provider.of<CompletionProvider>(context);
+    CompletionProvider completionProvider =
+        Provider.of<CompletionProvider>(context);
     return Scaffold(
+      backgroundColor: Color(0xffffffff),
       appBar: AppBar(
         title: const Text(
           '이수과목',
@@ -159,50 +217,56 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
 
             //전공학점
             Container(
-              height: 80,
-              padding: EdgeInsets.fromLTRB(22, 16, 16, 16),
-              margin: EdgeInsets.only(left: 30.0, right: 30.0),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: Color(0xffF5F5F5),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Color(0xff858585),
-                        offset: Offset(0, 5),
-                        blurRadius: 5.0,
-                        spreadRadius: 0.0)
-                  ]),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Column(
                 children: [
-                  const Text(
-                    '총 전공학점 :  ',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  //총전공학점
-                  Consumer<CompletionProvider>(
-                    builder: (context, completionProvider, child) {
-                      return Text(
-                        '${completionProvider.totalElectiveCredits}',
-                        style: TextStyle(
-                          color: Color(0xff2D0BB7),
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w800,
+                  Container(
+                    height: 80,
+                    padding: EdgeInsets.fromLTRB(22, 16, 16, 16),
+                    margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Color(0xffF5F5F5),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Color(0xff858585),
+                              offset: Offset(0, 5),
+                              blurRadius: 5.0,
+                              spreadRadius: 0.0)
+                        ]),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '총 전공학점 :  ',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                  Text(
-                    ' /66학점',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w700,
+                        //총전공학점
+                        Consumer<CompletionProvider>(
+                          builder: (context, completionProvider, child) {
+                            return Text(
+                              '${completionProvider.totalElectiveCredits}',
+                              style: TextStyle(
+                                color: Color(0xff2D0BB7),
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            );
+                          },
+                        ),
+                        Text(
+                          ' /66학점',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -278,7 +342,8 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               MaterialPageRoute(builder: (context) {
                                 return ChangeNotifierProvider<
                                     CompletionProvider>.value(
-                                  value: Provider.of<CompletionProvider>(context,
+                                  value: Provider.of<CompletionProvider>(
+                                      context,
                                       listen: false),
                                   child: CompletedSubjectSelectPage(),
                                 );
@@ -311,14 +376,14 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
             ),
             SizedBox(height: 15.0),
 
-            //이수과목 과목명 불러오기
+            //이수한 전공선택과목 과목명
             Container(
               padding: const EdgeInsets.all(20.0),
               margin: const EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                    width: 0.8,
+                    width: 1.5,
                     color: Color(0xff858585),
                     style: BorderStyle.solid),
                 color: Color(0xffffffff),
@@ -333,6 +398,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      //전공선택과목 글씨를 클릭하면 전공선택과목 검색창으로 이동
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -348,13 +414,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      )
-,
+                      ),
                       SizedBox(
                         width: 8.0,
                       ),
                       Text(
-                        '${completionProvider.completedElective.length}과목',
+                        '${completionProvider.completedElective.length}과목 | ${completionProvider.totalElectiveCredits}학점',
                         style: TextStyle(
                           color: Color(0xff858585),
                           fontSize: 14.0,
@@ -385,7 +450,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               height: 20,
             ),
 
-
             //이수한 전공기초과목 과목명
             Container(
               width: double.infinity,
@@ -394,7 +458,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
-                    width: 0.8,
+                    width: 1.5,
                     color: Color(0xff858585),
                     style: BorderStyle.solid),
                 color: Color(0xffffffff),
@@ -407,23 +471,38 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => CStab()),
-                          );
-                        },
-                        child: const Text(
-                          '전공기초과목',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w600,
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CStab()),
+                              );
+                            },
+                            child: const Text(
+                              '전공기초과목',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                        ),
-                      )
-,
+                          SizedBox(
+                            width: 8.0,
+                          ),
+                          Text(
+                            '${completionProvider.completedCompulsory.length}과목 | ${completionProvider.totalCompulsoryCredits}학점',
+                            style: TextStyle(
+                              color: Color(0xff858585),
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                       SizedBox(
                         height: 8.0,
                       ),
@@ -437,7 +516,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 15.0,),
+                  SizedBox(
+                    height: 15.0,
+                  ),
                   Consumer<CompletionProvider>(
                     builder: (context, completionProvider, child) {
                       return Column(

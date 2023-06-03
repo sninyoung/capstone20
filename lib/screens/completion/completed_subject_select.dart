@@ -14,10 +14,6 @@ import 'package:capstone/screens/completion/subject_model.dart';
 
 // 이수과목 선택 페이지
 class CompletedSubjectSelectPage extends StatefulWidget {
-  /*final int? studentId;
-  final int? subjectId;
-  CompletedSubjectSelectPage(
-      {this.subjectId, this.studentId});*/
 
   @override
   _CompletedSubjectSelectPageState createState() =>
@@ -130,12 +126,13 @@ class _CompletedSubjectSelectPageState
                 children: [
                   //전공기초과목 field
                   Container(
+                    padding: EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: const Color(0xff858585),
-                        width: 2,
+                        width: 1.5,
                       ),
                     ),
                     child: Column(
@@ -183,6 +180,8 @@ class _CompletedSubjectSelectPageState
                             print('선택한 전공기초과목: $_compulsorySelections');
                           },
                           chipDisplay: MultiSelectChipDisplay(
+                            //chipColor: Colors.white70,
+                            textStyle: TextStyle(color: Colors.black),
                             onTap: (value) {
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
@@ -194,7 +193,7 @@ class _CompletedSubjectSelectPageState
                           ),
                         ),
 
-                        //아무 과목도 선택하지 않았을 경우 '선택안함' 표시 -실시간 반영
+                        //아무 전공기초과목도 선택하지 않았을 경우 '선택안함' 표시 -실시간 반영
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return completionProvider.completedCompulsory ==
@@ -219,6 +218,7 @@ class _CompletedSubjectSelectPageState
 
                   //전공선택과목 field
                   Container(
+                    padding: EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
                       borderRadius: BorderRadius.circular(10),
@@ -234,6 +234,8 @@ class _CompletedSubjectSelectPageState
                           initialChildSize: 0.4,
                           listType: MultiSelectListType.CHIP,
                           searchable: true,
+                          searchHint: '과목명을 입력하세요',
+
                           buttonText: const Text(
                             "전공선택과목",
                             style: TextStyle(
@@ -284,7 +286,7 @@ class _CompletedSubjectSelectPageState
                           ),
                         ),
 
-                        //아무
+                        //아무 전공선택과목을 선택하지 않았을 때 선택안함 표시
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return completionProvider.completedElective ==
