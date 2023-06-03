@@ -33,7 +33,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> _fetchLists() async {
     if (activityTypes.isEmpty) {
       final typeResponse =
-      await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getType'));
+      await http.get(Uri.parse('http://203.247.42.144:443/gScore/getType'));
       if (typeResponse.statusCode == 200) {
         final typeResult = jsonDecode(typeResponse.body);
         for (var typeItem in typeResult) {
@@ -53,7 +53,7 @@ class _GScoreApcState extends State<GScoreApc> {
   Future<void> _fetchNamesAndScores(String selectedType) async {
     if (!activityNames.containsKey(selectedType)) {
       final encodedType = Uri.encodeComponent(selectedType);
-      final infoResponse = await http.get(Uri.parse('http://3.39.88.187:3000/gScore/getInfoByType/$encodedType'));
+      final infoResponse = await http.get(Uri.parse('http://203.247.42.144:443/gScore/getInfoByType/$encodedType'));
       if (infoResponse.statusCode == 200) {
         final infoResult = jsonDecode(infoResponse.body);
         activityNames[selectedType] = {};
@@ -179,7 +179,7 @@ class _GScoreApcState extends State<GScoreApc> {
 
 
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/gScore/write'),
+      Uri.parse('http://203.247.42.144:443/gScore/write'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -217,7 +217,7 @@ class _GScoreApcState extends State<GScoreApc> {
         try {
           final request = http.MultipartRequest(
             'POST',
-            Uri.parse('http://3.39.88.187:3000/gScore/upload'),
+            Uri.parse('http://203.247.42.144:443/gScore/upload'),
           );
 
           request.files.add(
@@ -270,7 +270,7 @@ class _GScoreApcState extends State<GScoreApc> {
     while (retryCount < maxRetries) {
       try {
         final response = await http.post(
-          Uri.parse('http://3.39.88.187:3000/gScore/fileToDB'),
+          Uri.parse('http://203.247.42.144:443/gScore/fileToDB'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

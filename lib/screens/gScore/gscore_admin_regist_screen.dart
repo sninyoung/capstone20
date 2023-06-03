@@ -77,7 +77,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
     };
     print(postData);
     final response = await http.post(
-      Uri.parse('http://3.39.88.187:3000/gScore/allwrite'),
+      Uri.parse('http://203.247.42.144:443/gScore/allwrite'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -104,7 +104,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
       'gspost_file': '0',
     };
     final assWriteResponse = await http.post(
-      Uri.parse('http://3.39.88.187:3000/gScore/asswrite'),
+      Uri.parse('http://203.247.42.144:443/gScore/asswrite'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -124,7 +124,7 @@ class _GScoreAdminRegistState extends State<GScoreAdminRegist> {
 
   Future<void> _getuserInfo() async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gScore/allUser'),
+      Uri.parse('http://203.247.42.144:443/gScore/allUser'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

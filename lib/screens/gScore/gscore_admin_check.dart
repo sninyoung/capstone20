@@ -22,7 +22,7 @@ class _AdminCheckPageState extends State<AdminCheckPage> {
 
   Future<void> _fetchUserData() async {
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/gscore/allUser'),
+      Uri.parse('http://203.247.42.144:443/gscore/allUser'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

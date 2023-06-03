@@ -30,7 +30,7 @@ class Subject {
 //서버로부터 user의 이수과목 정보를 가져오기 위한 함수
 Future<List<Subject>> fetchSubjects() async {
   final response =
-  await http.get(Uri.parse('http://3.39.88.187:3000/user/required'));
+  await http.get(Uri.parse('http://203.247.42.144:443/user/required'));
 
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
@@ -102,7 +102,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
 
   Future<void> _fetchData() async {
     var response =
-    await http.get(Uri.parse('http://3.39.88.187:3000/user/required'));
+    await http.get(Uri.parse('http://203.247.42.144:443/user/required'));
     var decodedData = jsonDecode(response.body);
 
     List<Subject> compulsorySelections = [];
@@ -138,7 +138,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     final headers = { 'Authorization': 'Bearer ${_student?.token}'};
 
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/required'),
+      Uri.parse('http://203.247.42.144:443/user/required'),
       headers: headers,
     );
 
@@ -156,7 +156,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
   Future<User> fetchUser() async {
     final headers = { 'Authorization': 'Bearer ${_student?.token}'}; // 로그인 토큰
     final response = await http.get(
-      Uri.parse('http://3.39.88.187:3000/user/info'),
+      Uri.parse('http://203.247.42.144:443/user/info'),
       // user 정보를 받아오는 api endpoint
       headers: headers,
     );
@@ -171,7 +171,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
   /*//이수과목 정보 불러오기
   Future<void> fetchCompletedSubjects() async {
     var response = await http.get(Uri.parse(
-        'http://3.39.88.187:3000/user/required?student_id=${_student
+        'http://203.247.42.144:443/user/required?student_id=${_student
             ?.studentId}'));
     var decodedData = jsonDecode(response.body);
 
