@@ -331,7 +331,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       trailing: _isNotified ? Icon(Icons.fiber_new_outlined, color: Colors.red) : null,
                       onTap: () {
                         _updateNotificationStatus();
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 3)),
                         );
@@ -341,7 +341,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       leading: Icon(Icons.chat, color: Colors.grey[800]),
                       title: Text('구인구직 게시판'),
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => PartyBoardScreen()),
@@ -352,7 +352,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       leading: Icon(Icons.article, color: Colors.grey[800]),
                       title: Text('자유게시판'),
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => FreeBoardScreen()),
@@ -363,7 +363,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       leading: Icon(Icons.article, color: Colors.grey[800]),
                       title: Text('Q&A게시판'),
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => QnABoardScreen()),
