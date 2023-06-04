@@ -17,14 +17,46 @@ import 'package:capstone/screens/subject/ES_Tab.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CompletionProvider(),
-      child: MaterialApp(
-        title: '나의 이수현황',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          '나의 이수현황',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        home: CompletionStatusPage(),
+        backgroundColor: Color(0xffC1D3FF),
+        centerTitle: true,
+        elevation: 0.0,
+      ),
+      drawer: MyDrawer(),
+      body: ChangeNotifierProvider(
+        create: (context) => CompletionProvider(),
+        child: MaterialApp(
+          title: '나의 이수현황',
+          theme: ThemeData(
+            primarySwatch: Colors.grey,
+          ),
+          home: FutureBuilder(
+            future: Provider.of<CompletionProvider>(context, listen: false).init(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator(); // 로딩 중을 나타내는 UI
+              }
+
+              int enrollmentYear = int.parse(Provider.of<CompletionProvider>(context, listen: false).studentID.substring(0, 2));
+              if (enrollmentYear >= 23 && Provider.of<CompletionProvider>(context, listen: false).completionType == null) {
+                return SelectCompletionTypeScreen(); // 이수 유형을 선택하는 화면
+              }
+
+              return CompletionStatusPage(); // 메인 화면
+            },
+          ),
+
+          //home: CompletionStatusPage(),
+        ),
       ),
     );
   }
@@ -115,46 +147,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     }
   }
 
-/*
-  //입학년도 가져오기
-  Future<int> getAdmissionYear() async {
-    String studentId = await getStudentIdFromToken();
-    String yearStr = studentId.substring(2, 4);
-    int year = int.parse(yearStr);
-
-    // 학번이 2000년 이후의 경우 대비
-    if(year < 30) year += 2000;
-    else year += 1900;
-
-    return year;
-  }
-
-  // 학번을 나타내는 위젯
-  Widget buildStudentIdWidget(BuildContext context) {
-    return FutureBuilder<int>(
-        future: getAdmissionYear(),
-        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('오류가 발생했습니다. ${snapshot.error}');
-          } else {
-            int? admissionYear = snapshot.data;
-            return Text(
-              '${admissionYear}학번 | ',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15.0,
-                fontWeight: FontWeight.w600,
-              ),
-            );
-          }
-        }
-    );
-  }
-
-
-*/
 
   //빌드
   @override
@@ -245,7 +237,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        //총전공학점
+                        //학생별 이수한 총전공학점 -이수한 전공선택과목으로 계산
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return Text(
@@ -257,15 +249,28 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               ),
                             );
                           },
+                        )
+                        Consumer<CompletionProvider>(
+                          builder: (context, completionProvider, child) {
+                            return Text(
+                              '${completionProvider.creditToGraduate}',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            );
+                          },
                         ),
-                        Text(
-                          ' /66학점',
+
+                        /*Text(
+                          '/ ${Provider.of<CompletionProvider>(context).creditToGraduate}',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 16.0,
                             fontWeight: FontWeight.w700,
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
@@ -535,6 +540,39 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
             ),
             SizedBox(height: 50.0),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+//이수유형 선택 페이지
+class SelectCompletionTypeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final completionProvider = Provider.of<CompletionProvider>(context, listen: false);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Completion Type'),
+      ),
+      body: Center(
+        child: DropdownButton<String>(
+          hint: Text("Select your completion type"),
+          value: completionProvider.completionType,
+          items: <String>['CS', 'MD', 'TR', '부전공', '다전공']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) async {
+            await completionProvider.setCompletionType(newValue!);
+            Navigator.pop(context);
+          },
         ),
       ),
     );

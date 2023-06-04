@@ -14,7 +14,6 @@ import 'package:capstone/screens/completion/subject_model.dart';
 
 // 이수과목 선택 페이지
 class CompletedSubjectSelectPage extends StatefulWidget {
-
   @override
   _CompletedSubjectSelectPageState createState() =>
       _CompletedSubjectSelectPageState();
@@ -141,6 +140,7 @@ class _CompletedSubjectSelectPageState
                           initialChildSize: 0.4,
                           listType: MultiSelectListType.CHIP,
                           searchable: false,
+                          checkColor: Colors.white10,
                           buttonText: const Text(
                             "전공기초과목",
                             style: TextStyle(
@@ -180,8 +180,6 @@ class _CompletedSubjectSelectPageState
                             print('선택한 전공기초과목: $_compulsorySelections');
                           },
                           chipDisplay: MultiSelectChipDisplay(
-                            //chipColor: Colors.white70,
-                            textStyle: TextStyle(color: Colors.black),
                             onTap: (value) {
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
@@ -229,13 +227,12 @@ class _CompletedSubjectSelectPageState
                     ),
                     child: Column(
                       children: <Widget>[
-                        // 전공선택과목 필드
+                        // 전공선택과목 BottomSheet
                         MultiSelectBottomSheetField(
                           initialChildSize: 0.4,
                           listType: MultiSelectListType.CHIP,
                           searchable: true,
                           searchHint: '과목명을 입력하세요',
-
                           buttonText: const Text(
                             "전공선택과목",
                             style: TextStyle(
@@ -311,33 +308,33 @@ class _CompletedSubjectSelectPageState
               SizedBox(height: 80),
 
               //저장버튼
-            ElevatedButton(
-              onPressed: () async {
-                // 선택한 모든 과목을 로컬에 저장
-                await completionProvider.saveSubjects();
+              ElevatedButton(
+                onPressed: () async {
+                  // 선택한 모든 과목을 로컬에 저장
+                  await completionProvider.saveSubjects();
 
-                // 다음 페이지로 이동합니다.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CompletionStatusPage(),
+                  // 다음 페이지로 이동합니다.
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xffffff),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                textStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xffffff),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  backgroundColor: const Color(0xff341F87),
+                  minimumSize: Size(100, 50),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
-                backgroundColor: const Color(0xff341F87),
-                minimumSize: Size(100, 50),
+                child: Text('저장'),
               ),
-              child: Text('저장'),
-            ),
 
               SizedBox(height: 50.0),
             ],

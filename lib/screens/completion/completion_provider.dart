@@ -13,8 +13,6 @@ import 'package:capstone/screens/completion/completed_subject_select.dart';
 //Provider을 이용해 이수현황을 관리하는 파일
 
 
-
-
 // 이수과목 모델
 class CompletedSubjects {
   final int studentId;
@@ -47,7 +45,6 @@ class CompletionProvider extends ChangeNotifier {
   List<Subject> get completedCompulsory => _completedCompulsory;
   List<Subject> get completedElective => _completedElective;
 
-
   //JWT 토큰에서 학생 ID를 가져오는 메서드 - 학생ID로 사용자를 식별해 이수정보를 저장하기 위함.
   Future<String> getStudentIdFromToken() async {
     final storage = FlutterSecureStorage();
@@ -63,8 +60,19 @@ class CompletionProvider extends ChangeNotifier {
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
 
-  //이수과목
 
+  String _studentID = '';
+  String? _completionType;
+  int _creditToGraduate = 0; // Here we can initialize it with a default value, for example 0.
+
+  String get studentID => _studentID;
+  String? get completionType => _completionType;
+  int get creditToGraduate => _creditToGraduate;
+
+
+
+
+  //이수과목
   // SecureStorage에 이수한 과목을 저장하는 메서드
   Future<void> saveSubjects() async {
     List<Subject> allSubjects = []
@@ -394,17 +402,89 @@ class CompletionProvider extends ChangeNotifier {
   }
 
 
+
+
+
   //전공학점 관리
+  // 전공기초과목의 학점을 합산
   int get totalCompulsoryCredits {
     return _completedCompulsory
-        .fold(0, (sum, item) => sum + item.credit); // 전공기초과목의 학점을 합산
+        .fold(0, (sum, item) => sum + item.credit);
   }
-
+  // 전공선택과목의 학점을 합산 = 총전공학점 계산
   int get totalElectiveCredits {
     return _completedElective
-        .fold(0, (sum, item) => sum + item.credit); // 전공선택과목의 학점을 합산
+        .fold(0, (sum, item) => sum + item.credit);
   }
 
+
+
+  //졸업최저이수학점을 분류하기 위한 학번 저장하는 메서드
+  void setStudentId(String studentId) {
+    _studentID = studentId;
+    notifyListeners();
+  }
+
+  // SecureStorage에 이수유형을 저장하는 메서드
+  Future<void> saveCompletionType() async {
+    await storage.write(key: 'completionType', value: _completionType);
+  }
+
+  // SecureStorage에서 이수유형을 불러오는 메서드
+  Future<void> loadCompletionType() async {
+    String? data = await storage.read(key: 'completionType');
+    if (data != null) {
+      print('loadCompletionType() Data: $data'); // 로깅
+      _completionType = data;
+      notifyListeners();
+    }
+  }
+
+//졸업최저이수학점
+  //학번, 23학번 이상은 이수유형별 졸업최저이수학점을 계산해주는 메서드
+  int setCreditToGraduate() {
+    int enrollmentYear = int.parse(_studentID.substring(0, 2));
+
+    if (enrollmentYear <= 18) {
+      return 60;
+    } else if (enrollmentYear <= 22) {
+      return 66;
+    } else {
+      switch (_completionType) {
+        case 'CS':
+          return 54;
+        case 'MD':
+          return 60;
+        case 'TR':
+          return 63;
+        case '부전공':
+          return 42;
+        case '다전공':
+          return 36;
+        default:
+          throw Exception('Invalid completion type');
+      }
+    }
+  }
+
+
+  //이수유형별로 졸업기준학점을 설정  -setCreditToGraduate메서드를 호출해 _creditToGraduate 필드에 값을 할당
+  Future<void> setCompletionType(String completionType) async {
+    _completionType = completionType;
+    _creditToGraduate = setCreditToGraduate(); // using the method to assign value to _creditToGraduate
+    await saveCompletionType();
+    notifyListeners();
+  }
+
+
+
+
+  //앱이 시작될 때 학번을 가져오고, 졸업 학점을 설정하고, 이수 유형을 불러오는 작업을 수행
+  Future<void> init() async {
+    _studentID = await getStudentIdFromToken();
+    await loadCompletionType();
+    setCreditToGraduate();
+  }
 
 
 
