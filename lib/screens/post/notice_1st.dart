@@ -5,10 +5,12 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:capstone/drawer.dart';
 
-void main() {
+void main() async{
+  final selectedMenu = 5; // 원하는 _selectedMenu 값으로 설정
+
   runApp(MaterialApp(
     title: '1학년 공지',
-    home: NoticeTalkScreen_1(boardId: 3),
+    home: NoticeTalkScreen_1(boardId: selectedMenu),
   ));
 }
 
@@ -81,12 +83,12 @@ class ChatBubble extends CustomPainter {
 
 class NoticeTalkScreen_1 extends StatefulWidget {
   final int boardId;
+
   const NoticeTalkScreen_1({Key? key, required this.boardId}) : super(key: key);
 
   @override
-  NoticeTalkScreenState createState() => NoticeTalkScreenState();
+  NoticeTalkScreenState createState() => NoticeTalkScreenState(boardId: boardId);
 }
-
 
 
 class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
@@ -102,7 +104,9 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
   late Future<List<dynamic>> notices3;
   late Future<List<dynamic>> notices4;
 
-  int _selectedMenu = 1;
+  late int _selectedMenu; // non-nullable 형식으로 변경
+
+  NoticeTalkScreenState({required int boardId}) : _selectedMenu = boardId;
 
   @override
   void dispose() {
@@ -114,6 +118,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
   @override
   void initState() {
     super.initState();
+    _selectedMenu = widget.boardId; // boardId 값으로 _selectedMenu 초기화
     studentInfo();
     noticesAll = fetchNoticesAll();
     notices1 = fetchNotices1();
@@ -183,7 +188,8 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
       return;
     }
 
-    int board_id;
+    int board_id = _selectedMenu;
+
     if (_selectedMenu == 1) {
       board_id = 3; // Set board_id as 5 for noticesAll
     } else if (_selectedMenu == 2) {
@@ -217,7 +223,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => NoticeTalkScreen_1(boardId: board_id),
+          builder: (context) => NoticeTalkScreen_1(boardId: _selectedMenu),
         ),
       );
     } else {

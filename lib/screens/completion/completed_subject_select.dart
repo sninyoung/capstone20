@@ -81,7 +81,6 @@ class _CompletedSubjectSelectPageState
     }
   }
 
-  // 빌드
   @override
   Widget build(BuildContext context) {
     var completionProvider =

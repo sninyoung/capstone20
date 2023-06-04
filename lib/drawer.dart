@@ -333,7 +333,7 @@ class _MyDrawerState extends State<MyDrawer> {
                         _updateNotificationStatus();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 3)),
+                          MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 1)),
                         );
                       },
                     ),
@@ -394,6 +394,7 @@ class _MyDrawerState extends State<MyDrawer> {
                           );
                         }
                     ),
+
                     ListTile(
                       title: Text('이수과목 선택'),
                       leading: Icon(
@@ -401,11 +402,22 @@ class _MyDrawerState extends State<MyDrawer> {
                           color: Colors.grey[800]
                       ),
                       onTap: () {
+                        /*
                         Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
                                 SubjectSelect(subjectId: 0),
                             ));
+*/
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              CompletionStatusPage(
+                                student_id: '',
+                                grade: '',
+                                major_type: '',
+                              )),
+                        );
                       },
                     )
                   ],),
