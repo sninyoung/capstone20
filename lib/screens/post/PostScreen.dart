@@ -372,8 +372,6 @@ class _PostScreenState extends State<PostScreen> {
         _errorMessage = responseData['message'];
       });
     }
-
-
   }
 
   @override
@@ -395,35 +393,6 @@ class _PostScreenState extends State<PostScreen> {
         centerTitle: true,
         elevation: 0.0,
         actions: [
-          IconButton(
-            onPressed: () async {
-              bool confirmReport = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('게시글 신고'),
-                    content: Text('게시글을 신고 하시겠습니까?'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: Text('취소'),
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                      ),
-                      TextButton(
-                        child: Text('신고'),
-                        onPressed: () async {
-                          await reportPost();
-                          Navigator.pop(context, true);
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            icon: Icon(Icons.report_gmailerrorred),
-          ),
 
           if (isPostAuthor) // 게시글 작성자인 경우에만 보여주기
             IconButton(
@@ -489,6 +458,43 @@ class _PostScreenState extends State<PostScreen> {
                   fontSize: 16.0,
                 ),
                 //overflow: TextOverflow.ellipsis,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      bool confirmReport = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('게시글 신고'),
+                            content: Text('게시글을 신고 하시겠습니까?'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('취소'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                              ),
+                              TextButton(
+                                child: Text('신고'),
+                                onPressed: () async {
+                                  await reportPost();
+                                  Navigator.pop(context, true);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    icon: Icon(
+                      Icons.flag,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 16.0),
               Divider(
@@ -617,9 +623,6 @@ class _PostScreenState extends State<PostScreen> {
                                     ],
                                   ),
                                 ),
-
-
-
 
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

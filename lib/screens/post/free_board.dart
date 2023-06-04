@@ -178,6 +178,12 @@ class FreeBoardScreenState extends State<FreeBoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text(
           '자유게시판',
           style: TextStyle(
@@ -190,7 +196,6 @@ class FreeBoardScreenState extends State<FreeBoardScreen> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

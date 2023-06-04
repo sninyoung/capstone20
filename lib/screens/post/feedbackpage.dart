@@ -149,6 +149,12 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
           title: const Text(
             '피드백',
             style: TextStyle(
@@ -174,7 +180,6 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
             ],
           ),
         ),
-        drawer: MyDrawer(),
         body: TabBarView(
           children: [
             RefreshIndicator(
