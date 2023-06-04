@@ -73,6 +73,8 @@ class CompletionProvider extends ChangeNotifier {
 
 
   //이수과목
+
+
   // SecureStorage에 이수한 과목을 저장하는 메서드
   Future<void> saveSubjects() async {
     List<Subject> allSubjects = []
@@ -109,8 +111,39 @@ class CompletionProvider extends ChangeNotifier {
   _completedCompulsory와 _completedElective 리스트는 SecureStorage에 저장된 데이터로 업데이트
 */
 
+/*
+//이수과목 정보 불러오기
+  Future<List<Subject>> fetchCompletedSubjects() async {
+    print('Fetching completed subjects...');
 
-  //서버에서 최신 데이터를 가져와 로컬 저장소를 업데이트 하는 메서드
+    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
+    if (token == null) {
+      throw Exception('Authentication token not found');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://203.247.42.144:443/user/required'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': token, // 헤더에 토큰 추가
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final List<Subject> subjects =
+      data.map((item) => Subject.fromJson(item)).toList();
+
+      print('Completed subjects retrieved: $subjects');
+
+      return subjects;
+    } else {
+      throw Exception('Failed to load saved subjects');
+    }
+  }
+*/
+
+  //서버에서 이수과목의 최신 데이터를 가져와 로컬 저장소를 업데이트 하는 메서드
   Future<void> fetchCompletedSubjects(int studentId) async {
     final Uri completedSubjectsUrl =
     Uri.parse('http://203.247.42.144:443/user/required?student_id=$studentId');

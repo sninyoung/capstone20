@@ -97,6 +97,40 @@ Future<String> getStudentIdFromToken() async {
   return jwtToken['student_id'];
 }
 
+
+//이수유형 선택 페이지
+class SelectCompletionTypeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final completionProvider = Provider.of<CompletionProvider>(context, listen: false);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Completion Type'),
+      ),
+      body: Center(
+        child: DropdownButton<String>(
+          hint: Text("Select your completion type"),
+          value: completionProvider.completionType,
+          items: <String>['CS', 'MD', 'TR', '부전공', '다전공']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) async {
+            await completionProvider.setCompletionType(newValue!);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+
+
 //나의이수현황 페이지
 class CompletionStatusPage extends StatefulWidget {
   @override
@@ -105,7 +139,6 @@ class CompletionStatusPage extends StatefulWidget {
 
 class _CompletionStatusPageState extends State<CompletionStatusPage> {
   final storage = FlutterSecureStorage();
-  late Future<List<Subject>> futureCompletedSubjects;
 
   @override
   void initState() {
@@ -115,36 +148,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       Provider.of<CompletionProvider>(context, listen: false).loadSubjects();
     });
-  }
-
-  //이수과목 정보 불러오기
-  Future<List<Subject>> fetchCompletedSubjects() async {
-    print('Fetching completed subjects...');
-
-    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
-    if (token == null) {
-      throw Exception('Authentication token not found');
-    }
-
-    final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/user/required'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token, // 헤더에 토큰 추가
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final List<Subject> subjects =
-          data.map((item) => Subject.fromJson(item)).toList();
-
-      print('Completed subjects retrieved: $subjects');
-
-      return subjects;
-    } else {
-      throw Exception('Failed to load saved subjects');
-    }
   }
 
 
@@ -237,6 +240,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+
                         //학생별 이수한 총전공학점 -이수한 전공선택과목으로 계산
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
@@ -249,11 +253,13 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               ),
                             );
                           },
-                        )
+                        ),
+
+                        //졸업최저이수학점
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return Text(
-                              '${completionProvider.creditToGraduate}',
+                              ' / ${completionProvider.creditToGraduate}',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 16.0,
@@ -548,33 +554,3 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
 
 
 
-//이수유형 선택 페이지
-class SelectCompletionTypeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final completionProvider = Provider.of<CompletionProvider>(context, listen: false);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select Completion Type'),
-      ),
-      body: Center(
-        child: DropdownButton<String>(
-          hint: Text("Select your completion type"),
-          value: completionProvider.completionType,
-          items: <String>['CS', 'MD', 'TR', '부전공', '다전공']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (String? newValue) async {
-            await completionProvider.setCompletionType(newValue!);
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    );
-  }
-}
