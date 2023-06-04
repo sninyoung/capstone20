@@ -307,6 +307,12 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text(
           '공지 알림톡',
           textAlign: TextAlign.center,
@@ -315,7 +321,6 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
         centerTitle: true,
         backgroundColor: Color(0xffC1D3FF),
       ),
-      drawer: MyDrawer(),
       backgroundColor: Colors.white,
 
       body: Container(

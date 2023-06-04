@@ -1,5 +1,6 @@
-
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -28,7 +29,7 @@ class _ProfileState extends State<Profile> {
   String? _accountName;
   String? _accountEmail;
   String? _accountIntroduction;
-
+  String? _accountGrade;
   void _studentinfo() async {
     setState(() => _isLoading = true);
 
@@ -61,6 +62,7 @@ class _ProfileState extends State<Profile> {
         _accountName = responseData[0]['name'];
         _accountEmail = responseData[0]['email'];
         _accountIntroduction = responseData[0]['introduction'];
+        _accountGrade = responseData[0]['grade'].toString();
       });
     } else {
       // Failure
@@ -209,6 +211,14 @@ class _ProfileState extends State<Profile> {
                           .textTheme
                           .headline6
                           ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  if(_accountGrade != null)
+                    Text(
+                      _accountGrade! + "학년",
+                      style: Theme.of(context).textTheme.headline6?.copyWith(
+                        fontSize: 15, // 폰트 크기 변경
+                        color: Colors.grey, // 글꼴 색상 변경
+                      ),
                     ),
                   const SizedBox(height: 16),
                   Row(
@@ -510,6 +520,7 @@ class _TopPortionState extends State<_TopPortion> {
     }
   }
 
+
   void _selectAndUploadImage(BuildContext context) async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -518,7 +529,18 @@ class _TopPortionState extends State<_TopPortion> {
     }
 
     final String fileName = _accountId != null ? _accountId! + '.png' : '';
-    final bytes = await image.readAsBytes();
+
+    // 이미지 압축
+    final filePath = image.path;
+    final Uint8List? compressedBytes = await FlutterImageCompress.compressWithFile(
+      filePath,
+      minWidth: 600,
+      minHeight: 600,
+      quality: 10,
+    );
+
+    // If the compression was successful, convert Uint8List to List<int>
+    final List<int> bytes = compressedBytes != null ? List<int>.from(compressedBytes) : [];
 
     final request = http.MultipartRequest(
         'POST', Uri.parse('http://203.247.42.144:443/user/upload'));
@@ -536,6 +558,8 @@ class _TopPortionState extends State<_TopPortion> {
       );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -698,8 +722,8 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 } else if (value.length < 8) {
                   return "비밀번호는 8자 이상이어야 합니다";
                 } else if (!RegExp(
-                            r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
-                        .hasMatch(value) ||
+                    r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*(),.?":{}|<>]).{8,}$')
+                    .hasMatch(value) ||
                     value.contains('?')) {
                   return "비밀번호는 대문자, 소문자, 숫자, 특수문자를\n포함하며 '?' 문자를 사용할 수 없습니다";
                 }
