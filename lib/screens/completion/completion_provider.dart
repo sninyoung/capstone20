@@ -501,7 +501,7 @@ class CompletionProvider extends ChangeNotifier {
   }
 
 
-  //이수유형별로 졸업기준학점을 설정  -setCreditToGraduate메서드를 호출해 _creditToGraduate 필드에 값을 할당
+  //이수유형별로 졸업최저이수학점을 설정  -setCreditToGraduate메서드를 호출해 _creditToGraduate 필드에 값을 할당
   Future<void> setCompletionType(String completionType) async {
     _completionType = completionType;
     _creditToGraduate = setCreditToGraduate(); // using the method to assign value to _creditToGraduate

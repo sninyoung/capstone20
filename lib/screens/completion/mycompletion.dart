@@ -40,14 +40,17 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.grey,
           ),
           home: FutureBuilder(
-            future: Provider.of<CompletionProvider>(context, listen: false).init(),
+            future:
+                Provider.of<CompletionProvider>(context, listen: false).init(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator(); // 로딩 중을 나타내는 UI
               }
 
-              int enrollmentYear = int.parse(Provider.of<CompletionProvider>(context, listen: false).studentID.substring(0, 2));
-              if (enrollmentYear >= 23 && Provider.of<CompletionProvider>(context, listen: false).completionType == null) {
+              CompletionProvider completionProvider =
+                  Provider.of<CompletionProvider>(context, listen: false);
+
+              if (completionProvider.completionType == null) {
                 return SelectCompletionTypeScreen(); // 이수 유형을 선택하는 화면
               }
 
@@ -97,39 +100,84 @@ Future<String> getStudentIdFromToken() async {
   return jwtToken['student_id'];
 }
 
-
 //이수유형 선택 페이지
 class SelectCompletionTypeScreen extends StatelessWidget {
+  const SelectCompletionTypeScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final completionProvider = Provider.of<CompletionProvider>(context, listen: false);
+    CompletionProvider completionProvider =
+        Provider.of<CompletionProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Completion Type'),
+        title: const Text('학번과 이수유형 선택'),
       ),
       body: Center(
-        child: DropdownButton<String>(
-          hint: Text("Select your completion type"),
-          value: completionProvider.completionType,
-          items: <String>['CS', 'MD', 'TR', '부전공', '다전공']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (String? newValue) async {
-            await completionProvider.setCompletionType(newValue!);
-            Navigator.pop(context);
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                completionProvider.setCompletionType('CS');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage()),
+                );
+              },
+              child: const Text('이수유형1 : CS'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                completionProvider.setCompletionType('MD');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage()),
+                );
+              },
+              child: const Text('2 : MD'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                completionProvider.setCompletionType('TR');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage()),
+                );
+              },
+              child: const Text('이수유형3 : TR'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                completionProvider.setCompletionType('부전공');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage()),
+                );
+              },
+              child: const Text('이수유형4 : 부전공'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                completionProvider.setCompletionType('다전공');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CompletionStatusPage()),
+                );
+              },
+              child: const Text('이수유형5 : 다전공'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-
 
 //나의이수현황 페이지
 class CompletionStatusPage extends StatefulWidget {
@@ -149,7 +197,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
       Provider.of<CompletionProvider>(context, listen: false).loadSubjects();
     });
   }
-
 
   //빌드
   @override
@@ -551,6 +598,3 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     );
   }
 }
-
-
-
