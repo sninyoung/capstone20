@@ -91,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   String userName = ''; // userName 변수를 클래스 레벨로 선언
   String studentId = ''; // userName 변수를 클래스 레벨로 선언
   String grade = ''; // userName 변수를 클래스 레벨로 선언
+  String permission = ''; // userName 변수를 클래스 레벨로 선언
 
   Future<List<Map<String, dynamic>>> _getMaxScores() async {
     final response = await http.get(
@@ -144,12 +145,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       final allScore = jsonDecode(allScoreTemp);
 
       setState(() {
-      userName = user['name'] as String;
-      grade = user['grade'] as String;
-      studentId = user['student_id'] as String;
+      userName = user['name'];
+      grade = user['grade'].toString();
+      studentId = user['student_id'].toString();
+      permission = user['permission'].toString();
       });
-
-      print('$userName');
 
       allScore.forEach((key, value) {
         if (maxScores.any((score) => score.containsKey(key))) {
@@ -179,7 +179,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     userName = '';
     studentId = '';
     grade = '';
+    permission = '';
     _getUserInfo();
+
 
     percentageAnimationController = AnimationController(
         vsync: this,
@@ -233,7 +235,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Text('Name: $userName StudentID: $studentId, Grade: $grade'),
+                ProfileWidget(
+                  userName: userName, // userName 전달
+                  studentId: studentId, // studentId 전달
+                  grade: grade, // grade 전달
+                  permission : permission,
+                ),
                 SizedBox(height: 16), // Add SizedBox for spacing
                 NoticeWidget(),
                 SizedBox(height: 16), // Add SizedBox for spacing
@@ -251,6 +258,113 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 }
+
+class ProfileWidget extends StatelessWidget {
+  final String userName;
+  final String studentId;
+  final String grade;
+  final String permission;
+
+  ProfileWidget({
+    required this.userName,
+    required this.studentId,
+    required this.grade,
+    required this.permission,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fileName = '$studentId.png';
+    final imageUrl = 'http://203.247.42.144:443/user/loading?image=$fileName';
+
+    String departmentText = '컴퓨터공학과 | $grade학년';
+    if (permission == '2' || permission == '3') {
+      departmentText = '컴퓨터공학과';
+    }
+
+    return Container(
+      // Profile Widget의 디자인과 동작을 구현한 코드
+      // 예를 들어 프로필 이미지, 사용자 이름, 소개 등을 포함할 수 있습니다.
+      color: Color(0xFFF5F5F5),
+      height: MediaQuery.of(context).size.height * 0.3, // 수직 방향으로 더 크기 설정
+
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              // border: Border.all(color: Colors.black, width: 1.0), // 사진 테두리 색 설정
+            ),
+            child: ClipOval(
+              child: SizedBox(
+                width: 120,
+                height: 120,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (fileName != null)
+                      Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // 이미지 로딩 중 에러 발생 시 기본 프로필 사진 반환
+                          return Image.asset(
+                            'assets/profile.png',
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    else
+                      Image.asset(
+                        'assets/profile.png',
+                        fit: BoxFit.cover,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          Text(
+            '$userName',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              height: 0.85,
+              color: Colors.black,
+              decoration: TextDecoration.none,
+              decorationColor: Colors.black,
+              decorationThickness: 1,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 15),
+          Text(
+            departmentText,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w400,
+              fontSize: 15,
+              height: 0.48,
+              color: Colors.black,
+              decoration: TextDecoration.none,
+              decorationColor: Colors.black,
+              decorationThickness: 1,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
 
 class SubWidget extends StatelessWidget {
   final TextEditingController searchController = TextEditingController();
@@ -565,11 +679,11 @@ class _NoticeWidgetState extends State<NoticeWidget> {
     String noticeTitleAll = '';
 
     // 각 파일에서 최근 공지사항 가져오기
-    List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState().fetchNotices1();
-    List<dynamic> fetchedNotices2nd = await Notice1st.NoticeTalkScreenState().fetchNotices2();
-    List<dynamic> fetchedNotices3rd = await Notice1st.NoticeTalkScreenState().fetchNotices3();
-    List<dynamic> fetchedNotices4th = await Notice1st.NoticeTalkScreenState().fetchNotices4();
-    List<dynamic> fetchedNoticesAll = await Notice1st.NoticeTalkScreenState().fetchNoticesAll();
+    List<dynamic> fetchedNotices1st = await Notice1st.NoticeTalkScreenState(boardId: 2).fetchNotices1();
+    List<dynamic> fetchedNotices2nd = await Notice1st.NoticeTalkScreenState(boardId: 3).fetchNotices2();
+    List<dynamic> fetchedNotices3rd = await Notice1st.NoticeTalkScreenState(boardId: 4).fetchNotices3();
+    List<dynamic> fetchedNotices4th = await Notice1st.NoticeTalkScreenState(boardId: 5).fetchNotices4();
+    List<dynamic> fetchedNoticesAll = await Notice1st.NoticeTalkScreenState(boardId: 1).fetchNoticesAll();
 
     // 각 리스트에서 최근 공지사항이 존재할 경우, 제목을 저장 (최대 10글자까지만 저장)
     if (fetchedNotices1st.isNotEmpty) {
@@ -688,25 +802,25 @@ class _NoticeWidgetState extends State<NoticeWidget> {
                   if (index == 0) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 5)));
+                      MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 2)));
                   } else if (index == 1) {
                     Navigator.push(
                       context,
-                        MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 6)));
+                        MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 3)));
                   } else if (index == 2) {
                     Navigator.push(
                       context,
-                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 7)));
+                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 4)));
 
                   } else if (index == 3) {
                     Navigator.push(
                       context,
-                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 8)));
+                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 5)));
 
                   } else if (index == 4) {
                     Navigator.push(
                       context,
-                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 3)));
+                    MaterialPageRoute(builder: (context) => Notice1st.NoticeTalkScreen_1(boardId: 1)));
 
                   }
                 },

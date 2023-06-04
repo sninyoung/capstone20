@@ -333,7 +333,7 @@ class _MyDrawerState extends State<MyDrawer> {
                         _updateNotificationStatus();
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 3)),
+                          MaterialPageRoute(builder: (context) => NoticeTalkScreen_1(boardId: 1)),
                         );
                       },
                     ),
