@@ -13,6 +13,8 @@ import 'package:capstone/screens/completion/completed_subject_select.dart';
 //Provider을 이용해 이수현황을 관리하는 파일
 
 
+
+
 // 이수과목 모델
 class CompletedSubjects {
   final int studentId;
@@ -45,6 +47,7 @@ class CompletionProvider extends ChangeNotifier {
   List<Subject> get completedCompulsory => _completedCompulsory;
   List<Subject> get completedElective => _completedElective;
 
+
   //JWT 토큰에서 학생 ID를 가져오는 메서드 - 학생ID로 사용자를 식별해 이수정보를 저장하기 위함.
   Future<String> getStudentIdFromToken() async {
     final storage = FlutterSecureStorage();
@@ -54,26 +57,18 @@ class CompletionProvider extends ChangeNotifier {
       throw Exception('Token is not found');
     }
 
+    // JWT 토큰의 만료 여부 확인
+    if(JwtDecoder.isExpired(token)){
+      throw Exception('Token has expired');
+    }
+
     final jwtToken =
     JwtDecoder.decode(token); // use jwt_decoder package to decode the token
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
 
-
-  String _studentID = '';
-  String? _completionType;
-  int _creditToGraduate = 0; // Here we can initialize it with a default value, for example 0.
-
-  String get studentID => _studentID;
-  String? get completionType => _completionType;
-  int get creditToGraduate => _creditToGraduate;
-
-
-
-
   //이수과목
-
 
   // SecureStorage에 이수한 과목을 저장하는 메서드
   Future<void> saveSubjects() async {
@@ -107,43 +102,12 @@ class CompletionProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
- /* loadSubjects()를 호출하여 SecureStorage에서 데이터를 로드하면
+  /* loadSubjects()를 호출하여 SecureStorage에서 데이터를 로드하면
   _completedCompulsory와 _completedElective 리스트는 SecureStorage에 저장된 데이터로 업데이트
 */
 
-/*
-//이수과목 정보 불러오기
-  Future<List<Subject>> fetchCompletedSubjects() async {
-    print('Fetching completed subjects...');
 
-    final token = await storage.read(key: 'token'); // Storage에서 토큰 읽기
-    if (token == null) {
-      throw Exception('Authentication token not found');
-    }
-
-    final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/user/required'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': token, // 헤더에 토큰 추가
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final List<Subject> subjects =
-      data.map((item) => Subject.fromJson(item)).toList();
-
-      print('Completed subjects retrieved: $subjects');
-
-      return subjects;
-    } else {
-      throw Exception('Failed to load saved subjects');
-    }
-  }
-*/
-
-  //서버에서 이수과목의 최신 데이터를 가져와 로컬 저장소를 업데이트 하는 메서드
+  //서버에서 최신 데이터를 가져와 로컬 저장소를 업데이트 하는 메서드
   Future<void> fetchCompletedSubjects(int studentId) async {
     final Uri completedSubjectsUrl =
     Uri.parse('http://203.247.42.144:443/user/required?student_id=$studentId');
@@ -435,89 +399,17 @@ class CompletionProvider extends ChangeNotifier {
   }
 
 
-
-
-
   //전공학점 관리
-  // 전공기초과목의 학점을 합산
   int get totalCompulsoryCredits {
     return _completedCompulsory
-        .fold(0, (sum, item) => sum + item.credit);
+        .fold(0, (sum, item) => sum + item.credit); // 전공기초과목의 학점을 합산
   }
-  // 전공선택과목의 학점을 합산 = 총전공학점 계산
+
   int get totalElectiveCredits {
     return _completedElective
-        .fold(0, (sum, item) => sum + item.credit);
+        .fold(0, (sum, item) => sum + item.credit); // 전공선택과목의 학점을 합산
   }
 
-
-
-  //졸업최저이수학점을 분류하기 위한 학번 저장하는 메서드
-  void setStudentId(String studentId) {
-    _studentID = studentId;
-    notifyListeners();
-  }
-
-  // SecureStorage에 이수유형을 저장하는 메서드
-  Future<void> saveCompletionType() async {
-    await storage.write(key: 'completionType', value: _completionType);
-  }
-
-  // SecureStorage에서 이수유형을 불러오는 메서드
-  Future<void> loadCompletionType() async {
-    String? data = await storage.read(key: 'completionType');
-    if (data != null) {
-      print('loadCompletionType() Data: $data'); // 로깅
-      _completionType = data;
-      notifyListeners();
-    }
-  }
-
-//졸업최저이수학점
-  //학번, 23학번 이상은 이수유형별 졸업최저이수학점을 계산해주는 메서드
-  int setCreditToGraduate() {
-    int enrollmentYear = int.parse(_studentID.substring(0, 2));
-
-    if (enrollmentYear <= 18) {
-      return 60;
-    } else if (enrollmentYear <= 22) {
-      return 66;
-    } else {
-      switch (_completionType) {
-        case 'CS':
-          return 54;
-        case 'MD':
-          return 60;
-        case 'TR':
-          return 63;
-        case '부전공':
-          return 42;
-        case '다전공':
-          return 36;
-        default:
-          throw Exception('Invalid completion type');
-      }
-    }
-  }
-
-
-  //이수유형별로 졸업최저이수학점을 설정  -setCreditToGraduate메서드를 호출해 _creditToGraduate 필드에 값을 할당
-  Future<void> setCompletionType(String completionType) async {
-    _completionType = completionType;
-    _creditToGraduate = setCreditToGraduate(); // using the method to assign value to _creditToGraduate
-    await saveCompletionType();
-    notifyListeners();
-  }
-
-
-
-
-  //앱이 시작될 때 학번을 가져오고, 졸업 학점을 설정하고, 이수 유형을 불러오는 작업을 수행
-  Future<void> init() async {
-    _studentID = await getStudentIdFromToken();
-    await loadCompletionType();
-    setCreditToGraduate();
-  }
 
 
 
