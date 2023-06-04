@@ -126,6 +126,7 @@ class _CompletedSubjectSelectPageState
                   //전공기초과목 field
                   Container(
                     padding: EdgeInsets.all(10.0),
+                    margin: EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
                       borderRadius: BorderRadius.circular(10),
@@ -140,19 +141,20 @@ class _CompletedSubjectSelectPageState
                           initialChildSize: 0.4,
                           listType: MultiSelectListType.CHIP,
                           searchable: false,
-                          checkColor: Colors.white10,
                           buttonText: const Text(
                             "전공기초과목",
                             style: TextStyle(
+                              color: Colors.black,
                               fontSize: 14.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           title: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: const Text(
                               "전공기초과목",
                               style: TextStyle(
+                                color: Colors.black,
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -179,7 +181,11 @@ class _CompletedSubjectSelectPageState
                             }
                             print('선택한 전공기초과목: $_compulsorySelections');
                           },
+                          selectedColor: Colors.black,
+                          selectedItemsTextStyle: TextStyle(color: Color(0xfffcfcfc)),
                           chipDisplay: MultiSelectChipDisplay(
+                            chipColor: Colors.black,
+                            textStyle: TextStyle(color: Color(0xfffcfcfc)),
                             onTap: (value) {
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
@@ -190,7 +196,6 @@ class _CompletedSubjectSelectPageState
                             },
                           ),
                         ),
-
                         //아무 전공기초과목도 선택하지 않았을 경우 '선택안함' 표시 -실시간 반영
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
@@ -206,7 +211,9 @@ class _CompletedSubjectSelectPageState
                                       style: TextStyle(color: Colors.black54),
                                     ),
                                   )
-                                : Container();
+                                : Container(
+                                    height: 30,
+                                  );
                           },
                         )
                       ],
@@ -217,6 +224,7 @@ class _CompletedSubjectSelectPageState
                   //전공선택과목 field
                   Container(
                     padding: EdgeInsets.all(10.0),
+                    margin: EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
                       borderRadius: BorderRadius.circular(10),
@@ -271,7 +279,13 @@ class _CompletedSubjectSelectPageState
                             }
                             print('선택한 전공선택과목: $_electiveSelections');
                           },
+                          //전공선택과목 선택할 때의 chip컬러
+                          selectedColor: Colors.black,
+                          selectedItemsTextStyle: TextStyle(color: Color(0xfffcfcfc)),
                           chipDisplay: MultiSelectChipDisplay(
+                            //전공선택과목 선택 후 chip컬러
+                            chipColor: Colors.black,
+                            textStyle: TextStyle(color: Color(0xfffcfcfc)),
                             onTap: (value) {
                               setState(() {
                                 _electiveSelections.remove(value as Subject);
