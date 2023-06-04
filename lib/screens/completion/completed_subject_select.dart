@@ -181,11 +181,12 @@ class _CompletedSubjectSelectPageState
                             }
                             print('선택한 전공기초과목: $_compulsorySelections');
                           },
-                          selectedColor: Colors.black,
-                          selectedItemsTextStyle: TextStyle(color: Color(0xfffcfcfc)),
+                          selectedColor: Color(0xffDDDDDD),
+                          selectedItemsTextStyle:
+                              TextStyle(color: Color(0xffffffff)),
                           chipDisplay: MultiSelectChipDisplay(
-                            chipColor: Colors.black,
-                            textStyle: TextStyle(color: Color(0xfffcfcfc)),
+                            chipColor: Color(0xffCBCBCB),
+                            textStyle: TextStyle(color: Colors.black),
                             onTap: (value) {
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
@@ -280,12 +281,13 @@ class _CompletedSubjectSelectPageState
                             print('선택한 전공선택과목: $_electiveSelections');
                           },
                           //전공선택과목 선택할 때의 chip컬러
-                          selectedColor: Colors.black,
-                          selectedItemsTextStyle: TextStyle(color: Color(0xfffcfcfc)),
+                          selectedColor: Color(0xff89AAFF),
+                          selectedItemsTextStyle:
+                              TextStyle(color: Color(0xffffffff)),
                           chipDisplay: MultiSelectChipDisplay(
                             //전공선택과목 선택 후 chip컬러
-                            chipColor: Colors.black,
-                            textStyle: TextStyle(color: Color(0xfffcfcfc)),
+                            chipColor: Color(0xffC1D3FF),
+                            textStyle: TextStyle(color: Colors.black),
                             onTap: (value) {
                               setState(() {
                                 _electiveSelections.remove(value as Subject);
