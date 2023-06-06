@@ -1,3 +1,4 @@
+import 'package:capstone/screens/completion/graduation_guide.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -115,20 +116,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     }
   }
 
-  //입학년도 가져오기
-  Future<int> getAdmissionYear() async {
-    String studentId = await getStudentIdFromToken();
-    String yearStr = studentId.substring(2, 4);
-    int year = int.parse(yearStr);
-
-    // 학번이 2000년 이후의 경우 대비
-    if(year < 30) year += 2000;
-    else year += 1900;
-
-    return year;
-  }
-
-  // 학번을 나타내는 위젯
+  /*// 학번을 나타내는 위젯
   Widget buildStudentIdWidget(BuildContext context) {
     return FutureBuilder<int>(
         future: getAdmissionYear(),
@@ -152,7 +140,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     );
   }
 
-
+*/
 
   //빌드
   @override
@@ -163,7 +151,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
         title: const Text(
-          '이수과목',
+          '나의 이수현황',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -182,7 +170,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
             Container(
               alignment: Alignment.centerLeft,
               height: 120,
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.only(
+                left: 25.0,
+                top: 16.0,
+                right: 16.0,
+                bottom: 16.0,
+              ),
               decoration: BoxDecoration(
                 color: Color(0xffffffff),
               ),
@@ -244,36 +237,44 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        //총전공학점
-                        Consumer<CompletionProvider>(
-                          builder: (context, completionProvider, child) {
-                            return Text(
-                              '${completionProvider.totalElectiveCredits}',
-                              style: TextStyle(
-                                color: Color(0xff2D0BB7),
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            );
+                        //이수한 총 전공학점
+                        FutureBuilder<int>(
+                          future: Provider.of<CompletionProvider>(context,
+                              listen: false)
+                              .getTotalElectiveCredits(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<int> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              return Text(
+                                '${snapshot.data}',
+                                style: TextStyle(
+                                  color: Color(0xff2D0BB7),
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              );
+                            }
                           },
                         ),
+                        //입학년도별 졸업기준학점
                         FutureBuilder<int>(
-                            future: getAdmissionYear(),
-                            builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
+                            future: Provider.of<CompletionProvider>(context,
+                                listen: false)
+                                .getCreditToGraduate(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<int> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
                                 return CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('오류가 발생했습니다. ${snapshot.error}');
                               } else {
-                                int? admissionYear = snapshot.data;
-                                int creditsToGraduate;
-                                if (admissionYear! <= 2018) {
-                                  creditsToGraduate = 60;
-                                } else if (admissionYear <= 2022) {
-                                  creditsToGraduate = 66;
-                                } else {
-                                  creditsToGraduate = 54;
-                                }
+                                int? creditsToGraduate = snapshot.data;
                                 return Text(
                                   '/ ${creditsToGraduate} 학점',
                                   style: TextStyle(
@@ -283,8 +284,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                   ),
                                 );
                               }
-                            }
-                        ),
+                            }),
                       ],
                     ),
                   ),
@@ -324,7 +324,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               '전공 이수과목',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 16.0,
+                                fontSize: 18.0,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -395,18 +395,24 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
             ),
             SizedBox(height: 15.0),
 
-            //이수과목 과목명 불러오기
+            //이수한 전공선택과목 과목명
             Container(
               padding: const EdgeInsets.all(20.0),
               margin: const EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                    width: 0.8,
+                  borderRadius: BorderRadius.circular(15),
+                  /*border: Border.all(
+                    width: 1.2,
                     color: Color(0xff858585),
-                    style: BorderStyle.solid),
-                color: Color(0xffffffff),
-              ),
+                    style: BorderStyle.solid),*/
+                  color: Color(0xffF5F5F5),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Color(0xffA1A1A1),
+                        offset: Offset(0, 3),
+                        blurRadius: 2.0,
+                        spreadRadius: 0.0)
+                  ]),
 
               //이수한 전공선택과목 과목명
               child: Column(
@@ -428,7 +434,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                           '전공선택과목',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 14.0,
+                            fontSize: 15.0,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -437,13 +443,44 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                         width: 8.0,
                       ),
                       Text(
-                        '${completionProvider.completedElective.length}과목 | ${completionProvider.totalElectiveCredits}학점',
+                        '${completionProvider.completedElective.length}과목 | ',
                         style: TextStyle(
-                          color: Color(0xff858585),
+                          color: Color(0xff686868),
                           fontSize: 14.0,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      FutureBuilder<int>(
+                        future: Provider.of<CompletionProvider>(context,
+                            listen: false)
+                            .getTotalElectiveCredits(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<int> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return Text(
+                              '${snapshot.data}학점',
+                              style: TextStyle(
+                                color: Color(0xff686868),
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                      /*Text(
+                        '${completionProvider.completedElective.length}과목 | ${completionProvider.totalElectiveCredits}학점',
+                        style: TextStyle(
+                          color: Color(0xff686868),
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),*/
                     ],
                   ),
                   SizedBox(
@@ -474,13 +511,19 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               padding: const EdgeInsets.all(20.0),
               margin: const EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                    width: 0.8,
+                  borderRadius: BorderRadius.circular(15),
+                  /*border: Border.all(
+                    width: 1.2,
                     color: Color(0xff858585),
-                    style: BorderStyle.solid),
-                color: Color(0xffffffff),
-              ),
+                    style: BorderStyle.solid),*/
+                  color: Color(0xffF5F5F5),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Color(0xffA1A1A1),
+                        offset: Offset(0, 3),
+                        blurRadius: 2.0,
+                        spreadRadius: 0.0)
+                  ]),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,7 +546,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               '전공기초과목',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 14.0,
+                                fontSize: 15.0,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -514,7 +557,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                           Text(
                             '${completionProvider.completedCompulsory.length}과목 | ${completionProvider.totalCompulsoryCredits}학점',
                             style: TextStyle(
-                              color: Color(0xff858585),
+                              color: Color(0xff686868),
                               fontSize: 14.0,
                               fontWeight: FontWeight.w500,
                             ),
@@ -525,10 +568,10 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                         height: 8.0,
                       ),
                       Text(
-                        '※ 전공기초과목은 필수이수과목이고 전공기초학점은 교양학점으로 인정됨.',
+                        '※ 전공기초학점은 교양학점으로 인정됨.',
                         style: TextStyle(
                           color: Color(0xff858585),
-                          fontSize: 10.0,
+                          fontSize: 12.0,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -551,7 +594,45 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 ],
               ),
             ),
-            SizedBox(height: 50.0),
+
+            SizedBox(height: 70.0),
+
+            //졸업가이드로 넘어가기
+            Center(
+              child: SizedBox(
+                height: 40,
+                width: 180,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) {
+                        return ChangeNotifierProvider<CompletionProvider>.value(
+                          value: Provider.of<CompletionProvider>(context,
+                              listen: false),
+                          child: GraduationGuidePage(),
+                        );
+                      }),
+                    );
+                  },
+                  child: const Text('나의 졸업가이드 보기',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      )),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xffffffff),
+                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    side: BorderSide(color: Color(0xff341F87), width: 2.0),
+                    minimumSize: Size(250, 50),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 80.0),
           ],
         ),
       ),

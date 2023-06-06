@@ -1,5 +1,6 @@
 import 'package:capstone/screens/completion/completed_subject_select.dart';
-import 'package:capstone/screens/completion/completion_status.dart';
+import 'package:capstone/screens/completion/graduation_guide.dart';
+import 'package:capstone/screens/completion/mycompletion.dart';
 import 'package:capstone/screens/gScore/gscore_myscore.dart';
 import 'package:capstone/screens/gScore/gscore_admin_check.dart';
 import 'package:capstone/screens/login/adminsingup.dart';
@@ -376,50 +377,49 @@ class _MyDrawerState extends State<MyDrawer> {
                 ExpansionTile(
                   title: Text('이수현황'),
                   leading: Icon(
-                      Icons.add_task_rounded, color: Colors.grey[800]),
+                      Icons.ballot_rounded, color: Colors.grey[800]),
                   children: <Widget>[
                     ListTile(
                         leading: Icon(
-                            Icons.add_task_rounded, color: Colors.grey[800]),
+                            Icons.add_reaction_outlined, color: Colors.grey[800]),
                         title: Text('나의 이수현황'),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                CompletionStatusPage(
-                                  student_id: '',
-                                  grade: '',
-                                  major_type: '',
-                                )),
+                                CompletionStatusPage()),
                           );
                         }
                     ),
 
                     ListTile(
-                      title: Text('이수과목 선택'),
-                      leading: Icon(
-                          Icons.assignment_turned_in_outlined,
-                          color: Colors.grey[800]
-                      ),
-                      onTap: () {
-                        /*
-                        Navigator.push(
+                        title: Text('이수과목 선택'),
+                        leading: Icon(
+                            Icons.add_task_rounded,
+                            color: Colors.grey[800]
+                        ),
+                        onTap: () {
+
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                SubjectSelect(subjectId: 0),
-                            ));
-*/
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>
-                              CompletionStatusPage(
-                                student_id: '',
-                                grade: '',
-                                major_type: '',
-                              )),
-                        );
-                      },
-                    )
+                                CompletedSubjectSelectPage()),
+                          );
+                        }
+                    ),
+                    ListTile(
+                        leading: Icon(
+                            Icons.auto_stories_rounded,
+                            color: Colors.grey[800]),
+                        title: Text('졸업 가이드'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                GraduationGuidePage()),
+                          );
+                        }
+                    ),
                   ],),
 
                 ListTile(
@@ -433,23 +433,18 @@ class _MyDrawerState extends State<MyDrawer> {
                     }
                 ),
 
-                ExpansionTile(
-                    title: Text('과목정보'),
-                    leading: Icon(Icons.menu_book_rounded, color: Colors.grey[800]),
-                    children: <Widget>[
-                      ListTile(
-                        leading: Icon(Icons.search, color: Colors.grey[800]),
-                        title: Text('전공과목 정보'),
+                ListTile(
+                  leading: Icon(Icons.menu_book_rounded, color: Colors.grey[800]),
+                  title: Text('전공과목 정보'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MSmain()),
+                    );
+                  },
+                ),
 
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MSmain()),
-                          );
-                        },
-                      ),
-                    ]),
                 _accountPermission == "2" || _accountPermission == "3" ?
                 ExpansionTile(
                     title: Text('관리자 페이지'),

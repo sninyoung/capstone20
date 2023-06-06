@@ -48,15 +48,15 @@ class _CompletedSubjectSelectPageState
     }
 
     final jwtToken =
-        JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+    JwtDecoder.decode(token); // use jwt_decoder package to decode the token
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
 
-  // 과목정보 불러오기
+  //모든 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
+    await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -66,13 +66,13 @@ class _CompletedSubjectSelectPageState
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
@@ -84,7 +84,7 @@ class _CompletedSubjectSelectPageState
   @override
   Widget build(BuildContext context) {
     var completionProvider =
-        Provider.of<CompletionProvider>(context, listen: false);
+    Provider.of<CompletionProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -119,13 +119,49 @@ class _CompletedSubjectSelectPageState
               ),
               SizedBox(height: 30),
 
-              //전기 전선 MultiSelectBottomSheetField
+              //과목에 대한 공지사항
+              Container(
+                padding: EdgeInsets.all(10.0),
+                margin: EdgeInsets.all(5.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xffffffff),
+                  //borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: const Color(0xff858585),
+                    width: 2.0,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '※ 공지사항',
+                      style: TextStyle(
+                        color: Color(0xff565656),
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    Text('19~20학번 학생은 컴퓨터개론을 선택하시면 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
+                      style: TextStyle(
+                        color: Color(0xff858585),
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w500,
+                      ),)
+                  ],
+                ),
+              ),
+              SizedBox(height: 30,),
+
+              //전공과목 선택 MultiSelectBottomSheetField
               Column(
                 children: [
                   //전공기초과목 field
                   Container(
                     padding: EdgeInsets.all(10.0),
-                    margin: EdgeInsets.all(15.0),
+                    margin: EdgeInsets.only(left: 15.0, top: 15.0, bottom: 7.0, right: 15.0),
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
                       borderRadius: BorderRadius.circular(10),
@@ -173,24 +209,24 @@ class _CompletedSubjectSelectPageState
                             }
                             // 삭제된 과목들 처리
                             for (Subject subject
-                                in completionProvider.completedCompulsory) {
+                            in completionProvider.completedCompulsory) {
                               if (!_compulsorySelections.contains(subject)) {
                                 completionProvider.removeSubject(subject);
                               }
                             }
                             print('선택한 전공기초과목: $_compulsorySelections');
                           },
-                          selectedColor: Color(0xffDDDDDD),
+                          selectedColor: Color(0xffF29811),
                           selectedItemsTextStyle:
-                              TextStyle(color: Color(0xffffffff)),
+                          TextStyle(color: Color(0xffffffff)),
                           chipDisplay: MultiSelectChipDisplay(
-                            chipColor: Color(0xffCBCBCB),
+                            chipColor: Color(0xffFFBC58),
                             textStyle: TextStyle(color: Colors.black),
                             onTap: (value) {
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
                                 Provider.of<CompletionProvider>(context,
-                                        listen: false)
+                                    listen: false)
                                     .removeSubject(value as Subject);
                               });
                             },
@@ -200,26 +236,27 @@ class _CompletedSubjectSelectPageState
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return completionProvider.completedCompulsory ==
-                                        null ||
-                                    completionProvider
-                                        .completedCompulsory.isEmpty
+                                null ||
+                                completionProvider
+                                    .completedCompulsory.isEmpty
                                 ? Container(
-                                    padding: EdgeInsets.all(10),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "선택안함",
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  )
+                              padding: EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "선택안함",
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
                                 : Container(
-                                    height: 30,
-                                  );
+                              height: 30,
+                            );
                           },
                         )
                       ],
                     ),
                   ),
-                  SizedBox(height: 40),
+
+                  SizedBox(height: 20),
 
                   //전공선택과목 field
                   Container(
@@ -237,7 +274,8 @@ class _CompletedSubjectSelectPageState
                       children: <Widget>[
                         // 전공선택과목 BottomSheet
                         MultiSelectBottomSheetField(
-                          initialChildSize: 0.4,
+                          initialChildSize: 0.6,
+                          maxChildSize: 0.8,
                           listType: MultiSelectListType.CHIP,
                           searchable: true,
                           searchHint: '과목명을 입력하세요',
@@ -272,7 +310,7 @@ class _CompletedSubjectSelectPageState
                             }
                             // 삭제된 과목들 처리
                             for (Subject subject
-                                in completionProvider.completedElective) {
+                            in completionProvider.completedElective) {
                               if (!_electiveSelections.contains(subject)) {
                                 completionProvider.removeSubject(subject);
                               }
@@ -282,7 +320,7 @@ class _CompletedSubjectSelectPageState
                           //전공선택과목 선택할 때의 chip컬러
                           selectedColor: Color(0xff89AAFF),
                           selectedItemsTextStyle:
-                              TextStyle(color: Color(0xffffffff)),
+                          TextStyle(color: Color(0xffffffff)),
                           chipDisplay: MultiSelectChipDisplay(
                             //전공선택과목 선택 후 chip컬러
                             chipColor: Color(0xffC1D3FF),
@@ -291,7 +329,7 @@ class _CompletedSubjectSelectPageState
                               setState(() {
                                 _electiveSelections.remove(value as Subject);
                                 Provider.of<CompletionProvider>(context,
-                                        listen: false)
+                                    listen: false)
                                     .removeSubject(value as Subject);
                               });
                             },
@@ -302,16 +340,16 @@ class _CompletedSubjectSelectPageState
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return completionProvider.completedElective ==
-                                        null ||
-                                    completionProvider.completedElective.isEmpty
+                                null ||
+                                completionProvider.completedElective.isEmpty
                                 ? Container(
-                                    padding: EdgeInsets.all(10),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "선택안함",
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  )
+                              padding: EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "선택안함",
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
                                 : Container();
                           },
                         )
