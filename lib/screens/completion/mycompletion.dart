@@ -632,6 +632,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 ),
               ),
             ),
+
             SizedBox(height: 80.0),
           ],
         ),

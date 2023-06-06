@@ -406,6 +406,7 @@ class CompletionProvider extends ChangeNotifier {
         : 0;
   }
 
+
 }
 
 

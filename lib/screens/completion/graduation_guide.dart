@@ -578,6 +578,7 @@ class AdmissionAfter23Widget extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+
         ],
       ),
     );
