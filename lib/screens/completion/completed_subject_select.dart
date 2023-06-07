@@ -139,16 +139,16 @@ class _CompletedSubjectSelectPageState
                       '※ 공지사항',
                       style: TextStyle(
                         color: Color(0xff565656),
-                        fontSize: 20.0,
+                        fontSize: 18.0,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 10,),
                     Text(
-                      '19~22학번 학생은 컴퓨터개론을 선택하시면 어플에서는 전공기초과목을 이수한 것으로 보이지만 실제로는 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
+                      '19~22학번 학생은 컴퓨터개론을 선택하시면 어플에서는 전공기초과목을 이수한 것으로 처리되지만 실제로는 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
                       style: TextStyle(
                         color: Color(0xff858585),
-                        fontSize: 18.0,
+                        fontSize: 16.0,
                         fontWeight: FontWeight.w500,
                       ),
                     )

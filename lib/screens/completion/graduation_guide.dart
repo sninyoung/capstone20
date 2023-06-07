@@ -197,10 +197,10 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
-                          ' 앞으로 ',
+                          '부족한 전공점수 : ',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 22.0,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -221,17 +221,17 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                   ' ${lackingCredits}',
                                   style: TextStyle(
                                     color: Color(0xffE00909),
-                                    fontSize: 24.0,
+                                    fontSize: 22.0,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 );
                               }
                             }),
                         Text(
-                          ' 학점을 더 이수해야 합니다 :)',
+                          ' 학점',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 22.0,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -241,6 +241,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                 ],
               ),
             ),
+
+
             SizedBox(height: 40.0,),
 
             //필수이수과목 title & 이수과목 편집 버튼
@@ -337,6 +339,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
             ),
             SizedBox(height: 15.0),
 
+            //필수이수과목
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20.0),
@@ -361,7 +364,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                         builder: (context, completionProvider, child) {
                           return FutureBuilder<int>(
                             future: completionProvider.getAdmissionYear(),
-                            // 입학년도를 가져오는 메서드
+                            // 입학년도 보여줌
                             builder: (BuildContext context,
                                 AsyncSnapshot<int> snapshot) {
                               if (snapshot.connectionState ==
@@ -396,7 +399,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                         builder: (context, completionProvider, child) {
                           return FutureBuilder<int>(
                             future: completionProvider.getAdmissionYear(),
-                            // 입학년도를 가져오는 메서드
+                            // 입학년도별 필수이수과목 리스트
                             builder: (BuildContext context,
                                 AsyncSnapshot<int> snapshot) {
                               if (snapshot.connectionState ==

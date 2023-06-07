@@ -134,7 +134,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 left: 25.0,
                 top: 16.0,
                 right: 16.0,
-                bottom: 10.0,
+                bottom: 16.0,
               ),
               decoration: BoxDecoration(
                 color: Color(0xffffffff),
@@ -169,18 +169,17 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 ],
               ),
             ),
-            SizedBox(height: 10,),
 
             //입학년도와 전공유형 선택
             Container(
               alignment: Alignment.centerLeft,
-              height: 60,
+              height: 70,
               width: double.infinity,
               padding: EdgeInsets.only(
-                left: 35.0,
+                left: 30.0,
                 top: 16.0,
                 right: 16.0,
-                bottom: 10.0,
+                bottom: 16.0,
               ),
               decoration: BoxDecoration(
                 color: Color(0xf6dce1ff),
@@ -189,6 +188,11 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      child: Text('입학년도', style: TextStyle(color: Color(0xff5c6bb9), fontSize: 15, fontWeight: FontWeight.w600),)),
+                  SizedBox(width: 2,),
                   Container(
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -215,7 +219,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       underline: SizedBox(),
                     ),
                   ),
-                  SizedBox(width: 15,),
+                  SizedBox(width: 10,),
+                  Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      child: Text('전공(이수)유형', style: TextStyle(color: Color(0xff5c6bb9), fontSize: 15, fontWeight: FontWeight.w600),)),
+                  SizedBox(width: 2,),
                   Container(
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -249,7 +258,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               )
               ,
             ),
-            SizedBox(height: 30,),
+            SizedBox(height: 20,),
 
             //전공학점
             Container(
