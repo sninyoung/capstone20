@@ -52,7 +52,7 @@ class _CompletedSubjectSelectPageState
     }
 
     final jwtToken =
-        JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+    JwtDecoder.decode(token); // use jwt_decoder package to decode the token
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
@@ -60,7 +60,7 @@ class _CompletedSubjectSelectPageState
   //모든 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
+    await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -70,13 +70,13 @@ class _CompletedSubjectSelectPageState
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
@@ -88,7 +88,7 @@ class _CompletedSubjectSelectPageState
   @override
   Widget build(BuildContext context) {
     var completionProvider =
-        Provider.of<CompletionProvider>(context, listen: false);
+    Provider.of<CompletionProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -218,14 +218,14 @@ class _CompletedSubjectSelectPageState
                             //선택된 과목들을 _compulsorySelections에 저장
                             _compulsorySelections = values.cast<Subject>();
                             for (Subject subject in _compulsorySelections) {
-                              completionProvider.addSubject(
-                                  subject); // 각 선택된 과목에 대해 addSubject를 호출합니다.
+                              completionProvider.addSubject(subject);  // 각 선택된 과목에 대해 addSubject를 호출합니다.
                             }
                             //print('선택한 전공기초과목: $_compulsorySelections');
                           },
+
                           selectedColor: Color(0xffF29811),
                           selectedItemsTextStyle:
-                              TextStyle(color: Color(0xffffffff)),
+                          TextStyle(color: Color(0xffffffff)),
                           chipDisplay: MultiSelectChipDisplay(
                             chipColor: Color(0xffFFBC58),
                             textStyle: TextStyle(color: Colors.black),
@@ -233,7 +233,7 @@ class _CompletedSubjectSelectPageState
                               setState(() {
                                 _compulsorySelections.remove(value as Subject);
                                 Provider.of<CompletionProvider>(context,
-                                        listen: false)
+                                    listen: false)
                                     .removeSubject(value as Subject);
                               });
                             },
@@ -243,20 +243,20 @@ class _CompletedSubjectSelectPageState
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return completionProvider.completedCompulsory ==
-                                        null ||
-                                    completionProvider
-                                        .completedCompulsory.isEmpty
+                                null ||
+                                completionProvider
+                                    .completedCompulsory.isEmpty
                                 ? Container(
-                                    padding: EdgeInsets.all(10),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "선택안함",
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  )
+                              padding: EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "선택안함",
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
                                 : Container(
-                                    height: 30,
-                                  );
+                              height: 30,
+                            );
                           },
                         )
                       ],
@@ -317,7 +317,7 @@ class _CompletedSubjectSelectPageState
                           //전공선택과목 선택할 때의 chip컬러
                           selectedColor: Color(0xff89AAFF),
                           selectedItemsTextStyle:
-                              TextStyle(color: Color(0xffffffff)),
+                          TextStyle(color: Color(0xffffffff)),
                           chipDisplay: MultiSelectChipDisplay(
                             //전공선택과목 선택 후 chip컬러
                             chipColor: Color(0xffC1D3FF),
@@ -326,7 +326,7 @@ class _CompletedSubjectSelectPageState
                               setState(() {
                                 _electiveSelections.remove(value as Subject);
                                 Provider.of<CompletionProvider>(context,
-                                        listen: false)
+                                    listen: false)
                                     .removeSubject(value as Subject);
                               });
                             },
@@ -337,16 +337,16 @@ class _CompletedSubjectSelectPageState
                         Consumer<CompletionProvider>(
                           builder: (context, completionProvider, child) {
                             return completionProvider.completedElective ==
-                                        null ||
-                                    completionProvider.completedElective.isEmpty
+                                null ||
+                                completionProvider.completedElective.isEmpty
                                 ? Container(
-                                    padding: EdgeInsets.all(10),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "선택안함",
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  )
+                              padding: EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "선택안함",
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
                                 : Container();
                           },
                         )
