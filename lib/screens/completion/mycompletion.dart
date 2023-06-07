@@ -86,11 +86,11 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
       var provider = Provider.of<CompletionProvider>(context, listen: false);
       provider.loadSubjects();
 
-      // getStudentIdFromToken 메서드를 사용하여 studentId를 불러옵니다.
-      String studentId = await provider.getStudentIdFromToken();
+      String studentId = await provider.getStudentIdFromToken(); // Use 'provider' instead of 'CompltionProvider'
       provider.fetchCompletedSubjects(studentId);
     });
   }
+
 
 
 /*

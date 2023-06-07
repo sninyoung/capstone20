@@ -1,3 +1,7 @@
+//저장버튼에 onConfirm에 있던 추가, 제거 로직을 구현함, 그랬더니 chip이 실시간으로 사라지긴함.
+// 근데 로컬에 반영이 안됨.
+//provider에 Confirm함수와함수 구현, fetchCompletedSubjects함수는 원래 있던거
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -213,7 +217,10 @@ class _CompletedSubjectSelectPageState
                           onConfirm: (values) {
                             //선택된 과목들을 _compulsorySelections에 저장
                             _compulsorySelections = values.cast<Subject>();
-                            print('선택한 전공기초과목: $_compulsorySelections');
+                            for (Subject subject in _compulsorySelections) {
+                              completionProvider.addSubject(subject);  // 각 선택된 과목에 대해 addSubject를 호출합니다.
+                            }
+                            //print('선택한 전공기초과목: $_compulsorySelections');
                           },
 
                           selectedColor: Color(0xffF29811),
@@ -300,6 +307,9 @@ class _CompletedSubjectSelectPageState
                           onConfirm: (values) {
                             //선택된 과목들을 _electiveSelections에 저장
                             _electiveSelections = values.cast<Subject>();
+                            for (Subject subject in _electiveSelections) {
+                              completionProvider.addSubject(subject);  // 각 선택된 과목에 대해 addSubject를 호출합니다.
+                            }
                             //print('선택한 전공선택과목: $_electiveSelections');
                           },
 
@@ -352,23 +362,6 @@ class _CompletedSubjectSelectPageState
                   List<Subject> compulsorySelections = _compulsorySelections;
                   List<Subject> electiveSelections = _electiveSelections;
 
-                  for (Subject subject in compulsorySelections) {
-                    completionProvider.addSubject(subject);
-                  }
-                  for (Subject subject in completionProvider.completedCompulsory) {
-                    if (!compulsorySelections.contains(subject)) {
-                      completionProvider.removeSubject(subject);
-                    }
-                  }
-
-                  for (Subject subject in electiveSelections) {
-                    completionProvider.addSubject(subject);
-                  }
-                  for (Subject subject in completionProvider.completedElective) {
-                    if (!electiveSelections.contains(subject)) {
-                      completionProvider.removeSubject(subject);
-                    }
-                  }
 
                   Provider.of<CompletionProvider>(context, listen: false).confirmSelections(
                     compulsorySelections,
