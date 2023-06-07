@@ -87,6 +87,12 @@ class _CompletedSubjectSelectPageState
     Provider.of<CompletionProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           '이수과목',
           style: TextStyle(
@@ -143,17 +149,23 @@ class _CompletedSubjectSelectPageState
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 10,),
-                    Text('19~20학번 학생은 컴퓨터개론을 선택하시면 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      '19~20학번 학생은 컴퓨터개론을 선택하시면 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
                       style: TextStyle(
                         color: Color(0xff858585),
                         fontSize: 14.0,
                         fontWeight: FontWeight.w500,
-                      ),)
+                      ),
+                    )
                   ],
                 ),
               ),
-              SizedBox(height: 30,),
+              SizedBox(
+                height: 30,
+              ),
 
               //전공과목 선택 MultiSelectBottomSheetField
               Column(
@@ -161,7 +173,8 @@ class _CompletedSubjectSelectPageState
                   //전공기초과목 field
                   Container(
                     padding: EdgeInsets.all(10.0),
-                    margin: EdgeInsets.only(left: 15.0, top: 15.0, bottom: 7.0, right: 15.0),
+                    margin: EdgeInsets.only(
+                        left: 15.0, top: 15.0, bottom: 7.0, right: 15.0),
                     decoration: BoxDecoration(
                       color: const Color(0xffF5F5F5),
                       borderRadius: BorderRadius.circular(10),
@@ -198,24 +211,11 @@ class _CompletedSubjectSelectPageState
                           items: _compulsoryItems,
                           initialValue: completionProvider.completedCompulsory,
                           onConfirm: (values) {
+                            //선택된 과목들을 _compulsorySelections에 저장
                             _compulsorySelections = values.cast<Subject>();
-                            //이수한 전공기초과목 업데이트
-                            completionProvider
-                                .updateCompulsory(_compulsorySelections);
-
-                            // 추가된 과목들 처리
-                            for (Subject subject in _compulsorySelections) {
-                              completionProvider.addSubject(subject);
-                            }
-                            // 삭제된 과목들 처리
-                            for (Subject subject
-                            in completionProvider.completedCompulsory) {
-                              if (!_compulsorySelections.contains(subject)) {
-                                completionProvider.removeSubject(subject);
-                              }
-                            }
                             print('선택한 전공기초과목: $_compulsorySelections');
                           },
+
                           selectedColor: Color(0xffF29811),
                           selectedItemsTextStyle:
                           TextStyle(color: Color(0xffffffff)),
@@ -255,7 +255,6 @@ class _CompletedSubjectSelectPageState
                       ],
                     ),
                   ),
-
                   SizedBox(height: 20),
 
                   //전공선택과목 field
@@ -299,24 +298,11 @@ class _CompletedSubjectSelectPageState
                           items: _electiveItems,
                           initialValue: completionProvider.completedElective,
                           onConfirm: (values) {
+                            //선택된 과목들을 _electiveSelections에 저장
                             _electiveSelections = values.cast<Subject>();
-                            // 이수한 전공선택과목 업데이트
-                            completionProvider
-                                .updateElective(_electiveSelections);
-
-                            // 추가된 과목들 처리
-                            for (Subject subject in _electiveSelections) {
-                              completionProvider.addSubject(subject);
-                            }
-                            // 삭제된 과목들 처리
-                            for (Subject subject
-                            in completionProvider.completedElective) {
-                              if (!_electiveSelections.contains(subject)) {
-                                completionProvider.removeSubject(subject);
-                              }
-                            }
-                            print('선택한 전공선택과목: $_electiveSelections');
+                            //print('선택한 전공선택과목: $_electiveSelections');
                           },
+
                           //전공선택과목 선택할 때의 chip컬러
                           selectedColor: Color(0xff89AAFF),
                           selectedItemsTextStyle:
@@ -363,9 +349,31 @@ class _CompletedSubjectSelectPageState
               //저장버튼
               ElevatedButton(
                 onPressed: () async {
-                  // 선택한 모든 과목을 로컬에 저장
-                  await completionProvider.saveSubjects();
+                  List<Subject> compulsorySelections = _compulsorySelections;
+                  List<Subject> electiveSelections = _electiveSelections;
 
+                  for (Subject subject in compulsorySelections) {
+                    completionProvider.addSubject(subject);
+                  }
+                  for (Subject subject in completionProvider.completedCompulsory) {
+                    if (!compulsorySelections.contains(subject)) {
+                      completionProvider.removeSubject(subject);
+                    }
+                  }
+
+                  for (Subject subject in electiveSelections) {
+                    completionProvider.addSubject(subject);
+                  }
+                  for (Subject subject in completionProvider.completedElective) {
+                    if (!electiveSelections.contains(subject)) {
+                      completionProvider.removeSubject(subject);
+                    }
+                  }
+
+                  Provider.of<CompletionProvider>(context, listen: false).confirmSelections(
+                    compulsorySelections,
+                    electiveSelections,
+                  );
                   // 다음 페이지로 이동합니다.
                   Navigator.push(
                     context,
@@ -397,5 +405,3 @@ class _CompletedSubjectSelectPageState
     );
   }
 }
-
-

@@ -407,19 +407,6 @@ class _MyDrawerState extends State<MyDrawer> {
                           );
                         }
                     ),
-                    ListTile(
-                        leading: Icon(
-                            Icons.auto_stories_rounded,
-                            color: Colors.grey[800]),
-                        title: Text('졸업 가이드'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>
-                                GraduationGuidePage()),
-                          );
-                        }
-                    ),
                   ],),
 
                 ListTile(

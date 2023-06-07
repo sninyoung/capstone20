@@ -13,6 +13,8 @@ import 'package:capstone/screens/completion/subject_model.dart';
 import 'package:capstone/screens/subject/CS_Tab.dart';
 import 'package:capstone/screens/subject/ES_Tab.dart';
 
+import '../subject/MSmain.dart';
+
 //나의 이수현황
 
 class MyApp extends StatelessWidget {
@@ -80,12 +82,18 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
   void initState() {
     super.initState();
 
-    // Frame이 그려진 후에 `loadSubjects`를 호출합니다.
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      Provider.of<CompletionProvider>(context, listen: false).loadSubjects();
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      var provider = Provider.of<CompletionProvider>(context, listen: false);
+      provider.loadSubjects();
+
+      // getStudentIdFromToken 메서드를 사용하여 studentId를 불러옵니다.
+      String studentId = await provider.getStudentIdFromToken();
+      provider.fetchCompletedSubjects(studentId);
     });
   }
 
+
+/*
   //이수과목 정보 불러오기
   Future<List<Subject>> fetchCompletedSubjects() async {
     print('Fetching completed subjects...');
@@ -106,7 +114,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       final List<Subject> subjects =
-      data.map((item) => Subject.fromJson(item)).toList();
+          data.map((item) => Subject.fromJson(item)).toList();
 
       print('Completed subjects retrieved: $subjects');
 
@@ -116,33 +124,8 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     }
   }
 
-  /*// 학번을 나타내는 위젯
-  Widget buildStudentIdWidget(BuildContext context) {
-    return FutureBuilder<int>(
-        future: getAdmissionYear(),
-        builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('오류가 발생했습니다. ${snapshot.error}');
-          } else {
-            int? admissionYear = snapshot.data;
-            return Text(
-              '${admissionYear}',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15.0,
-                fontWeight: FontWeight.w600,
-              ),
-            );
-          }
-        }
-    );
-  }
-
 */
 
-  //빌드
   @override
   Widget build(BuildContext context) {
     CompletionProvider completionProvider =
@@ -150,6 +133,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           '나의 이수현황',
           style: TextStyle(
@@ -427,7 +416,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => EStab()),
+                            MaterialPageRoute(builder: (context) => MSmain()),
                           );
                         },
                         child: const Text(
@@ -473,14 +462,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                           }
                         },
                       ),
-                      /*Text(
-                        '${completionProvider.completedElective.length}과목 | ${completionProvider.totalElectiveCredits}학점',
-                        style: TextStyle(
-                          color: Color(0xff686868),
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),*/
                     ],
                   ),
                   SizedBox(
@@ -512,10 +493,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
               margin: const EdgeInsets.only(left: 30.0, right: 30.0),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  /*border: Border.all(
-                    width: 1.2,
-                    color: Color(0xff858585),
-                    style: BorderStyle.solid),*/
                   color: Color(0xffF5F5F5),
                   boxShadow: [
                     BoxShadow(
@@ -539,7 +516,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => CStab()),
+                                    builder: (context) => MSmain()),
                               );
                             },
                             child: const Text(
@@ -594,10 +571,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 ],
               ),
             ),
-
             SizedBox(height: 70.0),
 
-            //졸업가이드로 넘어가기
+            //졸업가이드 보기 버튼
             Center(
               child: SizedBox(
                 height: 40,
@@ -632,7 +608,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                 ),
               ),
             ),
-
             SizedBox(height: 80.0),
           ],
         ),

@@ -9,7 +9,6 @@ class Subject {
     return other is Subject && other.subjectId == subjectId;
   }
 
-
   @override
   int get hashCode => subjectId.hashCode;
 
