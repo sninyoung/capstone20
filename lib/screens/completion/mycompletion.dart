@@ -12,7 +12,6 @@ import 'package:capstone/screens/completion/completed_subject_select.dart';
 import 'package:capstone/screens/completion/subject_model.dart';
 import 'package:capstone/screens/subject/CS_Tab.dart';
 import 'package:capstone/screens/subject/ES_Tab.dart';
-
 import '../subject/MSmain.dart';
 
 //나의 이수현황
