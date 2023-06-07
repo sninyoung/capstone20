@@ -250,13 +250,11 @@ class _CompletedSubjectSelectPageState
                               padding: EdgeInsets.all(10),
                               alignment: Alignment.center,
                               child: Text(
-                                "선택안함",
+                                " ",
                                 style: TextStyle(color: Colors.black54),
                               ),
                             )
-                                : Container(
-                              height: 30,
-                            );
+                                : Container(height: 30,);
                           },
                         )
                       ],
@@ -343,11 +341,11 @@ class _CompletedSubjectSelectPageState
                               padding: EdgeInsets.all(10),
                               alignment: Alignment.center,
                               child: Text(
-                                "선택안함",
+                                " ",
                                 style: TextStyle(color: Colors.black54),
                               ),
                             )
-                                : Container();
+                                : Container(height: 30,);
                           },
                         )
                       ],
