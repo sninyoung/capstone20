@@ -72,6 +72,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
     });
   }
 
+/*
   //이수과목 정보 불러오기
   Future<List<Subject>> fetchCompletedSubjects() async {
     print('Fetching completed subjects...');
@@ -101,6 +102,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
       throw Exception('Failed to load saved subjects');
     }
   }
+*/
 
   //빌드
   @override
@@ -135,7 +137,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
             //졸업가이드 title
             Container(
               alignment: Alignment.centerLeft,
-              height: 120,
+              height: 140,
               padding: EdgeInsets.only(
                 left: 25.0,
                 top: 16.0,
@@ -153,8 +155,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                     '졸업 가이드',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 26.0,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                   SizedBox(
@@ -164,7 +166,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                     'Graduation Guide',
                     style: TextStyle(
                       color: Color(0xff858585),
-                      fontSize: 14.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -198,8 +200,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                           ' 앞으로 ',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         FutureBuilder<int>(
@@ -219,8 +221,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                   ' ${lackingCredits}',
                                   style: TextStyle(
                                     color: Color(0xffE00909),
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 24.0,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 );
                               }
@@ -229,8 +231,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                           ' 학점을 더 이수해야 합니다 :)',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -239,9 +241,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 40.0,
-            ),
+            SizedBox(height: 40.0,),
 
             //필수이수과목 title & 이수과목 편집 버튼
             Container(
@@ -253,8 +253,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       color: Color(0xff858585),
                       width: 0.8,
                     )),
-                color: Color(0xffffffff),
-              ),
+                color: Color(0xffffffff),),
               child: Row(
                 children: [
                   //필수이수과목 title
@@ -272,9 +271,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                               '필수이수과목',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w800,
-                              ),
+                                fontSize: 26.0,
+                                fontWeight: FontWeight.w800,),
                             ),
                             SizedBox(
                               height: 5.0,
@@ -283,16 +281,14 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                               'Must be Completed',
                               style: TextStyle(
                                 color: Color(0xff858585),
-                                fontSize: 13.0,
+                                fontSize: 16.0,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(
-                        width: 10.0,
-                      )
+                      SizedBox(width: 10.0,)
                     ],
                   ),
                   //이수과목 편집 버튼
@@ -326,8 +322,8 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                             ),
                             minimumSize: Size(100, 35),
                             textStyle: TextStyle(
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
@@ -335,9 +331,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 10.0,
-                  ),
+                  SizedBox(width: 10.0,),
                 ],
               ),
             ),
@@ -381,7 +375,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                     '${snapshot.data}학년도 입학생',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 16.0,
+                                      fontSize: 20.0,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ); // 데이터를 가져왔으면 Text 위젯을 사용하여 표시
@@ -390,20 +384,14 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                           );
                         },
                       ),
-                      SizedBox(
-                        height: 8.0,
-                      ),
+                      SizedBox(height: 8.0,),
                       Text(
                         '※ 전공기초과목이 필수이수과목입니다.',
                         style: TextStyle(
                           color: Color(0xff858585),
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w500,),),
+                      SizedBox(height: 10,),
                       Consumer<CompletionProvider>(
                         builder: (context, completionProvider, child) {
                           return FutureBuilder<int>(
@@ -432,9 +420,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                           );
                         },
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
+                      SizedBox(height: 20,),
                       GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -450,7 +436,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                 '모두 이수했는지 확인하세요!',
                                 style: TextStyle(
                                   color: Color(0xff341F87),
-                                  fontSize: 14.0,
+                                  fontSize: 16.0,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -458,23 +444,19 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                           )),
                     ],
                   ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
+                  SizedBox(height: 10.0,),
                 ],
               ),
             ),
-
-            SizedBox(height: 20,),
-
-
-            SizedBox(height: 80.0),
+            SizedBox(height: 20),
+            SizedBox(height: 150),
           ],
         ),
       ),
     );
   }
 }
+
 
 class AdmissionBefore23Widget extends StatelessWidget {
   const AdmissionBefore23Widget({Key? key}) : super(key: key);
@@ -492,8 +474,7 @@ class AdmissionBefore23Widget extends StatelessWidget {
             style: TextStyle(
               color: Colors.black,
               fontSize: 14.0,
-              fontWeight: FontWeight.w500,
-            ),
+              fontWeight: FontWeight.w500,),
           ),
           Text(
             '파이썬 프로그래밍',
