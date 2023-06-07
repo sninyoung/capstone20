@@ -463,9 +463,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
+                  SizedBox(height: 15.0,),
                   // Consumer를 사용해서 이수 과목 목록을 가져옵니다.
                   Consumer<CompletionProvider>(
                     builder: (context, completionProvider, child) {
