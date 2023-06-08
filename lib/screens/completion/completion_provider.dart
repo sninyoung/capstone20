@@ -47,23 +47,23 @@ class CompletionProvider extends ChangeNotifier {
   List<Subject> _prevCompulsorySelections = [];
   List<Subject> _prevElectiveSelections = [];
 
-  late String _selectedYear;
-  late String _selectedMajor;
+  String _selectedYear = "2019~2022년도";  // 초기값 설정
+  String _selectedMajor = "주전공";  // 초기값 설정
 
   final List<String> admissionYears = ["2011~2018년도", "2019~2022년도", "2023년도 이후"];
   final Map<String, List<String>> majorTypes = {
     "2011~2018년도": ["주전공", "다전공", "부전공"],
     "2019~2022년도": ["주전공", "다전공", "부전공"],
-    "2023년도 이후": ["이수유형 1 :CS", "이수유형 2 :MD", "이수유형 3 :TR", "이수유형 4 :부전공(컴퓨터공학과)", "이수유형 4 :부전공(타학과학생)", "이수유형 5 :다전공"],
+    "2023년도 이후": ["1 :CS", "2 :MD", "3 :TR", "4 :부전공(컴공과)", "4 :부전공(타학과)", "5 :다전공"],
   };
 
   String get selectedYear => _selectedYear;
   String get selectedMajor => _selectedMajor;
 
-  CompletionProvider({String? selectedYear, String? selectedMajor})
-      : _selectedYear = selectedYear ?? "2019~2022년도",
-        _selectedMajor = selectedMajor ?? "주전공";
-
+  CompletionProvider({String? selectedYear, String? selectedMajor}) {
+    _selectedYear = selectedYear ?? _selectedYear;
+    _selectedMajor = selectedMajor ?? _selectedMajor;
+  }
 
 
   //JWT 토큰에서 학생 ID를 가져오는 메서드 - 학생ID로 사용자를 식별과 인증
@@ -394,17 +394,19 @@ class CompletionProvider extends ChangeNotifier {
     if (_selectedYear == "2011~2018년도" || _selectedYear == "2019~2022년도") {
       _selectedMajor = "주전공";
     } else if (_selectedYear == "2023년도 이후") {
-      _selectedMajor = "이수유형 1 :CS";
+      _selectedMajor = "1 :CS";
     }
     notifyListeners();
   }
 
 
   //전공유형 선택
-  void setSelectedMajor(String newValue) {
+  Future<void> setSelectedMajor(String newValue) async {
     _selectedMajor = newValue;
+    await storage.write(key: 'selectedMajor', value: newValue);
     notifyListeners();
   }
+
 
   //졸업기준학점 저장
   Future<void> saveCreditToGraduate(int credits) async {
@@ -412,8 +414,8 @@ class CompletionProvider extends ChangeNotifier {
   }
 
 //입학년도와 전공유형을 선택한 값에 따라 졸업기준학점을 설정해주는 메서드
-  Future<int> getCreditToGraduate() async {
-    late int credits;
+  Future<int?> getCreditToGraduate() async {
+    late int? credits;
     if (_selectedYear == "2011~2018년도") {
       if (_selectedMajor == "주전공") {
         credits = 60;
@@ -431,17 +433,17 @@ class CompletionProvider extends ChangeNotifier {
         credits = 21;
       }
     } else if (_selectedYear == "2023년도 이후") {
-      if (_selectedMajor == "이수유형 1 :CS") {
+      if (_selectedMajor == "1 :CS") {
         credits = 54;
-      } else if (_selectedMajor == "이수유형 2 :MD") {
+      } else if (_selectedMajor == "2 :MD") {
         credits = 60;
-      } else if (_selectedMajor == "이수유형 3 :TR") {
+      } else if (_selectedMajor == "3 :TR") {
         credits = 63;
-      } else if (_selectedMajor == "이수유형 4 :부전공(컴퓨터공학과)") {
+      } else if (_selectedMajor == "4 :부전공(컴공과)") {
         credits = 42;
-      } else if (_selectedMajor == "이수유형 4 :부전공(타학과학생)") {
+      } else if (_selectedMajor == "4 :부전공(타학과)") {
         credits = 21;
-      }else if (_selectedMajor == "이수유형 5 :다전공") {
+      }else if (_selectedMajor == "5 :다전공") {
         credits = 36;
       }
     }
@@ -454,16 +456,59 @@ class CompletionProvider extends ChangeNotifier {
   }
 
 
+  // SecureStorage에서 저장된 전공유형 값 가져오는 메서드
+  Future<String?> getSelectedMajor() async {
+    return await storage.read(key: 'selectedMajor');
+  }
+
+
 //부족한 전공학점 계산하는 메서드
   Future<int> getLackingCredits() async {
-    int creditsToGraduate = await getCreditToGraduate();
+    int? creditsToGraduate = await getCreditToGraduate();
     int totalElectiveCredits = await getTotalElectiveCredits();
 
     // 이수한 전공학점이 졸업 기준학점보다 작은 경우 부족한 학점을 계산하고 반환합니다.
     // 그렇지 않으면, 0을 반환합니다.
-    return (creditsToGraduate > totalElectiveCredits)
+    return (creditsToGraduate != null && creditsToGraduate > totalElectiveCredits)
         ? creditsToGraduate - totalElectiveCredits
         : 0;
+  }
+
+
+  // 필수 이수 과목을 반환하는 메서드
+  Future<Set<String>> getRequiredCourses() async {
+    Map<String, Map<String, Set<String>>> requiredCourses = {
+      "2011~2018년도": {
+        "주전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "정보보호개론"},
+        "다전공": {"프로그래밍실습", "확률 및 통계"},
+        "부전공": {},
+      },
+      "2019~2022년도": {
+        "주전공": {"프로그래밍실습", "이산구조", "공학과 경영", "확률 및 통계", "파이썬프로그래밍"},
+        "다전공": {"프로그래밍실습", "확률 및 통계", "파이썬프로그래밍"},
+        "부전공": {},
+      },
+      "2023년도 이후": {
+        "주전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "다전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "부전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+      },
+    };
+
+    String? selectedYear = _selectedYear;
+    String? selectedMajor = _selectedMajor;
+
+    if (selectedYear != null && selectedMajor != null) {
+      return requiredCourses[selectedYear]![selectedMajor] ?? {};
+    }
+
+    return {};
+  }
+
+// 필수 이수 과목 중 이수하지 않은 과목을 반환하는 메서드
+  Future<List<String>> getMissingCourses(
+      Set<String> requiredCourses, List<String> completedCourses) async {
+    return requiredCourses.difference(completedCourses.toSet()).toList();
   }
 
 

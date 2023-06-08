@@ -173,7 +173,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
             //입학년도와 전공유형 선택
             Container(
               alignment: Alignment.centerLeft,
-              height: 70,
+              height: 80,
               width: double.infinity,
               padding: EdgeInsets.only(
                 left: 30.0,
@@ -315,21 +315,17 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                           },
                         ),
                         //입학년도별 졸업기준학점
-                        FutureBuilder<int>(
-                            future: Provider.of<CompletionProvider>(context,
-                                    listen: false)
-                                .getCreditToGraduate(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<int> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
+                        FutureBuilder<int?>(
+                            future: Provider.of<CompletionProvider>(context, listen: false).getCreditToGraduate(),
+                            builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
                                 return CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('오류가 발생했습니다. ${snapshot.error}');
                               } else {
                                 int? creditsToGraduate = snapshot.data;
                                 return Text(
-                                  '/ ${creditsToGraduate} 학점',
+                                  '/ ${creditsToGraduate ?? "66"} 학점',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 20.0,
@@ -337,7 +333,8 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                   ),
                                 );
                               }
-                            }),
+                            }
+                        ),
                       ],
                     ),
                   ),
@@ -402,8 +399,6 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       //오른쪽 끝 정렬
                       alignment: Alignment.centerRight,
                       child: SizedBox(
-                        height: 35,
-                        width: 100,
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).push(
@@ -425,9 +420,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6.0),
                             ),
-                            minimumSize: Size(90, 30),
+                            minimumSize: Size(110, 40),
                             textStyle: TextStyle(
-                              fontSize: 18.0,
+                              fontSize: 16.0,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
@@ -645,7 +640,7 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
             Center(
               child: SizedBox(
                 height: 40,
-                width: 180,
+                width: 220,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(
@@ -658,12 +653,20 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       }),
                     );
                   },
-                  child: const Text('나의 졸업가이드 보기',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      )),
+                  child: Row(
+                    children: [
+                      Icon(Icons.touch_app_rounded, color: Color(
+                          0xff341F87),),
+                      SizedBox(width: 4,),
+
+                      const Text('나의 졸업가이드 보기',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                          )),
+                    ],
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xffffffff),
                     padding: EdgeInsets.fromLTRB(8, 5, 8, 5),

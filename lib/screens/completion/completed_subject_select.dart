@@ -145,7 +145,7 @@ class _CompletedSubjectSelectPageState
                     ),
                     SizedBox(height: 10,),
                     Text(
-                      '19~22학번 학생은 컴퓨터개론을 선택하시면 어플에서는 전공기초과목을 이수한 것으로 처리되지만 실제로는 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
+                      '19~22학번 학생은 컴퓨터개론을 선택하면 전공기초과목에 포함되지만 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
                       style: TextStyle(
                         color: Color(0xff858585),
                         fontSize: 16.0,
@@ -156,6 +156,16 @@ class _CompletedSubjectSelectPageState
                 ),
               ),
               SizedBox(height: 30,),
+
+              Text(
+                '버튼을 클릭한 후 나타나는 하단 선택창에서 과목을 선택 & 선택해제 하셔야 수정사항이 정확하게 반영됩니다.',
+                style: TextStyle(
+                  color: Color(0xff858585),
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 10,),
 
               //전공과목 선택 Field
               Column(
