@@ -146,7 +146,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
     }
 
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/user/student'),
+      Uri.parse('http://localhost:443/user/student'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -210,7 +210,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
     };
 
     final response = await http.post(
-      Uri.parse('http://203.247.42.144:443/post/write'),
+      Uri.parse('http://localhost:443/post/write'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -240,7 +240,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
   // 서버로부터 게시글 목록을 가져옴
   Future<List<dynamic>> fetchNotices1() async {
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/post/posts?board_id=5'),
+      Uri.parse('http://localhost:443/post/posts?board_id=5'),
     );
 
     if (response.statusCode == 200) {
@@ -253,7 +253,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
 
   Future<List<dynamic>> fetchNoticesAll() async {
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/post/posts?board_id=3'),
+      Uri.parse('http://localhost:443/post/posts?board_id=3'),
     );
 
     if (response.statusCode == 200) {
@@ -266,7 +266,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
 
   Future<List<dynamic>> fetchNotices2() async {
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/post/posts?board_id=6'),
+      Uri.parse('http://localhost:443/post/posts?board_id=6'),
     );
 
     if (response.statusCode == 200) {
@@ -279,7 +279,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
 
   Future<List<dynamic>> fetchNotices3() async {
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/post/posts?board_id=7'),
+      Uri.parse('http://localhost:443/post/posts?board_id=7'),
     );
 
     if (response.statusCode == 200) {
@@ -292,7 +292,7 @@ class NoticeTalkScreenState extends State<NoticeTalkScreen_1> {
 
   Future<List<dynamic>> fetchNotices4() async {
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/post/posts?board_id=8'),
+      Uri.parse('http://localhost:443/post/posts?board_id=8'),
     );
 
     if (response.statusCode == 200) {

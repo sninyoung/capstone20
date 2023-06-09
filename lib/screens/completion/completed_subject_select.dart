@@ -29,12 +29,14 @@ class _CompletedSubjectSelectPageState
   List<Subject> compulsorySubjects = [];
   List<Subject> electiveSubjects = [];
 
+  final completionProvider = CompletionProvider();
+
   @override
   void initState() {
     super.initState();
-    //UI 렌더링이 완료된 후에 Provider의 데이터를 사용
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      fetchSubjects();
+    WidgetsBinding.instance.addPostFrameCallback((_) async{
+      await fetchSubjects();
+      init();
     });
   }
 
@@ -47,16 +49,53 @@ class _CompletedSubjectSelectPageState
       throw Exception('Token is not found');
     }
 
-    final jwtToken =
-        JwtDecoder.decode(token); // use jwt_decoder package to decode the token
+    final jwtToken = JwtDecoder.decode(token); // use jwt_decoder package to decode the token
 
     return jwtToken['student_id']; // ensure the token includes 'student_id'
   }
 
+  void init() async {
+    String studentIdString = await getStudentIdFromToken();
+    int studentId = int.parse(studentIdString);
+    // 서버에서 최신 데이터를 가져와 SecureStorage를 업데이트하고
+    // SecureStorage에 있는 데이터를 불러옵니다.
+    await completionProvider.fetchCompletedSubjects(studentId);
+    await completionProvider.loadSubjects();
+
+    // MultiSelectBottomSheetField용 항목을 생성합니다.
+    _compulsoryItems = completionProvider.completedCompulsory
+        .map((subject) => MultiSelectItem<Subject>(subject, subject.subjectName))
+        .toList();
+    _electiveItems = completionProvider.completedElective
+        .map((subject) => MultiSelectItem<Subject>(subject, subject.subjectName))
+        .toList();
+
+    // 기존 선택 사항을 불러옵니다.
+    _compulsorySelections = completionProvider.completedCompulsory;
+    _electiveSelections = completionProvider.completedElective;
+  }
+
+  void onConfirmCompulsory(List<Subject> selectedSubjects) {
+    // MultiSelectBottomSheetField의 onConfirm에서 updateCompulsory 호출
+    completionProvider.updateCompulsory(selectedSubjects);
+    _compulsorySelections = selectedSubjects;
+  }
+
+  void onConfirmElective(List<Subject> selectedSubjects) {
+    // MultiSelectBottomSheetField의 onConfirm에서 updateElective 호출
+    completionProvider.updateElective(selectedSubjects);
+    _electiveSelections = selectedSubjects;
+  }
+
+  void onSave() async {
+    // 저장 버튼을 누르면 SecureStorage와 서버에 동일한 과목 리스트를 저장합니다.
+    await completionProvider.saveSubjects();
+    await completionProvider.addCompletedSubjects();
+  }
   //모든 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
+        await http.get(Uri.parse('http://localhost:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -121,7 +160,7 @@ class _CompletedSubjectSelectPageState
               SizedBox(height: 30),
 
               //과목에 대한 공지사항
-              Container(
+/*              Container(
                 padding: EdgeInsets.all(10.0),
                 margin: EdgeInsets.all(15.0),
                 decoration: BoxDecoration(
@@ -154,7 +193,7 @@ class _CompletedSubjectSelectPageState
                     )
                   ],
                 ),
-              ),
+              )*/
               SizedBox(height: 30,),
 
               Text(
@@ -187,9 +226,13 @@ class _CompletedSubjectSelectPageState
               //저장버튼
               ElevatedButton(
                 onPressed: () async {
+                  // 선택한 과목들과 기존 과목들을 비교하고 필요한 변경사항을 적용합니다.
+                  await Provider.of<CompletionProvider>(context, listen: false).confirmSelections(
+                    _compulsorySelections,
+                    _electiveSelections,
+                  );
                   // 선택한 모든 과목을 로컬에 저장
                   await completionProvider.saveSubjects();
-
                   // 다음 페이지로 이동합니다.
                   Navigator.push(
                     context,
@@ -238,6 +281,7 @@ class _CompulsoryMultiSelectState extends State<CompulsoryMultiSelect> {
   List<Subject> _compulsorySelections = [];
   List<Subject> compulsorySubjects = [];
   List<MultiSelectItem<Subject>> _compulsoryItems = [];
+
 
   @override
   Widget build(BuildContext context) {
@@ -294,14 +338,14 @@ class _CompulsoryMultiSelectState extends State<CompulsoryMultiSelect> {
               chipColor: Color(0xffFFBC58),
               textStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
               onTap: (value) {
-                setState(() {
+                /*setState(() {
                   _compulsorySelections.remove(value as Subject);
                   var provider = Provider.of<CompletionProvider>(context, listen: false);
                   provider.removeSubject(value as Subject);
 
                   // 업데이트 함수 호출
-                  provider.updateElective(List<Subject>.from(_compulsorySelections));
-                });
+                  provider.updateCompulsory(List<Subject>.from(_compulsorySelections));
+                });*/
               },
             ),
           ),
@@ -325,7 +369,6 @@ class ElectiveMultiSelect extends StatefulWidget {
 class _ElectiveMultiSelectState extends State<ElectiveMultiSelect> {
   List<Subject> _electiveSelections = [];
   List<MultiSelectItem<Subject>> _electiveItems = [];
-  List<Subject> compulsorySubjects = [];
   List<Subject> electiveSubjects = [];
 
   @override
@@ -386,14 +429,14 @@ class _ElectiveMultiSelectState extends State<ElectiveMultiSelect> {
               textStyle: TextStyle(color: Colors.black,
                   fontWeight: FontWeight.w600),
               onTap: (value) {
-                setState(() {
+                /*setState(() {
                   _electiveSelections.remove(value as Subject);
                   var provider = Provider.of<CompletionProvider>(context, listen: false);
                   provider.removeSubject(value as Subject);
-
+*//*
                   // 업데이트 함수 호출
-                  provider.updateElective(List<Subject>.from(_electiveSelections));
-                });
+                  provider.updateElective(List<Subject>.from(_electiveSelections));*//*
+                });*/
               },
 
             ),

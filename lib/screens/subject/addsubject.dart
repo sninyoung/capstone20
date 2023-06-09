@@ -66,7 +66,7 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   }
 
   Future<void> _getProfessorNames() async {
-    final url = Uri.parse('http://203.247.42.144:443/prof/');
+    final url = Uri.parse('http://localhost:443/prof/');
 
     final response = await http.get(url);
 

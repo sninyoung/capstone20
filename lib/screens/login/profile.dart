@@ -46,7 +46,7 @@ class _ProfileState extends State<Profile> {
     }
 
     final response = await http.get(
-      Uri.parse('http://203.247.42.144:443/user/student'),
+      Uri.parse('http://localhost:443/user/student'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
@@ -92,7 +92,7 @@ class _ProfileState extends State<Profile> {
 
     // Send grade update request
     final response = await http.post(
-      Uri.parse('http://203.247.42.144:443/user/grade'),
+      Uri.parse('http://localhost:443/user/grade'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token
@@ -124,7 +124,7 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> _editIntroduction(String introduction) async {
-    final url = Uri.parse('http://203.247.42.144:443/post/introduction');
+    final url = Uri.parse('http://localhost:443/post/introduction');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) {

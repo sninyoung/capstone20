@@ -53,19 +53,6 @@ class CompletedSubjects {
   }
 }
 
-// JWT 토큰에서 학생 ID를 가져오는 메서드
-Future<String> getStudentIdFromToken() async {
-  final storage = FlutterSecureStorage();
-  final token = await storage.read(key: 'token');
-
-  if (token == null) {
-    throw Exception('Token is not found');
-  }
-
-  final jwtToken = JwtDecoder.decode(token);
-
-  return jwtToken['student_id'];
-}
 
 //나의이수현황 페이지
 class CompletionStatusPage extends StatefulWidget {
@@ -87,14 +74,32 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      var provider = Provider.of<CompletionProvider>(context, listen: false);
-      provider.loadSubjects();
+      String studentIdString = await getStudentIdFromToken();
+      int studentId = int.parse(studentIdString);
+      var completionProvider = Provider.of<CompletionProvider>(context, listen: false);
 
-      // getStudentIdFromToken 메서드를 사용하여 studentId를 불러옵니다.
-      String studentId = await provider.getStudentIdFromToken();
-      provider.fetchCompletedSubjects(studentId);
+      await completionProvider.fetchCompletedSubjects(studentId);
+      await completionProvider.loadSubjects();
     });
+
   }
+  // JWT 토큰에서 학생 ID를 가져오는 메서드
+  Future<String> getStudentIdFromToken() async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('Token is not found');
+    }
+
+    final jwtToken = JwtDecoder.decode(token);
+
+    return jwtToken['student_id'];
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -530,9 +535,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                   child: Text(
                                     subject.subjectName,
                                     style: TextStyle(
-                                      color: Color(0xff686868),
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ))
@@ -622,9 +627,9 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                                   padding: const EdgeInsets.all(4.0),
                                   child: Text(subject.subjectName,
                                       style: TextStyle(
-                                        color: Color(0xff686868),
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
                                       )),
                                 ))
                             .toList(),
@@ -653,20 +658,12 @@ class _CompletionStatusPageState extends State<CompletionStatusPage> {
                       }),
                     );
                   },
-                  child: Row(
-                    children: [
-                      Icon(Icons.touch_app_rounded, color: Color(
-                          0xff341F87),),
-                      SizedBox(width: 4,),
-
-                      const Text('나의 졸업가이드 보기',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          )),
-                    ],
-                  ),
+                  child: const Text('나의 졸업가이드 보기',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      )),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xffffffff),
                     padding: EdgeInsets.fromLTRB(8, 5, 8, 5),

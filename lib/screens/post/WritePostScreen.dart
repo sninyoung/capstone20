@@ -50,7 +50,7 @@ class _WritePostScreenState extends State<WritePostScreen> {
     };
 
     final response = await http.post(
-      Uri.parse('http://203.247.42.144:443/post/write'),
+      Uri.parse('http://localhost:443/post/write'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': token,
