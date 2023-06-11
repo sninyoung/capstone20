@@ -52,7 +52,7 @@ class CompletedSubjects {
   }
 }
 
-//나의이수현황 페이지
+//졸업가이드 페이지
 class GraduationGuidePage extends StatefulWidget {
   @override
   State<GraduationGuidePage> createState() => _GraduationGuidePageState();
@@ -80,7 +80,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
   @override
   Widget build(BuildContext context) {
     CompletionProvider completionProvider =
-        Provider.of<CompletionProvider>(context);
+    Provider.of<CompletionProvider>(context);
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
@@ -146,7 +146,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
               ),
             ),
 
-            //입학년도
+            //입학년도와 전공(이수)유형
             Container(
               alignment: Alignment.centerLeft,
               height: 80,
@@ -167,7 +167,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                   Container(
                       alignment: Alignment.center,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: Text(
                         '입학년도',
                         style: TextStyle(
@@ -207,7 +207,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                   Container(
                       alignment: Alignment.center,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: Text(
                         '전공(이수)유형',
                         style: TextStyle(
@@ -309,7 +309,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       ),
                       FutureBuilder<int>(
                           future: Provider.of<CompletionProvider>(context,
-                                  listen: false)
+                              listen: false)
                               .getLackingCredits(),
                           builder: (BuildContext context,
                               AsyncSnapshot<int> snapshot) {
@@ -396,18 +396,16 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 10.0,
-                  ),
+                  SizedBox(height: 10.0,),
                   Text(
                     '  ※ 전공기초과목이 필수이수과목입니다.',
                     style: TextStyle(
                       color:  Color(0xff686868),
-                      fontSize: 16.0,
+                      fontSize: 15.0,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 30,),
 
                   //입학년도,전공유형별 필수이수과목 리스트
                   Consumer<CompletionProvider>(
@@ -434,7 +432,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                             if (hasCompletedAllRequired) {
                               return Center(
                                 child: Text(
-                                  '필수 이수 과목을 모두 이수하셨습니다!',
+                                  '필수이수과목을 모두 이수했습니다!',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16.0,
@@ -451,18 +449,36 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    '아래의 과목들을 이수해야 합니다',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w500,
+                                  Center(
+                                    child: Text(
+                                      '아래의 과목들을 이수해야 합니다',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(height: 15,),
                                   ...missingCourses
-                                      .map((course) => Padding(
-                                    padding: const EdgeInsets.all(4.0),
+                                      .map((course) => Container(
+                                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                                    margin: EdgeInsets.all(4.0),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xffff5f5f5),
+                                      borderRadius: BorderRadius.circular(15),
+                                      /*border: Border.all(
+                                          width: 1.5,
+                                          color: Color(0xff000000),
+                                          style: BorderStyle.solid),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Color(0xff858585),
+                                            offset: Offset(0, 1),
+                                            blurRadius: 1.0,
+                                            spreadRadius: 0.0)
+                                      ],*/
+                                    ),
                                     child: Text(
                                       course,
                                       style: TextStyle(
@@ -473,8 +489,9 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                     ),
                                   ))
                                       .toList(),
-                                  SizedBox(height: 30,),
-                                  //이수했다면 이수과목에 추가해주세요!, 이수과목 편집 버튼
+                                  SizedBox(height: 50,),
+
+                                  //이수했다면 이수과목에 추가해주세요!, 이수과목 추가 버튼
                                   Container(
                                     alignment: Alignment.center,
                                     child: Column(
@@ -482,19 +499,19 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                         Text(
                                           '이수했다면 이수과목에 추가해주세요!',
                                           style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xff858585),
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                         SizedBox(height: 15,),
-                                        //이수과목 편집 버튼
+                                        //이수과목 추가 버튼
                                         Container(
                                           child: Align(
                                             alignment: Alignment.center,
                                             child: SizedBox(
-                                              height: 40,
-                                              width: 130,
+                                              height: 35,
+                                              width: 100,
                                               child: ElevatedButton(
                                                 onPressed: () {
                                                   Navigator.of(context).push(
@@ -509,16 +526,16 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                                     }),
                                                   );
                                                 },
-                                                child: const Text('이수과목 편집'),
+                                                child: const Text('이수과목 추가'),
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Color(0xff341F87),
-                                                  padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                                                  padding: EdgeInsets.fromLTRB(8, 5, 8, 5),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius: BorderRadius.circular(6.0),
                                                   ),
-                                                  minimumSize: Size(120, 35),
+                                                  minimumSize: Size(90, 30),
                                                   textStyle: TextStyle(
-                                                    fontSize: 17.0,
+                                                    fontSize: 13.0,
                                                     fontWeight: FontWeight.w500,
                                                     color: Colors.white,
                                                   ),
@@ -538,7 +555,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       );
                     },
                   ),
-                  SizedBox(height: 40,),
+                  SizedBox(height: 20,),
                 ],
               ),
             ),
@@ -597,7 +614,7 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                     ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 30,
                   ),
 
                   //캡스톤 이수여부 판단
@@ -610,14 +627,17 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            hasCompletedCapstone ? '캡스톤 디자인을 이수했습니다' : '캡스톤 디자인을 이수해야 합니다',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
+                          Center(
+                            child: Text(
+                              hasCompletedCapstone ? '캡스톤 디자인을 이수했습니다!' : '캡스톤 디자인을 이수해야 합니다',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
+                          SizedBox(height: 50,),
                           if (!hasCompletedCapstone)
                             Container(
                               alignment: Alignment.center,
@@ -626,19 +646,19 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                   Text(
                                     '이수했다면 이수과목에 추가해주세요!',
                                     style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff858585),
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   SizedBox(height: 15,),
-                                  //이수과목 편집 버튼
+                                  //이수과목 추가 버튼
                                   Container(
                                     child: Align(
                                       alignment: Alignment.center,
                                       child: SizedBox(
-                                        height: 40,
-                                        width: 130,
+                                        height: 35,
+                                        width: 100,
                                         child: ElevatedButton(
                                           onPressed: () {
                                             Navigator.of(context).push(
@@ -653,16 +673,16 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                                               }),
                                             );
                                           },
-                                          child: const Text('이수과목 편집'),
+                                          child: const Text('이수과목 추가'),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Color(0xff341F87),
-                                            padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                                            padding: EdgeInsets.fromLTRB(8, 5, 8, 5),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(6.0),
                                             ),
-                                            minimumSize: Size(120, 35),
+                                            minimumSize: Size(90, 30),
                                             textStyle: TextStyle(
-                                              fontSize: 17.0,
+                                              fontSize: 13.0,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.white,
                                             ),
@@ -678,18 +698,17 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                       );
                     },
                   ),
+                  SizedBox(height: 20,),
                 ],
               ),
             ),
-            SizedBox(
-              height: 80,
-            ),
+            SizedBox(height: 80,),
 
             //나의 이수현황 보기 버튼
             Container(
               alignment: Alignment.center,
-              height: 40,
-              width: 220,
+              height: 50,
+              width: 200,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -715,30 +734,12 @@ class _GraduationGuidePageState extends State<GraduationGuidePage> {
                     borderRadius: BorderRadius.circular(6.0),
                   ),
                   side: BorderSide(color: Color(0xff341F87), width: 2.0),
-                  minimumSize: Size(250, 60),
+                  minimumSize: Size(220, 60),
                 ),
               ),
             ),
             SizedBox(height: 150),
 
-/*
-            Container(
-              height: 80,
-              padding: EdgeInsets.fromLTRB(30, 16, 16, 16),
-              decoration: BoxDecoration(
-                border: Border(
-                    top: BorderSide(
-                      color: Color(0xff858585),
-                      width: 0.8,
-                    )),
-              ),
-              child: Row(
-                children: [
-                  SizedBox(width: 10.0,),
-                ],
-              ),
-            )
-*/
           ],
         ),
       ),

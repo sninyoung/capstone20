@@ -30,6 +30,7 @@ class _CompletedSubjectSelectPageState
   List<Subject> electiveSubjects = [];
 
   final completionProvider = CompletionProvider();
+  Future<void>? _saveFuture;
 
   @override
   void initState() {
@@ -75,27 +76,10 @@ class _CompletedSubjectSelectPageState
     _electiveSelections = completionProvider.completedElective;
   }
 
-  void onConfirmCompulsory(List<Subject> selectedSubjects) {
-    // MultiSelectBottomSheetField의 onConfirm에서 updateCompulsory 호출
-    completionProvider.updateCompulsory(selectedSubjects);
-    _compulsorySelections = selectedSubjects;
-  }
-
-  void onConfirmElective(List<Subject> selectedSubjects) {
-    // MultiSelectBottomSheetField의 onConfirm에서 updateElective 호출
-    completionProvider.updateElective(selectedSubjects);
-    _electiveSelections = selectedSubjects;
-  }
-
-  void onSave() async {
-    // 저장 버튼을 누르면 SecureStorage와 서버에 동일한 과목 리스트를 저장합니다.
-    await completionProvider.saveSubjects();
-    await completionProvider.addCompletedSubjects();
-  }
   //모든 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-        await http.get(Uri.parse('http://localhost:443/subject/'));
+    await http.get(Uri.parse('http://localhost:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -105,13 +89,13 @@ class _CompletedSubjectSelectPageState
       _compulsoryItems = _subjects
           .where((subject) => subject.subjectDivision == 1)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       _electiveItems = _subjects
           .where((subject) => subject.subjectDivision == 2)
           .map((subject) =>
-              MultiSelectItem<Subject>(subject, subject.subjectName))
+          MultiSelectItem<Subject>(subject, subject.subjectName))
           .toList();
 
       setState(() {});
@@ -123,7 +107,8 @@ class _CompletedSubjectSelectPageState
   @override
   Widget build(BuildContext context) {
     var completionProvider =
-        Provider.of<CompletionProvider>(context, listen: false);
+    Provider.of<CompletionProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
@@ -140,129 +125,108 @@ class _CompletedSubjectSelectPageState
         elevation: 0.0,
       ),
       drawer: MyDrawer(),
-      body: SingleChildScrollView(
-        child: Container(
-          alignment: Alignment.center,
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              SizedBox(height: 20),
-              //이수한 과목을 선택하세요 문구
-              Container(
-                child: const Text(
-                  '이수한 과목을 선택하세요!',
-                  style: TextStyle(
-                    fontSize: 22.0,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              SizedBox(height: 30),
-
-              //과목에 대한 공지사항
-/*              Container(
-                padding: EdgeInsets.all(10.0),
-                margin: EdgeInsets.all(15.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xfff5f5f5),
-                  border: Border.all(
-                    color: const Color(0xff858585),
-                    width: 2.0,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '※ 공지사항',
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          SingleChildScrollView(
+            child: Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  //이수한 과목을 선택하세요 문구
+                  Container(
+                    child: const Text(
+                      '이수한 과목을 선택하세요!',
                       style: TextStyle(
-                        color: Color(0xff565656),
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 22.0,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 10,),
-                    Text(
-                      '19~22학번 학생은 컴퓨터개론을 선택하면 전공기초과목에 포함되지만 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
-                      style: TextStyle(
-                        color: Color(0xff858585),
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500,
+                  ),
+                  SizedBox(height: 50),
+
+                  //전공과목 선택 Field
+                  Column(
+                    children: [
+                      //전공기초과목 field
+                      CompulsoryMultiSelect(
+                        compulsoryItems: _compulsoryItems,  // _compulsoryItems should be a List<MultiSelectItem<Subject>>
                       ),
-                    )
-                  ],
-                ),
-              )*/
-              SizedBox(height: 30,),
+                      SizedBox(height: 20),
 
-              Text(
-                '버튼을 클릭한 후 나타나는 하단 선택창에서 과목을 선택 & 선택해제 하셔야 수정사항이 정확하게 반영됩니다.',
-                style: TextStyle(
-                  color: Color(0xff858585),
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 10,),
-
-              //전공과목 선택 Field
-              Column(
-                children: [
-                  //전공기초과목 field
-                  CompulsoryMultiSelect(
-                    compulsoryItems: _compulsoryItems,  // _compulsoryItems should be a List<MultiSelectItem<Subject>>
+                      //전공선택과목 field
+                      ElectiveMultiSelect(
+                        electiveItems: _electiveItems,  // _electiveItems should be a List<MultiSelectItem<Subject>>
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 80),
 
-                  //전공선택과목 field
-                  ElectiveMultiSelect(
-                    electiveItems: _electiveItems,  // _electiveItems should be a List<MultiSelectItem<Subject>>
+                  //저장버튼
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _saveFuture = _saveData(completionProvider);
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      textStyle: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xffffffff),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      backgroundColor: const Color(0xff341F87),
+                      minimumSize: Size(100, 50),
+                    ),
+                    child: Text('저장'),
                   ),
+
+                  SizedBox(height: 100.0),
                 ],
               ),
-              SizedBox(height: 80),
-
-              //저장버튼
-              ElevatedButton(
-                onPressed: () async {
-                  // 선택한 과목들과 기존 과목들을 비교하고 필요한 변경사항을 적용합니다.
-                  await Provider.of<CompletionProvider>(context, listen: false).confirmSelections(
-                    _compulsorySelections,
-                    _electiveSelections,
-                  );
-                  // 선택한 모든 과목을 로컬에 저장
-                  await completionProvider.saveSubjects();
-                  // 다음 페이지로 이동합니다.
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CompletionStatusPage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  textStyle: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xffffffff),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.0),
-                  ),
-                  backgroundColor: const Color(0xff341F87),
-                  minimumSize: Size(100, 50),
-                ),
-                child: Text('저장'),
-              ),
-
-              SizedBox(height: 100.0),
-            ],
+            ),
           ),
-        ),
+          FutureBuilder(
+            future: _saveFuture,
+            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(child: Text("저장중..", style: TextStyle(fontSize: 16, color: Colors.white))),
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            },
+          ),
+        ],
       ),
     );
   }
+
+  Future<void> _saveData(CompletionProvider completionProvider) async {
+    await Provider.of<CompletionProvider>(context, listen: false).confirmSelections(
+      _compulsorySelections,
+      _electiveSelections,
+    );
+
+    //await completionProvider.deleteCompletedSubjects();
+    await completionProvider.saveSubjects();
+    await Future.delayed(const Duration(seconds: 1)); // 지연 시간 추가
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CompletionStatusPage(),
+      ),
+    );
+  }
+
 }
 
 
@@ -449,3 +413,39 @@ class _ElectiveMultiSelectState extends State<ElectiveMultiSelect> {
 }
 
 
+
+//과목에 대한 공지사항
+/*              Container(
+                padding: EdgeInsets.all(10.0),
+                margin: EdgeInsets.all(15.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xfff5f5f5),
+                  border: Border.all(
+                    color: const Color(0xff858585),
+                    width: 2.0,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '※ 공지사항',
+                      style: TextStyle(
+                        color: Color(0xff565656),
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    Text(
+                      '19~22학번 학생은 컴퓨터개론을 선택하면 전공기초과목에 포함되지만 전공선택과목을 이수한 것으로 인정되어 전공학점에 포함됩니다.',
+                      style: TextStyle(
+                        color: Color(0xff858585),
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    )
+                  ],
+                ),
+              )*/
