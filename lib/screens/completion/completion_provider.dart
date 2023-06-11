@@ -96,14 +96,13 @@ class CompletionProvider extends ChangeNotifier {
         _completedCompulsory.add(subject);
         print('로컬에 과목 추가 성공');
         notifyListeners();
-        await addCompletedSubjects();
       }
     } else if (subject.subjectDivision == 2) {
       if (!_completedElective.any((element) => element.subjectId == subject.subjectId)) {
         _completedElective.add(subject);
         print('로컬에 과목 추가 성공');
         notifyListeners();
-        await addCompletedSubjects();
+        //await addCompletedSubjects();
       }
     }
   }
@@ -127,15 +126,15 @@ class CompletionProvider extends ChangeNotifier {
       _completedElective.remove(subject);
     }
 
-   /* // 서버에서 해당 과목 삭제
-    final url = Uri.parse('http://localhost:443/user/required/delete');
+    // 서버에서 해당 과목 삭제
+    final url = Uri.parse('http://203.247.42.144:443/user/required/delete');
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {
       print('Subject deleted from server');
     } else {
       print('Failed to delete subject from server');
-    }*/
+    }
 
   }
 
@@ -147,6 +146,11 @@ class CompletionProvider extends ChangeNotifier {
       _completedElective.remove(subject);
     }
     */
+  /*if (subject.subjectDivision == 1) {
+      _completedCompulsory.remove(subject);
+    } else if (subject.subjectDivision == 2) {
+      _completedElective.remove(subject);
+    }*/
 
 
   // SecureStorage에 이수한 과목을 저장하는 메서드
@@ -199,10 +203,10 @@ class CompletionProvider extends ChangeNotifier {
   }
 
 
-   //서버에서 최신 데이터를 가져와 로컬 저장소를 업데이트 하는 메서드
+/*   //서버에서 최신 데이터를 가져와 로컬 저장소를 업데이트 하는 메서드
   Future<void> fetchCompletedSubjects(int studentId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:443/user/required?student_id=$studentId'),
+      Uri.parse('http://localhost:443/user/required/subject?student_id=$studentId'),
     );
 
     if (response.statusCode == 200) {
@@ -216,10 +220,39 @@ class CompletionProvider extends ChangeNotifier {
     } else {
       throw Exception('이수한 과목을 불러오는데 실패하였습니다.');
     }
+  }*/
+  /* Future<void> fetchCompletedSubjects(int studentId, CompletionProvider completionProvider) async {
+    // 서버에서 이수 과목 정보를 가져옵니다.
+    final response = await http.get(
+      Uri.parse('http://localhost:443/user/required/subject?student_id=$studentId'),
+    );
+
+    if (response.statusCode == 200) {
+      // 응답이 성공적이면, 데이터를 파싱합니다.
+      List<CompletedSubject> completedSubjects = (json.decode(response.body) as List)
+          .map((i) => CompletedSubject.fromJson(i))
+          .toList();
+
+      // 이수한 과목의 자세한 정보를 가져옵니다.
+      for (CompletedSubject subject in completedSubjects) {
+        final detailResponse = await http.get(
+          Uri.parse('http://localhost:443/user/required/subject?subject_id=${subject.subjectId}'),
+        );
+
+        if (detailResponse.statusCode == 200) {
+          // 과목 상세 정보를 파싱하고 저장합니다.
+          Subject subjectDetail = Subject.fromJson(json.decode(detailResponse.body));
+          completionProvider.addSubject(subjectDetail);
+        } else {
+          throw Exception('과목 상세 정보를 불러오는데 실패하였습니다.');
+        }
+      }
+    } else {
+      throw Exception('이수한 과목을 불러오는데 실패하였습니다.');
+    }
   }
-
-
- /* Future<void> fetchCompletedSubjects(String studentId) async {
+*/
+  Future<void> fetchCompletedSubjects(String studentId) async {
     final Uri completedSubjectsUrl =
     Uri.parse('http://localhost:443/user/required?student_id=$studentId');
     final http.Response completedSubjectsResponse =
@@ -262,7 +295,7 @@ class CompletionProvider extends ChangeNotifier {
           'Failed to load completed subjects: ${completedSubjectsResponse.statusCode}');
     }
   }
-*/
+
   //서버에 이수과목을 추가하는 메서드(배열방식으로)
   Future<void> addCompletedSubjects() async {
     final url = Uri.parse('http://localhost:443/user/required/add');
@@ -381,12 +414,10 @@ class CompletionProvider extends ChangeNotifier {
     _prevElectiveSelections = List.from(electiveSelections);
 
 // 서버에 변경사항을 반영합니다
-    final studentId = await getStudentIdFromToken();
-    await deleteCompletedSubjects(); // 먼저 삭제를 수행합니다
-    await addCompletedSubjects(); // 그 다음에 추가를 수행합니다
-    await fetchCompletedSubjects(studentId as int);
-  }
+    //await deleteCompletedSubjects(); // 먼저 삭제를 수행합니다
+    //await addCompletedSubjects(); // 그 다음에 추가를 수행합니다
 
+  }
 /*  Future<void> confirmSelections(
       List<Subject> compulsorySelections,
       List<Subject> electiveSelections,
@@ -579,9 +610,12 @@ class CompletionProvider extends ChangeNotifier {
         "부전공": {},
       },
       "2023년도 이후": {
-        "주전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
-        "다전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
-        "부전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "1 :CS": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "2 :MD": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "3 :TR": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "4 :부전공(컴공과)": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "4 :부전공(타학과)": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
+        "5 :다전공": {"프로그래밍실습", "이산구조", "컴퓨터개론", "확률 및 통계", "파이썬프로그래밍"},
       },
     };
 

@@ -60,7 +60,7 @@ class _CompletedSubjectSelectPageState
     int studentId = int.parse(studentIdString);
     // 서버에서 최신 데이터를 가져와 SecureStorage를 업데이트하고
     // SecureStorage에 있는 데이터를 불러옵니다.
-    await completionProvider.fetchCompletedSubjects(studentId);
+    //await completionProvider.fetchCompletedSubjects(studentId);
     await completionProvider.loadSubjects();
 
     // MultiSelectBottomSheetField용 항목을 생성합니다.
@@ -79,7 +79,7 @@ class _CompletedSubjectSelectPageState
   //모든 과목정보 불러오기
   Future<void> fetchSubjects() async {
     final response =
-    await http.get(Uri.parse('http://localhost:443/subject/'));
+    await http.get(Uri.parse('http://203.247.42.144:443/subject/'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -158,7 +158,7 @@ class _CompletedSubjectSelectPageState
 
                       //전공선택과목 field
                       ElectiveMultiSelect(
-                        electiveItems: _electiveItems,  // _electiveItems should be a List<MultiSelectItem<Subject>>
+                        electiveItems: _electiveItems, // _electiveItems should be a List<MultiSelectItem<Subject>>
                       ),
                     ],
                   ),
@@ -173,15 +173,15 @@ class _CompletedSubjectSelectPageState
                     },
                     style: ElevatedButton.styleFrom(
                       textStyle: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xffffffff),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6.0),
                       ),
                       backgroundColor: const Color(0xff341F87),
-                      minimumSize: Size(100, 50),
+                      minimumSize: Size(100, 40),
                     ),
                     child: Text('저장'),
                   ),
@@ -216,9 +216,9 @@ class _CompletedSubjectSelectPageState
     );
 
     //await completionProvider.deleteCompletedSubjects();
-    await completionProvider.saveSubjects();
-    await Future.delayed(const Duration(seconds: 1)); // 지연 시간 추가
 
+    await Future.delayed(const Duration(seconds: 1)); // 지연 시간 추가
+    await completionProvider.saveSubjects();
     Navigator.push(
       context,
       MaterialPageRoute(
